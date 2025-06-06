@@ -1,17 +1,24 @@
 "use client";
+import ALink from "@/components/Link";
 import Link from "next/link";
+import { SelectedPage } from "@/lib/types";
 import { Logo } from "@/components/logo";
 import { Menu, X } from "lucide-react";
 import React from "react";
 import { ModeToggle } from "./mode-toggle";
 
 const menuItems = [
+  { name: "Feature", href: "#link" },
   { name: "Solution", href: "#link" },
-  { name: "Pricing", href: "#link" },
   { name: "About", href: "#link" },
 ];
 
-export const HeroHeader = () => {
+type Props = {
+    selectedPage: SelectedPage;
+    setSelectedPage: (value: SelectedPage) => void;
+}
+
+export const HeroHeader = ({selectedPage, setSelectedPage}: Props) => {
   const [menuState, setMenuState] = React.useState(false);
   return (
     <header>
@@ -39,12 +46,12 @@ export const HeroHeader = () => {
                 <ul className="flex gap-8 text-sm">
                   {menuItems.map((item, index) => (
                     <li key={index}>
-                      <Link
-                        href={item.href}
+                      <ALink
+                        page={item.name}
+                        selectedPage={selectedPage}
+                        setSelectedPage={setSelectedPage}
                         className="text-muted-foreground hover:text-accent-foreground block duration-150"
-                      >
-                        <span>{item.name}</span>
-                      </Link>
+                      />
                     </li>
                   ))}
                 </ul>
