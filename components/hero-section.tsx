@@ -44,7 +44,7 @@ export default function HeroSection() {
               </div>
 
               <Image
-                className="-z-10 order-first ml-auto h-56 w-full object-cover sm:h-96 lg:absolute lg:inset-0 lg:-right-20 lg:-top-96 lg:order-last lg:h-max lg:w-2/3 lg:object-contain"
+                className="-z-10 order-first ml-auto h-56 w-full object-contain sm:h-96 lg:absolute lg:inset-0 lg:-right-20 lg:-top-96 lg:order-last lg:h-max lg:w-2/3 lg:object-contain"
                 src="InvestoBar.svg"
                 alt="Abstract Object"
                 height="4000"
@@ -60,7 +60,7 @@ export default function HeroSection() {
                 <p className="text-start text-sm">
                   Brought to you by
                   <img
-                    className="mx-auto mt-2 h-fit w-fit"
+                    className="mx-auto mt-2 w-full max-w-[150px] h-auto max-h-[100px] object-contain sm:max-w-[200px] sm:max-h-[150px]"
                     src="Logo_TopDrinks.png"
                     alt="Top Drinks"
                   /> {/* eslint-disable-next-line @next/next/no-img-element */}
