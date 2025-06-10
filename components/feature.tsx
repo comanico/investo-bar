@@ -24,7 +24,7 @@ export default function Features({ setSelectedPage }: Props) {
             <Card className="group border-0 shadow-none">
               <CardHeader className="pb-3">
                 <CardDecorator>
-                  <Settings2 className="size-6" aria-hidden />
+                  <Settings2 color="#5dc23b" className="size-6" aria-hidden />
                 </CardDecorator>
 
                 <h3 className="mt-6 font-medium">Network</h3>
@@ -41,7 +41,7 @@ export default function Features({ setSelectedPage }: Props) {
             <Card className="group border-0 shadow-none">
               <CardHeader className="pb-3">
                 <CardDecorator>
-                  <Zap className="size-6" aria-hidden />
+                  <Zap color="#5dc23b" className="size-6" aria-hidden />
                 </CardDecorator>
 
                 <h3 className="mt-6 font-medium">Learn</h3>
@@ -58,7 +58,7 @@ export default function Features({ setSelectedPage }: Props) {
             <Card className="group border-0 shadow-none">
               <CardHeader className="pb-3">
                 <CardDecorator>
-                  <Sparkles className="size-6" aria-hidden />
+                  <Sparkles color="#5dc23b" className="size-6" aria-hidden />
                 </CardDecorator>
 
                 <h3 className="mt-6 font-medium">Have Fun</h3>

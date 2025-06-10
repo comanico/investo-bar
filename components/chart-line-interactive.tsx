@@ -20,59 +20,251 @@ import {
 export const description = "An interactive line chart";
 
 const chartData = [
-  { time: "18:00", heineken: 222, aperol: 150 },
-  { time: "18:05", heineken: 97, aperol: 180 },
-  { time: "18:10", heineken: 167, aperol: 120 },
-  { time: "18:15", heineken: 242, aperol: 260 },
-  { time: "18:20", heineken: 373, aperol: 290 },
-  { time: "18:25", heineken: 301, aperol: 340 },
-  { time: "18:30", heineken: 245, aperol: 180 },
-  { time: "18:35", heineken: 409, aperol: 320 },
-  { time: "18:40", heineken: 59, aperol: 110 },
-  { time: "18:45", heineken: 261, aperol: 190 },
-  { time: "18:50", heineken: 327, aperol: 350 },
-  { time: "18:55", heineken: 292, aperol: 210 },
-  { time: "19:00", heineken: 342, aperol: 380 },
-  { time: "19:05", heineken: 137, aperol: 220 },
-  { time: "19:10", heineken: 120, aperol: 170 },
-  { time: "19:15", heineken: 138, aperol: 190 },
-  { time: "19:20", heineken: 446, aperol: 360 },
-  { time: "19:25", heineken: 364, aperol: 410 },
-  { time: "19:30", heineken: 243, aperol: 180 },
-  { time: "19:35", heineken: 89, aperol: 150 },
-  { time: "19:40", heineken: 137, aperol: 200 },
-  { time: "19:45", heineken: 224, aperol: 170 },
-  { time: "19:50", heineken: 138, aperol: 230 },
-  { time: "19:55", heineken: 387, aperol: 290 },
-  { time: "20:00", heineken: 215, aperol: 250 },
-  { time: "20:05", heineken: 75, aperol: 130 },
-  { time: "20:10", heineken: 383, aperol: 420 },
-  { time: "20:15", heineken: 122, aperol: 180 },
-  { time: "20:20", heineken: 315, aperol: 240 },
-  { time: "20:25", heineken: 454, aperol: 380 },
-  { time: "20:30", heineken: 165, aperol: 220 },
-  { time: "20:35", heineken: 293, aperol: 310 },
-  { time: "20:40", heineken: 247, aperol: 190 },
-  { time: "20:45", heineken: 385, aperol: 420 },
-  { time: "20:50", heineken: 481, aperol: 390 },
-  { time: "20:55", heineken: 498, aperol: 520 },
-  { time: "21:00", heineken: 388, aperol: 300 },
-  { time: "21:05", heineken: 149, aperol: 210 },
-  { time: "21:10", heineken: 227, aperol: 180 },
-  { time: "21:15", heineken: 293, aperol: 330 },
-  { time: "21:20", heineken: 335, aperol: 270 },
-  { time: "21:25", heineken: 197, aperol: 240 },
-  { time: "21:30", heineken: 197, aperol: 160 },
-  { time: "21:35", heineken: 448, aperol: 490 },
-  { time: "21:40", heineken: 473, aperol: 380 },
-  { time: "21:45", heineken: 338, aperol: 400 },
-  { time: "21:50", heineken: 499, aperol: 420 },
-  { time: "21:55", heineken: 315, aperol: 350 },
+  {
+    time: "18:00",
+    heineken: 6.62,
+    aperol: 6.89,
+  },
+  {
+    time: "18:05",
+    heineken: 7.51,
+    aperol: 6.25,
+  },
+  {
+    time: "18:10",
+    heineken: 7.89,
+    aperol: 6.25,
+  },
+  {
+    time: "18:15",
+    heineken: 8.53,
+    aperol: 6.25,
+  },
+  {
+    time: "18:20",
+    heineken: 9.49,
+    aperol: 6.25,
+  },
+  {
+    time: "18:25",
+    heineken: 8.97,
+    aperol: 6.6,
+  },
+  {
+    time: "18:30",
+    heineken: 6.3,
+    aperol: 7.25,
+  },
+  {
+    time: "18:35",
+    heineken: 6.62,
+    aperol: 6.89,
+  },
+  {
+    time: "18:40",
+    heineken: 6.67,
+    aperol: 6.84,
+  },
+  {
+    time: "18:45",
+    heineken: 6.67,
+    aperol: 6.84,
+  },
+  {
+    time: "18:50",
+    heineken: 6.84,
+    aperol: 6.67,
+  },
+  {
+    time: "18:55",
+    heineken: 6.11,
+    aperol: 7.38,
+  },
+  {
+    time: "19:00",
+    heineken: 5.32,
+    aperol: 8.34,
+  },
+  {
+    time: "19:05",
+    heineken: 5.98,
+    aperol: 7.3,
+  },
+  {
+    time: "19:10",
+    heineken: 5.72,
+    aperol: 7.61,
+  },
+  {
+    time: "19:15",
+    heineken: 5.3,
+    aperol: 8.56,
+  },
+  {
+    time: "19:20",
+    heineken: 5.3,
+    aperol: 9.84,
+  },
+  {
+    time: "19:25",
+    heineken: 5.38,
+    aperol: 9.69,
+  },
+  {
+    time: "19:30",
+    heineken: 5.31,
+    aperol: 9.81,
+  },
+  {
+    time: "19:35",
+    heineken: 5.85,
+    aperol: 8.8,
+  },
+  {
+    time: "19:40",
+    heineken: 5.69,
+    aperol: 9.04,
+  },
+  {
+    time: "19:45",
+    heineken: 5.72,
+    aperol: 8.99,
+  },
+  {
+    time: "19:50",
+    heineken: 5.72,
+    aperol: 8.99,
+  },
+  {
+    time: "19:55",
+    heineken: 6.01,
+    aperol: 8.54,
+  },
+  {
+    time: "20:00",
+    heineken: 6.16,
+    aperol: 8.33,
+  },
+  {
+    time: "20:05",
+    heineken: 6.43,
+    aperol: 7.96,
+  },
+  {
+    time: "20:10",
+    heineken: 6.69,
+    aperol: 7.64,
+  },
+  {
+    time: "20:15",
+    heineken: 6.09,
+    aperol: 8.33,
+  },
+  {
+    time: "20:20",
+    heineken: 5.61,
+    aperol: 8.99,
+  },
+  {
+    time: "20:25",
+    heineken: 5.98,
+    aperol: 8.4,
+  },
+  {
+    time: "20:30",
+    heineken: 6.16,
+    aperol: 8.15,
+  },
+  {
+    time: "20:35",
+    heineken: 5.98,
+    aperol: 8.39,
+  },
+  {
+    time: "20:40",
+    heineken: 6.62,
+    aperol: 7.49,
+  },
+  {
+    time: "20:45",
+    heineken: 6.72,
+    aperol: 7.38,
+  },
+  {
+    time: "20:50",
+    heineken: 6.58,
+    aperol: 7.54,
+  },
+  {
+    time: "20:55",
+    heineken: 6.88,
+    aperol: 7.2,
+  },
+  {
+    time: "21:00",
+    heineken: 7.2,
+    aperol: 6.87,
+  },
+  {
+    time: "21:05",
+    heineken: 7.2,
+    aperol: 6.87,
+  },
+  {
+    time: "21:10",
+    heineken: 6.3,
+    aperol: 7.73,
+  },
+  {
+    time: "21:15",
+    heineken: 6.55,
+    aperol: 7.42,
+  },
+  {
+    time: "21:20",
+    heineken: 6.67,
+    aperol: 7.29,
+  },
+  {
+    time: "21:25",
+    heineken: 6.34,
+    aperol: 7.65,
+  },
+  {
+    time: "21:30",
+    heineken: 6.49,
+    aperol: 7.47,
+  },
+  {
+    time: "21:35",
+    heineken: 6.23,
+    aperol: 7.76,
+  },
+  {
+    time: "21:40",
+    heineken: 6.23,
+    aperol: 7.76,
+  },
+  {
+    time: "21:45",
+    heineken: 5.56,
+    aperol: 8.59,
+  },
+  {
+    time: "21:50",
+    heineken: 6.39,
+    aperol: 7.3,
+  },
+  {
+    time: "21:55",
+    heineken: 6.71,
+    aperol: 6.94,
+  },
 ];
 
 const chartConfig = {
   views: {
-    label: "Page Views",
+    label: "Units Sold",
   },
   heineken: {
     label: "Heineken Units Sold",
@@ -90,8 +282,11 @@ export function ChartLineInteractive() {
 
   const total = React.useMemo(
     () => ({
-      heineken: chartData.reduce((acc, curr) => acc + curr.heineken, 0),
-      aperol: chartData.reduce((acc, curr) => acc + curr.aperol, 0),
+      heineken: chartData.reduce(
+        (acc, curr) => acc + (curr.heineken ? 1 : 0),
+        0
+      ),
+      aperol: chartData.reduce((acc, curr) => acc + (curr.aperol ? 1 : 0), 0),
     }),
     []
   );
