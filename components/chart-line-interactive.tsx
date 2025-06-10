@@ -264,7 +264,7 @@ const chartData = [
 
 const chartConfig = {
   views: {
-    label: "Units Sold",
+    label: "Price",
   },
   heineken: {
     label: "Heineken Units Sold",
