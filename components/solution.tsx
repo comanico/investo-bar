@@ -46,7 +46,7 @@ export default function ContentSection({ setSelectedPage }: Props) {
                     <h3 className="text-sm font-medium">Network</h3>
                   </div>
                   <p className="text-muted-foreground text-sm">
-                    An event where you don't just have fun, but meet with professionals and exchange ideas.{" "}
+                    An event where you don&apos;t just have fun, but meet with professionals and exchange ideas.{" "}
                     <span className="text-accent-foreground font-bold">
                       Investo Bar is a place to start ideas and grow industries.
                     </span>
