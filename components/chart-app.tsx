@@ -94,6 +94,7 @@ const chartConfig = {
 export function ChartApp() {
   const [chartData, setChartData] =
     React.useState<ChartDataPoint[]>(initialChartData);
+  const finalChartData = React.useRef(chartData);
   const [error, setError] = React.useState<string | null>(null);
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("heineken");
@@ -117,21 +118,20 @@ export function ChartApp() {
       const response = await axios.get<ChartDataPoint[]>(DATA_URL, {
         timeout: 5000,
       });
-      console.log("Response status:", response.status);
-      console.log("Response data:", response.data);
       if (!response) {
         throw new Error(`HTTP error! status: ${response}`);
       }
       const data: ChartDataPoint[] = await response.data;
       console.log("Fetched chart data:", data);
+      console.log("Current chart data:", chartData);
 
       // Update chartData and reset timer if fetched data has more entries
       if (data.length > chartData.length) {
-        console.log("New data length is greater than current data length");
+        finalChartData.current = data;
         setChartData(data);
+        console.log("Updated chart data:", finalChartData.current);
         setTime(900); // Reset timer to 15:00
       }
-      setChartData(chartData);
       setError(null);
     } catch (err) {
       setError("Failed to fetch chart data");
@@ -159,11 +159,10 @@ export function ChartApp() {
 
   // Fetch data initially and every 10 seconds
   React.useEffect(() => {
-    setChartData(chartData); // Initialize with static data
     fetchChartData(); // Initial fetch
     const interval = setInterval(fetchChartData, 10000); // Poll every 10 seconds
     return () => clearInterval(interval); // Cleanup on unmount
-  }, []);
+  }, [chartData]);
 
   const total = React.useMemo(
     () => ({
