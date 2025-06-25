@@ -1,0 +1,26 @@
+[
+  {
+    "time": "06:46",
+    "heineken": 7.5,
+    "corona": 9,
+    "aperol_spritz": 8,
+    "vin_spumant": 6,
+    "vin_alb": 8,
+    "prosecco": 7.5,
+    "apa_plata": 5.5,
+    "apa_minerala": 4.5,
+    "cola": 5.5
+  },
+  {
+    "time": "06:46",
+    "heineken": 8,
+    "corona": 11.5,
+    "aperol_spritz": 8.5,
+    "vin_spumant": 6,
+    "vin_alb": 8,
+    "prosecco": 7,
+    "apa_plata": 5,
+    "apa_minerala": 4,
+    "cola": 5.5
+  }
+]

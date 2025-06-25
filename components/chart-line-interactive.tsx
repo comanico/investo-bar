@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -267,11 +267,11 @@ const chartConfig = {
     label: "Price",
   },
   heineken: {
-    label: "Heineken Units Sold",
+    label: "Heineken Price",
     color: "var(--chart-1)",
   },
   aperol: {
-    label: "Aperol Units Sold",
+    label: "Aperol Price",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
@@ -282,11 +282,9 @@ export function ChartLineInteractive() {
 
   const total = React.useMemo(
     () => ({
-      heineken: chartData.reduce(
-        (acc, curr) => acc + (curr.heineken ? 1 : 0),
-        0
-      ),
-      aperol: chartData.reduce((acc, curr) => acc + (curr.aperol ? 1 : 0), 0),
+      heineken:
+        chartData.length > 0 ? chartData[chartData.length - 1].heineken : 0,
+      aperol: chartData.length > 0 ? chartData[chartData.length - 1].aperol : 0,
     }),
     []
   );
@@ -297,9 +295,7 @@ export function ChartLineInteractive() {
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
           {" "}
           <CardTitle>Inventory Price Updates</CardTitle>
-          <CardDescription>
-            Showing Price Fluctuations from Market Open (18:00) to Market Close.
-          </CardDescription>
+          <CardDescription>Showing Price Fluctuations</CardDescription>
         </div>
         <div className="flex">
           {["heineken", "aperol"].map((key) => {
@@ -343,6 +339,12 @@ export function ChartLineInteractive() {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => value}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              tickFormatter={(value) => value.toFixed(2)}
             />
             <ChartTooltip
               content={

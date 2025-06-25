@@ -13,10 +13,12 @@ export default function CommunitySection({ setSelectedPage }: Props) {
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center">
             <h2 className="text-3xl font-semibold">
-              A entrepreneur, lawyer, economist and engineer wanting to better it&apos;s community.
+              A entrepreneur, lawyer, economist and engineer wanting to better
+              it&apos;s community.
             </h2>
             <p className="mt-6">
-              By getting together, having a good time while understanding the markets.
+              By getting together, having a good time while understanding the
+              markets.
             </p>
           </div>
           <div className="mx-auto mt-12 flex max-w-lg flex-wrap justify-center gap-3">
