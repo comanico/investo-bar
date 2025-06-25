@@ -23,7 +23,7 @@ export default function CommunitySection({ setSelectedPage }: Props) {
             <Link
               href="/"
               target="_blank"
-              title="Méschac Irung"
+              title="Raul Zorger"
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
             >
               <img
@@ -37,7 +37,7 @@ export default function CommunitySection({ setSelectedPage }: Props) {
             <Link
               href="/"
               target="_blank"
-              title="Méschac Irung"
+              title="Sebastian Gabriel Nagy"
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
             >
               <img
@@ -51,7 +51,7 @@ export default function CommunitySection({ setSelectedPage }: Props) {
             <Link
               href="/"
               target="_blank"
-              title="Méschac Irung"
+              title="Bolos Paul Catalin"
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
             >
               <img
@@ -65,7 +65,7 @@ export default function CommunitySection({ setSelectedPage }: Props) {
             <Link
               href="/"
               target="_blank"
-              title="Méschac Irung"
+              title="Comaniciu Alexandru-Nicolae"
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
             >
               <img
