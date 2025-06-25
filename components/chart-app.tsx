@@ -128,7 +128,7 @@ export function ChartApp() {
       // Update chartData and reset timer if fetched data has more entries
       if (data.length > chartData.length) {
         console.log("New data length is greater than current data length");
-        chartData = data;
+        setChartData(data);
         setTime(900); // Reset timer to 15:00
       }
       setChartData(chartData);
