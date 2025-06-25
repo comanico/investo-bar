@@ -122,14 +122,11 @@ export function ChartApp() {
         throw new Error(`HTTP error! status: ${response}`);
       }
       const data: ChartDataPoint[] = await response.data;
-      console.log("Fetched chart data:", data);
-      console.log("Current chart data:", chartData);
 
       // Update chartData and reset timer if fetched data has more entries
       if (data.length > chartData.length) {
         finalChartData.current = data;
         setChartData(data);
-        console.log("Updated chart data:", finalChartData.current);
         setTime(900); // Reset timer to 15:00
       }
       setError(null);
