@@ -7,7 +7,7 @@ interface Props {
 
 const Timer: React.FC<Props> = ({ minutes, seconds }) => {
   return (
-    <span className="text-lg leading-none font-bold sm:text-2xl">
+    <span key={`${minutes}:${seconds}`} className="text-lg leading-none font-bold sm:text-2xl animate-[timerFade_0.8s_ease-in-out]">
       {`${minutes}:${seconds < 10 ? "0" + seconds : seconds}`}
     </span>
   );
