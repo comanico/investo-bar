@@ -18,7 +18,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import Timer from "./timer";
-import { TextLoop } from "./motion-primitives/text-loop";
 
 export const description = "An interactive line chart";
 
@@ -33,11 +32,6 @@ interface ChartDataPoint {
   apa_plata: number;
   apa_minerala: number;
   cola: number;
-}
-
-interface ApiResponse {
-  data: ChartDataPoint[];
-  lastUpdated: number; // Unix timestamp in milliseconds
 }
 
 const initialChartData = [
@@ -104,15 +98,15 @@ export function ChartApp() {
   const [error, setError] = React.useState<string | null>(null);
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("heineken");
-  const [time, setTime] = React.useState<number>(900); // Countdown time in seconds
   const [minutes, setMinutes] = React.useState<number>(15);
   const [seconds, setSeconds] = React.useState<number>(0);
   const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
 
- // Calculate the next target time (00, 15, 30, or 45 minutes)
+  // Calculate the next target time (00, 15, 30, or 45 minutes)
   const getNextTargetTime = (now: Date = new Date()) => {
     const currentMinutes = now.getMinutes();
     let targetMinutes = Math.ceil(currentMinutes / 15) * 15;
+    // eslint-disable-next-line prefer-const
     let target = new Date(now);
     target.setMinutes(targetMinutes, 0, 0); // Set to next 15-minute mark
     if (targetMinutes >= 60) {
@@ -148,12 +142,23 @@ export function ChartApp() {
       if (difference <= 0) {
         // Reached target, set new target
         target = getNextTargetTime();
-        console.log("Timer reached 0, setting new target:", target.toLocaleTimeString());
+        console.log(
+          "Timer reached 0, setting new target:",
+          target.toLocaleTimeString()
+        );
       }
 
-      const m = Math.max(0, Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)));
+      const m = Math.max(
+        0,
+        Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+      );
       const s = Math.max(0, Math.floor((difference % (1000 * 60)) / 1000));
-      console.log("Timer tick:", { minutes: m, seconds: s, difference, target: target.toLocaleTimeString() });
+      console.log("Timer tick:", {
+        minutes: m,
+        seconds: s,
+        difference,
+        target: target.toLocaleTimeString(),
+      });
       setMinutes(m);
       setSeconds(s);
     }, 1000);
@@ -161,7 +166,7 @@ export function ChartApp() {
     return () => clearInterval(interval);
   }, []);
 
-// Fetch data from JSON file
+  // Fetch data from JSON file
   const fetchChartData = async () => {
     try {
       const response = await axios.get<ChartDataPoint[]>(DATA_URL, {
@@ -243,7 +248,7 @@ export function ChartApp() {
     [chartData]
   );
 
-    // Get initial prices for comparison
+  // Get initial prices for comparison
   const initialPrices = React.useMemo(() => {
     const initial = initialChartData[0];
     return {
@@ -319,9 +324,7 @@ export function ChartApp() {
                   )} data-[active=true]:bg-gray-100 data-[active=true]:text-black`}
                   onClick={() => setActiveChart(chart)}
                 >
-                  <span className="text-xs">
-                    {chartConfig[chart].label}
-                  </span>
+                  <span className="text-xs">{chartConfig[chart].label}</span>
                   <span className="text-lg leading-none font-bold sm:text-xl">
                     {total[chart].toLocaleString()}
                   </span>
