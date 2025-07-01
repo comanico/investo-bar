@@ -18,6 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import Timer from "./timer";
+import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
 export const description = "An interactive line chart";
 
@@ -302,36 +303,39 @@ export function ChartApp() {
               <Timer minutes={minutes} seconds={seconds} />
             </span>
           </div>
-          <div className="flex">
-            {[
-              "heineken",
-              "corona",
-              "aperol_spritz",
-              "vin_spumant",
-              "vin_alb",
-              "prosecco",
-              "apa_plata",
-              "apa_minerala",
-              "cola",
-            ].map((key) => {
-              const chart = key as keyof typeof total;
-              return (
-                <button
-                  key={chart}
-                  data-active={activeChart === chart}
-                  className={`flex flex-1 flex-col justify-center gap-1 border-t px-4 py-4 text-left sm:border-t-0 sm:border-l sm:px-6 sm:py-6 transition-colors duration-300 ease-in-out ${getButtonColor(
-                    chart
-                  )} data-[active=true]:bg-gray-100 data-[active=true]:text-black`}
-                  onClick={() => setActiveChart(chart)}
-                >
-                  <span className="text-xs">{chartConfig[chart].label}</span>
-                  <span className="text-lg leading-none font-bold sm:text-xl">
-                    {total[chart].toLocaleString()}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <ScrollArea className="w-full">
+            <div className="flex flex-row">
+              {[
+                "heineken",
+                "corona",
+                "aperol_spritz",
+                "vin_spumant",
+                "vin_alb",
+                "prosecco",
+                "apa_plata",
+                "apa_minerala",
+                "cola",
+              ].map((key) => {
+                const chart = key as keyof typeof total;
+                return (
+                  <button
+                    key={chart}
+                    data-active={activeChart === chart}
+                    className={`flex flex-1 flex-col justify-center gap-1 border-t px-4 py-4 text-left sm:border-t-0 sm:border-l sm:px-6 sm:py-6 transition-colors duration-300 ease-in-out ${getButtonColor(
+                      chart
+                    )} data-[active=true]:bg-gray-100 data-[active=true]:text-black`}
+                    onClick={() => setActiveChart(chart)}
+                  >
+                    <span className="text-xs">{chartConfig[chart].label}</span>
+                    <span className="text-lg leading-none font-bold sm:text-xl">
+                      {total[chart].toLocaleString()}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
         </CardHeader>
         <CardContent className="flex-1 px-2 sm:p-6">
           {error ? (
