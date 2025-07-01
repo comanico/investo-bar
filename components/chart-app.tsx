@@ -123,12 +123,6 @@ export function ChartApp() {
         target.setMinutes(0);
       }
     }
-    console.log("Calculated target time:", {
-      currentTime: now.toLocaleTimeString(),
-      currentMinutes,
-      targetMinutes,
-      target: target.toLocaleTimeString(),
-    });
     return target;
   };
 
@@ -143,10 +137,6 @@ export function ChartApp() {
       if (difference <= 0) {
         // Reached target, set new target
         target = getNextTargetTime();
-        console.log(
-          "Timer reached 0, setting new target:",
-          target.toLocaleTimeString()
-        );
       }
 
       const m = Math.max(
@@ -154,12 +144,6 @@ export function ChartApp() {
         Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
       );
       const s = Math.max(0, Math.floor((difference % (1000 * 60)) / 1000));
-      console.log("Timer tick:", {
-        minutes: m,
-        seconds: s,
-        difference,
-        target: target.toLocaleTimeString(),
-      });
       setMinutes(m);
       setSeconds(s);
     }, 1000);
@@ -174,11 +158,8 @@ export function ChartApp() {
         timeout: 5000,
       });
       const data: ChartDataPoint[] = response.data;
-      console.log("Fetched chart data:", data);
-      console.log("Current chart data:", chartData);
 
       if (data.length > chartData.length) {
-        console.log("New data detected with different timestamp");
         finalChartData.current = data;
         setChartData(data);
         // Reset timer to next 15-minute interval
@@ -187,7 +168,6 @@ export function ChartApp() {
         const difference = target.getTime() - now.getTime();
         const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
         const s = Math.floor((difference % (1000 * 60)) / 1000);
-        console.log("Resetting timer on new data:", { minutes: m, seconds: s });
         setMinutes(m);
         setSeconds(s);
       } else {
@@ -268,17 +248,6 @@ export function ChartApp() {
   const getButtonColor = (key: keyof typeof total) => {
     const currentPrice = total[key];
     const initialPrice = initialPrices[key];
-    console.log("Button color check:", {
-      key,
-      currentPrice,
-      initialPrice,
-      color:
-        currentPrice < initialPrice
-          ? "bg-red-500 text-white"
-          : currentPrice > initialPrice
-          ? "bg-green-500 text-white"
-          : "bg-gray-100 text-black",
-    });
     if (currentPrice < initialPrice) {
       return "bg-red-500 text-white";
     } else if (currentPrice > initialPrice) {
