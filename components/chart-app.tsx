@@ -170,9 +170,7 @@ export function ChartApp() {
         const s = Math.floor((difference % (1000 * 60)) / 1000);
         setMinutes(m);
         setSeconds(s);
-      } else {
-        console.log("No new data, keeping current timer");
-      }
+      } 
       setError(null);
     } catch (err) {
       setError("Failed to fetch chart data");

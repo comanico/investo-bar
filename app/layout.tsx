@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Investo Bar",
   description: "Learn about investing, trading, and finance with your mates at Investo Bar",
+   icons: {
+    icon: '/InvestoBarIcon.svg', // /public path
+  },
 };
 
 export default function RootLayout({
