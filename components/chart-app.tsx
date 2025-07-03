@@ -201,7 +201,7 @@ export function ChartApp() {
   // Fetch data initially and every 10 seconds
   React.useEffect(() => {
     fetchChartData(); // Initial fetch
-    const interval = setInterval(fetchChartData, 10000); // Poll every 10 seconds
+    const interval = setInterval(fetchChartData, 1000); // Poll every second
     return () => clearInterval(interval); // Cleanup on unmount
   }, [chartData]);
 
@@ -249,9 +249,9 @@ export function ChartApp() {
     const currentPrice = total[key];
     const initialPrice = initialPrices[key];
     if (currentPrice < initialPrice) {
-      return "bg-red-500 text-white";
-    } else if (currentPrice > initialPrice) {
       return "bg-green-500 text-white";
+    } else if (currentPrice > initialPrice) {
+      return "bg-red-500 text-white";
     }
     return "bg-muted/50"; // Neutral color if equal
   };
