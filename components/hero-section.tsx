@@ -28,7 +28,7 @@ export default function HeroSection() {
                 <div className="mx-auto max-w-lg text-center lg:ml-0 lg:w-1/2 lg:text-left">
                   <h1 className="mt-8 max-w-2xl text-balance text-5xl font-medium md:text-6xl lg:mt-16 xl:text-7xl">
                     Drink Smart. Spend Smarter. Romania&apos;s First Financial
-                    Education Bar .
+                    Education Bar.
                   </h1>
                   <p className="mt-8 max-w-2xl text-pretty text-lg">
                     A place where friendship and financial literacy meet to
