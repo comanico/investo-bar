@@ -38,15 +38,15 @@ interface ChartDataPoint {
 const initialChartData = [
   {
     time: "17:00",
-    heineken: 7,
-    aperol_spritz: 8,
-    prosecco: 8,
-    corona: 7,
-    cola: 6,
-    vin_spumant: 7,
-    vin_alb: 9,
-    apa_plata: 5,
-    apa_minerala: 5,
+    heineken: 10,
+    aperol_spritz: 16,
+    prosecco: 15,
+    corona: 12,
+    cola: 8,
+    vin_spumant: 10,
+    vin_alb: 15,
+    apa_plata: 8,
+    apa_minerala: 8,
   },
 ];
 
@@ -55,39 +55,39 @@ const chartConfig = {
     label: "Price",
   },
   heineken: {
-    label: "Heineken Price",
+    label: "Heineken",
     color: "var(--chart-1)",
   },
   aperol_spritz: {
-    label: "Aperol Spritz Price",
+    label: "Aperol Spritz",
     color: "var(--chart-2)",
   },
   prosecco: {
-    label: "Prosecco Price",
+    label: "Prosecco",
     color: "var(--chart-3)",
   },
   corona: {
-    label: "Corona Price",
+    label: "Corona",
     color: "var(--chart-4)",
   },
   cola: {
-    label: "Cola Price",
+    label: "Cola",
     color: "var(--chart-5)",
   },
   vin_spumant: {
-    label: "Vin Spumant Price",
+    label: "Vin Spumant",
     color: "var(--chart-6)",
   },
   vin_alb: {
-    label: "Vin Alb Price",
+    label: "Vin Alb",
     color: "var(--chart-7)",
   },
   apa_plata: {
-    label: "Apa Plata Price",
+    label: "Apa Plata",
     color: "var(--chart-8)",
   },
   apa_minerala: {
-    label: "Apa Minerala Price",
+    label: "Apa Minerala",
     color: "var(--chart-9)",
   },
 } satisfies ChartConfig;
@@ -270,8 +270,8 @@ export function ChartApp() {
               <Timer minutes={minutes} seconds={seconds} />
             </span>
           </div>
-          <ScrollArea className="w-full">
-            <div className="flex flex-row">
+          <ScrollArea className="w-screen overflow-hidden">
+            <div className="flex flex-row items-stretch min-h-[80px] sm:min-h-[160px]">
               {[
                 "heineken",
                 "corona",
@@ -295,7 +295,7 @@ export function ChartApp() {
                   >
                     <span className="text-xs">{chartConfig[chart].label}</span>
                     <span className="text-lg leading-none font-bold sm:text-xl">
-                      {total[chart].toLocaleString()}
+                      {total[chart].toLocaleString()} RON
                     </span>
                   </button>
                 );
