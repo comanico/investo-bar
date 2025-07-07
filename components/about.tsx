@@ -13,12 +13,12 @@ export default function CommunitySection({ setSelectedPage }: Props) {
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center">
             <h2 className="text-3xl font-semibold">
-              A entrepreneur, lawyer, economist and engineer wanting to better
-              it&apos;s community.
+              When an entrepreneur, lawyer, economist and engineer wanting to
+              help their community grow smarter, stronger, and more connected.
             </h2>
             <p className="mt-6">
-              By getting together, having a good time while understanding the
-              markets.
+              By coming together, enjoying great moments, and learning how
+              financial markets really work.
             </p>
           </div>
           <div className="mx-auto mt-12 flex max-w-lg flex-wrap justify-center gap-3">
@@ -29,7 +29,7 @@ export default function CommunitySection({ setSelectedPage }: Props) {
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
             >
               <img
-                alt="John Doe"
+                alt="Raul Zorger"
                 src="zorger.jpg"
                 loading="lazy"
                 width={120}
@@ -37,13 +37,13 @@ export default function CommunitySection({ setSelectedPage }: Props) {
               />
             </Link>
             <Link
-              href="/"
+              href="https://avocat-nagy-cluj.ro/"
               target="_blank"
               title="Sebastian Gabriel Nagy"
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
             >
               <img
-                alt="John Doe"
+                alt="Sebastian Gabriel Nagy"
                 src="sebi.jpg"
                 loading="lazy"
                 width={120}
@@ -51,13 +51,13 @@ export default function CommunitySection({ setSelectedPage }: Props) {
               />
             </Link>
             <Link
-              href="/"
+              href="https://topdrinks.ro/"
               target="_blank"
               title="Bolos Paul Catalin"
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
             >
               <img
-                alt="John Doe"
+                alt="Bolos Paul Catalin"
                 src="catalin.jpg"
                 loading="lazy"
                 width={120}
@@ -65,14 +65,14 @@ export default function CommunitySection({ setSelectedPage }: Props) {
               />
             </Link>
             <Link
-              href="/"
+              href="https://www.comanico.biz/"
               target="_blank"
               title="Comaniciu Alexandru-Nicolae"
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
             >
               <img
-                alt="John Doe"
-                src="alex.jpg"
+                alt="Comaniciu Alexandru-Nicolae"
+                src="Nico.jpg"
                 loading="lazy"
                 width={120}
                 height={120}

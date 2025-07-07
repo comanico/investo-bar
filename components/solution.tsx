@@ -15,16 +15,21 @@ export default function ContentSection({ setSelectedPage }: Props) {
       >
         <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
           <h2 className="relative z-10 max-w-xl text-4xl font-medium lg:text-5xl">
-            A Bar that simulates the market.
+            A Bar Where the Market Comes to Life.
           </h2>
           <div className="grid gap-6 sm:grid-cols-2 md:gap-12 lg:gap-24">
             <div className="relative space-y-4">
               <p className="text-muted-foreground">
-                A bar where the consumption by customers affects the prices in
-                real time.{" "}
+                At this bar, you&apos;re not just ordering drinks—
                 <span className="text-accent-foreground font-bold">
-                  Learn by enjoying your time with friends.
+                  you&apos;re participating in a live simulation of the market.
                 </span>{" "}
+                Prices change based on customer consumption, giving you a
+                hands-on understanding of how real-time demand drives value.{" "}
+                <span className="text-accent-foreground font-bold">
+                  It’s finance made fun, shared with good friends and good
+                  vibes.{" "}
+                </span>
               </p>
 
               <div className="grid grid-cols-2 gap-3 pt-6 sm:gap-4">
@@ -34,10 +39,18 @@ export default function ContentSection({ setSelectedPage }: Props) {
                     <h3 className="text-sm font-medium">Financial Literacy</h3>
                   </div>
                   <p className="text-muted-foreground text-sm">
-                    According to <a href="https://europa.eu/eurobarometer/surveys/detail/2953" className="underline text-blue-600">EU</a> Romania is in need of better financial education.{" "}
-                  <span className="text-accent-foreground font-bold">
-                    Investo Bar aims to change that.
-                  </span>
+                    According to{" "}
+                    <a
+                      href="https://europa.eu/eurobarometer/surveys/detail/2953"
+                      className="underline text-blue-600"
+                    >
+                      EU
+                    </a>{" "}
+                    Romania faces a significant gap in financial education.{" "}
+                    <span className="text-accent-foreground font-bold">
+                      Investo Bar is here to change that—making finance
+                      accessible, social, and engaging.
+                    </span>
                   </p>
                 </div>
                 <div className="space-y-2">
@@ -46,10 +59,13 @@ export default function ContentSection({ setSelectedPage }: Props) {
                     <h3 className="text-sm font-medium">Network</h3>
                   </div>
                   <p className="text-muted-foreground text-sm">
-                    An event where you don&apos;t just have fun, but meet with professionals and exchange ideas.{" "}
+                    An experience that blends social energy with professional
+                    growth.{" "}
                     <span className="text-accent-foreground font-bold">
-                      Investo Bar is a place to start ideas and grow industries.
+                      At Investo Bar, you don’t just meet people—you meet
+                      potential.{" "}
                     </span>
+                    A place where ideas are born and industries take shape.
                   </p>
                 </div>
               </div>

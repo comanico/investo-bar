@@ -32,8 +32,8 @@ export default function Features({ setSelectedPage }: Props) {
 
               <CardContent>
                 <p className="text-sm">
-                  Get to know people who are interested in knowing more about
-                  finance, economics & accounting.
+                  Surround yourself with people who think critically, invest
+                  wisely, and love talking numbers.{" "}
                 </p>
               </CardContent>
             </Card>
@@ -44,13 +44,13 @@ export default function Features({ setSelectedPage }: Props) {
                   <Zap color="#5dc23b" className="size-6" aria-hidden />
                 </CardDecorator>
 
-                <h3 className="mt-6 font-medium">Learn</h3>
+                <h3 className="mt-6 font-medium">Discover</h3>
               </CardHeader>
 
               <CardContent>
                 <p className="mt-3 text-sm">
-                  The way we sell in this bar, you&#39;ll understand how the
-                  markets work by how supply & demand affects prices.
+                  Understand financial markets not from theory, but from the
+                  bar—where prices move with the crowd
                 </p>
               </CardContent>
             </Card>
@@ -61,13 +61,13 @@ export default function Features({ setSelectedPage }: Props) {
                   <Sparkles color="#5dc23b" className="size-6" aria-hidden />
                 </CardDecorator>
 
-                <h3 className="mt-6 font-medium">Have Fun</h3>
+                <h3 className="mt-6 font-medium">Enjoy the Vibe</h3>
               </CardHeader>
 
               <CardContent>
                 <p className="mt-3 text-sm">
-                  Being still a bar and with our variable prices you can enjoy
-                  drinks at the cheapest prices.
+                  Real-time pricing means real opportunities—enjoy drinks at
+                  their best price, just like a savvy investor would.
                 </p>
               </CardContent>
             </Card>
