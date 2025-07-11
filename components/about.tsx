@@ -13,7 +13,7 @@ export default function CommunitySection({ setSelectedPage }: Props) {
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center">
             <h2 className="text-3xl font-semibold">
-              When an entrepreneur, lawyer, economist and engineer wanting to
+              When an entrepreneur, lawyer, economist and engineer want to
               help their community grow smarter, stronger, and more connected.
             </h2>
             <p className="mt-6">
@@ -23,7 +23,7 @@ export default function CommunitySection({ setSelectedPage }: Props) {
           </div>
           <div className="mx-auto mt-12 flex max-w-lg flex-wrap justify-center gap-3">
             <Link
-              href="/"
+              href="https://www.linkedin.com/in/zorger-raul-350153151/"
               target="_blank"
               title="Raul Zorger"
               className="size-16 rounded-full border *:size-full *:rounded-full *:object-cover"
