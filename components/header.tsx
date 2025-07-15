@@ -14,11 +14,11 @@ const menuItems = [
 ];
 
 type Props = {
-    selectedPage: SelectedPage;
-    setSelectedPage: (value: SelectedPage) => void;
-}
+  selectedPage: SelectedPage;
+  setSelectedPage: (value: SelectedPage) => void;
+};
 
-export const HeroHeader = ({selectedPage, setSelectedPage}: Props) => {
+export const HeroHeader = ({ selectedPage, setSelectedPage }: Props) => {
   const [menuState, setMenuState] = React.useState(false);
   return (
     <header>
@@ -63,12 +63,12 @@ export const HeroHeader = ({selectedPage, setSelectedPage}: Props) => {
                 <ul className="space-y-6 text-base">
                   {menuItems.map((item, index) => (
                     <li key={index}>
-                      <Link
-                        href={item.href}
+                      <ALink
+                        page={item.name}
+                        selectedPage={selectedPage}
+                        setSelectedPage={setSelectedPage}
                         className="text-muted-foreground hover:text-accent-foreground block duration-150"
-                      >
-                        <span>{item.name}</span>
-                      </Link>
+                      />
                     </li>
                   ))}
                 </ul>
