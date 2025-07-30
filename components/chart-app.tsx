@@ -3,7 +3,6 @@
 import * as React from "react";
 import axios from "axios";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-
 import {
   Card,
   CardContent,
@@ -17,7 +16,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import Timer from "./timer";
 import { ScrollArea, ScrollBar } from "./ui/scroll-area";
 
 export const description = "An interactive line chart";
@@ -99,7 +97,9 @@ export function ChartApp() {
   const [error, setError] = React.useState<string | null>(null);
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("heineken");
+  // eslint-disable-next-line no-unused-vars
   const [minutes, setMinutes] = React.useState<number>(15);
+  // eslint-disable-next-line no-unused-vars
   const [seconds, setSeconds] = React.useState<number>(0);
   const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
 
@@ -109,13 +109,12 @@ export function ChartApp() {
     let targetMinutes = Math.ceil(currentMinutes / 15) * 15;
     // eslint-disable-next-line prefer-const
     let target = new Date(now);
-    target.setMinutes(targetMinutes, 0, 0); // Set to next 15-minute mark
+    target.setMinutes(targetMinutes, 0, 0);
     if (targetMinutes >= 60) {
       target.setHours(now.getHours() + 1);
       target.setMinutes(0);
       targetMinutes = 0;
     }
-    // If target is in the past, add 15 minutes
     if (target.getTime() <= now.getTime()) {
       target.setMinutes(targetMinutes + 15, 0, 0);
       if (targetMinutes + 15 >= 60) {
@@ -126,7 +125,7 @@ export function ChartApp() {
     return target;
   };
 
-  // Initialize and update timer
+  // Initialize and update timer logic (for API updates, not displayed)
   React.useEffect(() => {
     let target = getNextTargetTime();
 
@@ -135,7 +134,6 @@ export function ChartApp() {
       const difference = target.getTime() - now.getTime();
 
       if (difference <= 0) {
-        // Reached target, set new target
         target = getNextTargetTime();
       }
 
@@ -162,7 +160,6 @@ export function ChartApp() {
       if (data.length > chartData.length) {
         finalChartData.current = data;
         setChartData(data);
-        // Reset timer to next 15-minute interval
         const target = getNextTargetTime();
         const now = new Date();
         const difference = target.getTime() - now.getTime();
@@ -170,7 +167,7 @@ export function ChartApp() {
         const s = Math.floor((difference % (1000 * 60)) / 1000);
         setMinutes(m);
         setSeconds(s);
-      } 
+      }
       setError(null);
     } catch (err) {
       setError("Failed to fetch chart data");
@@ -198,9 +195,9 @@ export function ChartApp() {
 
   // Fetch data initially and every 10 seconds
   React.useEffect(() => {
-    fetchChartData(); // Initial fetch
-    const interval = setInterval(fetchChartData, 1000); // Poll every second
-    return () => clearInterval(interval); // Cleanup on unmount
+    fetchChartData();
+    const interval = setInterval(fetchChartData, 10000); // Poll every 10 seconds
+    return () => clearInterval(interval);
   }, [chartData]);
 
   const total = React.useMemo(
@@ -227,31 +224,16 @@ export function ChartApp() {
     [chartData]
   );
 
-  // Get initial prices for comparison
-  const initialPrices = React.useMemo(() => {
-    const initial = initialChartData[0];
-    return {
-      heineken: initial.heineken,
-      corona: initial.corona,
-      aperol_spritz: initial.aperol_spritz,
-      vin_spumant: initial.vin_spumant,
-      vin_alb: initial.vin_alb,
-      prosecco: initial.prosecco,
-      apa_plata: initial.apa_plata,
-      apa_minerala: initial.apa_minerala,
-      cola: initial.cola,
-    };
-  }, []);
-
   const getButtonColor = (key: keyof typeof total) => {
-    const currentPrice = total[key];
-    const initialPrice = initialPrices[key];
-    if (currentPrice < initialPrice) {
+    if (chartData.length < 2) return "bg-muted/50"; // Neutral if insufficient data
+    const currentPrice = chartData[chartData.length - 1][key];
+    const previousPrice = chartData[chartData.length - 2][key];
+    if (currentPrice < previousPrice) {
       return "bg-green-500 text-white";
-    } else if (currentPrice > initialPrice) {
+    } else if (currentPrice > previousPrice) {
       return "bg-red-500 text-white";
     }
-    return "bg-muted/50"; // Neutral color if equal
+    return "bg-muted/50";
   };
 
   return (
@@ -261,14 +243,6 @@ export function ChartApp() {
           <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
             <CardTitle>Inventory Price Updates</CardTitle>
             <CardDescription>Showing Price Fluctuations</CardDescription>
-          </div>
-          <div className="flex flex-1 flex-col justify-center gap-1 border-t px-6 py-4 text-left even:border-l sm:border-t-0 sm:border-l sm:px-8 sm:py-6">
-            <span className="text-muted-foreground">
-              Countdown until next update:
-            </span>{" "}
-            <span className="text-lg leading-none font-bold sm:text-3xl">
-              <Timer minutes={minutes} seconds={seconds} />
-            </span>
           </div>
           <ScrollArea className="w-screen overflow-hidden">
             <div className="flex flex-row items-stretch min-h-[80px] sm:min-h-[160px]">
