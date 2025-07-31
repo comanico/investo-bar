@@ -97,9 +97,9 @@ export function ChartApp() {
   const [error, setError] = React.useState<string | null>(null);
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("heineken");
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [minutes, setMinutes] = React.useState<number>(15);
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [seconds, setSeconds] = React.useState<number>(0);
   const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
 
