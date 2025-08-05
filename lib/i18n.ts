@@ -2,17 +2,24 @@
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
-import HttpBackend from 'i18next-http-backend';
+import enTranslation from '../public/locales/en/translation.json';
+import roTranslation from '../public/locales/ro/translation.json';
+import frTranslation from '../public/locales/fr/translation.json';
+import huTranslation from '../public/locales/hu/translation.json';
 
-i18next
-  .use(HttpBackend) // Load translations from JSON files
-  .use(LanguageDetector) // Detect user language
-  .use(initReactI18next) // Bind i18next to React
+const i18n = i18next.createInstance();
+
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
   .init({
     fallbackLng: 'en',
     supportedLngs: ['en', 'ro', 'fr', 'hu'],
-    backend: {
-      loadPath: '/locales/{{lng}}/translation.json',
+    resources: {
+      en: { translation: enTranslation },
+      ro: { translation: roTranslation },
+      fr: { translation: frTranslation },
+      hu: { translation: huTranslation },
     },
     interpolation: {
       escapeValue: false,
@@ -23,4 +30,4 @@ i18next
     },
   });
 
-export default i18next;
+export default i18n;
