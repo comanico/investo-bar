@@ -1,0 +1,45 @@
+{
+  "hero": {
+    "title": "Bea inteligent. Cheltuie mai bine. Primul bar de educație financiară din România.",
+    "description": "Un loc unde prietenia și educația financiară se întâlnesc pentru a modela un viitor mai bun.",
+    "brought_by": "În colaborare cu"
+  },
+  "menu": {
+    "home": "Acasă",
+    "feature": "Funcționalitate",
+    "solution": "Soluție",
+    "about": "Despre"
+  },
+  "features": {
+    "title": "Investo Bar",
+    "description": "Un loc unde",
+    "network": {
+      "title": "Cunoști",
+      "description": "Înconjoară-te de oameni care gândesc critic, investesc înțelept și adoră să vorbească despre cifre."
+    },
+    "discover": {
+      "title": "Descoperi",
+      "description": "Înțelege piețele financiare nu din teorie, ci din bar—unde prețurile se mișcă odată cu mulțimea."
+    },
+    "enjoy": {
+      "title": "Câștigi",
+      "description": "Prețurile în timp real înseamnă oportunități reale—bucură-te de băuturi la cel mai bun preț, ca un investitor priceput."
+    }
+  },
+  "solution": {
+    "title": "Un bar unde piața prinde viață",
+    "description": "La acest bar, nu doar comanzi băuturi, ci participi la o simulare live a pieței. Prețurile se schimbă în funcție de consumul clienților, oferindu-ți o înțelegere practică a modului în care cererea în timp real influențează valoarea. Este finanțe transformată în distracție, împărtășită cu prieteni buni și gânduri pozitive.",
+    "financial_literacy": {
+      "title": "Educație financiară",
+      "description": "Conform UE, România se confruntă cu un decalaj semnificativ în educația financiară. Investo Bar este aici pentru a schimba asta, făcând finanțele accesibile, sociale și captivante."
+    },
+    "network": {
+      "title": "Comnunitate",
+      "description": "O experiență care îmbină energia socială cu creșterea profesională. La Investo Bar, nu doar întâlnești oameni, ci întâlnești potențial. Un loc unde ideile se nasc și industriile prind contur."
+    }
+  },
+  "about": {
+    "title": "Când un antreprenor, un avocat, un economist și un inginer doresc să ajute comunitatea lor să crească mai inteligent, mai puternic și mai conectat.",
+    "description": "Prin reunirea, savurarea momentelor grozave și învățarea modului în care funcționează cu adevărat piețele financiare."
+  }
+}

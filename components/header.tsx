@@ -6,12 +6,22 @@ import { Logo } from "@/components/logo";
 import { Menu, X } from "lucide-react";
 import React from "react";
 import { ModeToggle } from "./mode-toggle";
+import { useTranslation } from "react-i18next";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const menuItems = [
-  { name: "Feature", href: "#link" },
-  { name: "Solution", href: "#link" },
-  { name: "About", href: "#link" },
-];
+// const menuItems = [
+//   { name: "Feature", href: "#link" },
+//   { name: "Solution", href: "#link" },
+//   { name: "About", href: "#link" },
+// ];
 
 type Props = {
   selectedPage: SelectedPage;
@@ -20,6 +30,27 @@ type Props = {
 
 export const HeroHeader = ({ selectedPage, setSelectedPage }: Props) => {
   const [menuState, setMenuState] = React.useState(false);
+  const { t, i18n } = useTranslation();
+
+  const menuItems = [
+    { name: t("menu.home"), href: SelectedPage.Home },
+    { name: t("menu.feature"), href: SelectedPage.Feature },
+    { name: t("menu.solution"), href: SelectedPage.Solution },
+    { name: t("menu.about"), href: SelectedPage.About },
+  ];
+
+  // List of supported languages
+  const languages = [
+    { code: "en", name: "English" },
+    { code: "ro", name: "Romanian" },
+  ];
+
+  const handleLanguageChange = (lng: string) => {
+    i18n
+      .changeLanguage(lng)
+      .catch((error) => console.error("Language change error:", error));
+  };
+
   return (
     <header>
       <nav
@@ -74,6 +105,24 @@ export const HeroHeader = ({ selectedPage, setSelectedPage }: Props) => {
                 </ul>
               </div>
               <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit">
+                <Select
+                  value={i18n.language}
+                  onValueChange={handleLanguageChange}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select a language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Language</SelectLabel>
+                      {languages.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          {lang.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
                 <ModeToggle />
               </div>
             </div>

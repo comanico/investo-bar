@@ -1,24 +1,25 @@
 import { SelectedPage } from "@/lib/types";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   setSelectedPage: (value: SelectedPage) => void;
 };
 
 export default function CommunitySection({ setSelectedPage }: Props) {
+  const { t } = useTranslation();
+
   return (
     <section id="about" className="py-16 md:py-32">
       <motion.div onViewportEnter={() => setSelectedPage(SelectedPage.About)}>
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center">
             <h2 className="text-3xl font-semibold">
-              When an entrepreneur, lawyer, economist and engineer want to
-              help their community grow smarter, stronger, and more connected.
+              {t("about.title")}
             </h2>
             <p className="mt-6">
-              By coming together, enjoying great moments, and learning how
-              financial markets really work.
+              {t("about.description")}
             </p>
           </div>
           <div className="mx-auto mt-12 flex max-w-lg flex-wrap justify-center gap-3">

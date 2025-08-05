@@ -1,5 +1,6 @@
 import AnchorLink from "react-anchor-link-smooth-scroll";
 import { SelectedPage } from "../lib/types";
+import { useTranslation } from "react-i18next";
 
 type Props = {
   page: string;
@@ -8,15 +9,36 @@ type Props = {
   className?: string;
 };
 
-function Link({ page, setSelectedPage, className }: Props) {
-  const lowerCasePage = page
-    .toLocaleLowerCase()
-    .replace(/ /g, "") as SelectedPage;
-  return (
+function Link({ page, selectedPage, setSelectedPage, className }: Props) {
+  const { t } = useTranslation();
+  const pageToEnum: {
+    [key: string]: { enumValue: SelectedPage; href: string };
+  } = {
+    [t("menu.home")]: { enumValue: SelectedPage.Home, href: "home" },
+    [t("menu.feature")]: { enumValue: SelectedPage.Feature, href: "feature" },
+    [t("menu.solution")]: {
+      enumValue: SelectedPage.Solution,
+      href: "solution",
+    },
+    [t("menu.about")]: { enumValue: SelectedPage.About, href: "about" },
+  };
+
+  const handleClick = () => {
+    const { enumValue } = pageToEnum[page] || {};
+    if (enumValue) {
+      setSelectedPage(enumValue);
+    }
+  };
+
+  const href = pageToEnum[page]?.href || "home";
+
+return (
     <AnchorLink
-      className={`${className}`}
-      href={`#${lowerCasePage}`}
-      onClick={() => setSelectedPage(lowerCasePage)}
+      className={`${className} ${
+        selectedPage === pageToEnum[page]?.enumValue ? "text-accent-foreground" : ""
+      }`}
+      href={`#${href}`}
+      onClick={handleClick}
     >
       {page}
     </AnchorLink>

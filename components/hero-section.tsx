@@ -7,8 +7,10 @@ import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 import Image from "next/image";
 import { SelectedPage } from "@/lib/types";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 export default function HeroSection() {
+  const { t } = useTranslation();
   const [selectedPage, setSelectedPage] = React.useState<SelectedPage>(
     SelectedPage.Home
   );
@@ -27,12 +29,10 @@ export default function HeroSection() {
               <div className="relative mx-auto flex max-w-6xl flex-col px-6 lg:block">
                 <div className="mx-auto max-w-lg text-center lg:ml-0 lg:w-1/2 lg:text-left">
                   <h1 className="mt-8 max-w-2xl text-balance text-5xl font-medium md:text-6xl lg:mt-16 xl:text-7xl">
-                    Drink Smart. Spend Smarter. Romania&apos;s First Financial
-                    Education Bar.
+                    {t("hero.title")}
                   </h1>
                   <p className="mt-8 max-w-2xl text-pretty text-lg">
-                    A place where friendship and financial literacy meet to
-                    shape a better future.{" "}
+                    {t("hero.description")}
                   </p>
                 </div>
 
@@ -52,7 +52,7 @@ export default function HeroSection() {
             <div className="flex flex-col items-center md:flex-row">
               <div className="md:max-w-44 md:border-r md:pr-6">
                 <p className="text-start text-sm">
-                  Brought to you by
+                  {t("hero.brought_by")}
                   <img
                     className="mx-auto mt-2 w-full max-w-[150px] h-auto max-h-[100px] object-contain sm:max-w-[200px] sm:max-h-[150px]"
                     src="Logo_TopDrinks.png"

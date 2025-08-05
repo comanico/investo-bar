@@ -1,0 +1,45 @@
+{
+  "hero": {
+    "title": "Drink Smart. Spend Smarter. Romania's First Financial Education Bar.",
+    "description": "A place where friendship and financial literacy meet to shape a better future.",
+    "brought_by": "Brought to you by"
+  },
+  "menu": {
+    "home": "Home",
+    "feature": "Feature",
+    "solution": "Solution",
+    "about": "About"
+  },
+  "features": {
+    "title": "Investo Bar",
+    "description": "A place where you can",
+    "network": {
+      "title": "Network",
+      "description": "Surround yourself with people who think critically, invest wisely, and love talking numbers."
+    },
+    "discover": {
+      "title": "Discover",
+      "description": "Understand financial markets not from theory, but from the bar—where prices move with the crowd."
+    },
+    "enjoy": {
+      "title": "Enjoy the Vibe",
+      "description": "Real-time pricing means real opportunities—enjoy drinks at their best price, just like a savvy investor would."
+    }
+  },
+  "solution": {
+    "title": "A Bar Where the Market Comes to Life",
+    "description": "At this bar, you're not just ordering drinks—you're participating in a live simulation of the market. Prices change based on customer consumption, giving you a hands-on understanding of how real-time demand drives value. It's finance made fun, shared with good friends and good vibes.",
+    "financial_literacy": {
+      "title": "Financial Literacy",
+      "description": "According to EU, Romania faces a significant gap in financial education. Investo Bar is here to change that—making finance accessible, social, and engaging."
+    },
+    "network": {
+      "title": "Community",
+      "description": "An experience that blends social energy with professional growth. At Investo Bar, you don’t just meet people—you meet potential. A place where ideas are born and industries take shape."
+    }
+  },
+  "about": {
+    "title": "When an entrepreneur, lawyer, economist and engineer want to help their community grow smarter, stronger, and more connected.",
+    "description": "By coming together, enjoying great moments, and learning how financial markets really work."
+  }
+}

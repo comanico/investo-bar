@@ -1,0 +1,45 @@
+{
+  "hero": {
+    "title": "Okosan igyál. Okosabban költs. Románia első pénzügyi oktató bárja.",
+    "description": "Egy hely, ahol a barátság és a pénzügyi műveltség találkozik egy jobb jövő érdekében.",
+    "brought_by": "Támogatta"
+  },
+  "menu": {
+    "home": "Kezdőlap",
+    "feature": "Funkció",
+    "solution": "Megoldás",
+    "about": "Rólunk"
+  },
+  "features": {
+    "title": "Investo Bar",
+    "description": "Egy hely, ahol",
+    "network": {
+      "title": "Hálózat",
+      "description": "Olyan emberekkel vedd körül magad, akik kritikusan gondolkodnak, okosan fektetnek be, és szeretnek számokról beszélni."
+    },
+    "discover": {
+      "title": "Felfedezés",
+      "description": "Értsd meg a pénzügyi piacokat nem elméletből, hanem a bárból—ahol az árak a tömeggel együtt mozognak."
+    },
+    "enjoy": {
+      "title": "Élvezd a hangulatot",
+      "description": "A valós idejű árak valós lehetőségeket jelentenek—élvezd az italokat a legjobb áron, mint egy tapasztalt befektető."
+    }
+  },
+  "solution": {
+    "title": "Egy bár, ahol a piac megelevenedik",
+    "description": "Ebben a bárban nem csak italokat rendelsz—egy élő piaci szimulációban veszel részt. Az árak a vásárlói fogyasztás alapján változnak, így gyakorlati tapasztalatot szerezhetsz arról, hogyan befolyásolja a valós idejű kereslet az értéket. Ez a pénzügy szórakoztató formája, jó barátokkal és jó hangulattal megosztva.",
+    "financial_literacy": {
+      "title": "Pénzügyi műveltség",
+      "description": "Az EU szerint Romániában jelentős hiányosságok vannak a pénzügyi oktatás terén. Az Investo Bar ezt változtatja meg—hozzáférhetővé, szociálissá és vonzóvá téve a pénzügyeket."
+    },
+    "network": {
+      "title": "Hálózat",
+      "description": "Egy élmény, amely ötvözi a társasági energiát a szakmai fejlődéssel. Az Investo Barban nem csak embereket találkozhatsz—potenciált találsz. Egy hely, ahol ötletek születnek és iparágak formálódnak."
+    }
+  },
+  "about": {
+    "title": "Amikor egy vállalkozó, egy ügyvéd, egy közgazdász és egy mérnök segíteni akarja közösségét okosabbá, erősebbé és összekapcsoltabbá válni.",
+    "description": "Összegyűlve, nagyszerű pillanatokat élvezve és megtanulva, hogyan működnek valójában a pénzügyi piacok."
+  }
+}

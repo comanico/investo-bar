@@ -1,0 +1,45 @@
+{
+  "hero": {
+    "title": "Boire intelligemment. Dépenser mieux. Le premier bar d'éducation financière de Roumanie.",
+    "description": "Un lieu où l'amitié et l'éducation financière se rencontrent pour façonner un avenir meilleur.",
+    "brought_by": "Présenté par"
+  },
+  "menu": {
+    "home": "Accueil",
+    "feature": "Fonctionnalité",
+    "solution": "Solution",
+    "about": "À propos"
+  },
+  "features": {
+    "title": "Investo Bar",
+    "description": "Un lieu où vous pouvez",
+    "network": {
+      "title": "Réseau",
+      "description": "Entourez-vous de personnes qui pensent de manière critique, investissent intelligemment et aiment parler de chiffres."
+    },
+    "discover": {
+      "title": "Découvrir",
+      "description": "Comprenez les marchés financiers non pas par la théorie, mais depuis le bar—où les prix évoluent avec la foule."
+    },
+    "enjoy": {
+      "title": "Profiter de l'ambiance",
+      "description": "Des prix en temps réel signifient de réelles opportunités—profitez des boissons au meilleur prix, comme un investiteur avisé."
+    }
+  },
+  "solution": {
+    "title": "Un bar où le marché prend vie",
+    "description": "Dans ce bar, vous ne commandez pas seulement des boissons—vous participez à une simulation en direct du marché. Les prix changent en fonction de la consommation des clients, vous offrant une compréhension pratique de la manière dont la demande en temps réel influence la valeur. C'est la finance rendue amusante, partagée avec de bons amis et une bonne ambiance.",
+    "financial_literacy": {
+      "title": "Éducation financière",
+      "description": "Selon l'UE, la Roumanie souffre d'un écart significatif en matière d'éducation financière. Investo Bar est là pour changer cela—rendant la finance accessible, sociale et engageante."
+    },
+    "network": {
+      "title": "Réseau",
+      "description": "Une expérience qui mêle énergie sociale et croissance professionnelle. À Investo Bar, vous ne rencontrez pas seulement des gens—vous rencontrez du potentiel. Un lieu où naissent les idées et où les industries prennent forme."
+    }
+  },
+  "about": {
+    "title": "Quand un entrepreneur, un avocat, un économiste et un ingénieur veulent aider leur communauté à devenir plus intelligente, plus forte et plus connectée.",
+    "description": "En se réunissant, en profitant de grands moments et en apprenant comment fonctionnent réellement les marchés financiers."
+  }
+}
