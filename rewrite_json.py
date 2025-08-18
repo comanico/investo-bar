@@ -178,6 +178,7 @@ def start_watching():
 
 if __name__ == "__main__":
     # Uncomment to reset prices.json (delete or empty)
-    reset_prices_json(delete=True)  # Deletes prices.json
-    reset_prices_json(delete=False)  # Sets prices.json to []
+    if not os.path.exists(INPUT_FILE):
+        reset_prices_json(delete=True)  # Deletes prices.json
+        reset_prices_json(delete=False)  # Sets prices.json to []
     start_watching()
