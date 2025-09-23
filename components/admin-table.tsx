@@ -54,7 +54,9 @@ export function AdminTable() {
   const handleIncrement = (product: string) => {
     setMenu((prevMenu) =>
       prevMenu.map((item) =>
-        item.product === product ? { ...item, quantity: item.quantity + 1 } : item
+        item.product === product
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
       )
     );
   };
@@ -71,11 +73,22 @@ export function AdminTable() {
   };
 
   // Calculate total quantity for the footer
-  const totalPrice = menu.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalPrice = menu.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
+  const handleSubmit = () => {
+    console.log(menu);
+  }
 
   return (
     <Table>
-      <TableCaption>Menu of all drinks.</TableCaption>
+      <TableCaption>
+        <Button aria-label="submit" variant="destructive" className="rounded-full p-8 px-30 cursor-pointer" onClick={handleSubmit}>
+          <span className="md:block text-center">Submit</span>
+        </Button>
+      </TableCaption>
       <TableHeader>
         <TableRow>
           <TableHead className="w-[100px]">Product</TableHead>
