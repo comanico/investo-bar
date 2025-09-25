@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/table";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { MenuItem } from "@/actions/getMenu";
 
-const initialMenu = [
+const initialMenu: MenuItem[] = [
   {
     product: "Heineken",
     type: "Bere",
@@ -46,9 +47,9 @@ const initialMenu = [
   },
 ];
 
-export function AdminTable() {
+export function AdminTable({ initial }: { initial: MenuItem[] }) {
   // Use state to manage menu items
-  const [menu, setMenu] = useState(initialMenu);
+  const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
 
   // Function to handle quantity increase
   const handleIncrement = (product: string) => {
