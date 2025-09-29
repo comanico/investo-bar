@@ -13,6 +13,7 @@ import {
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MenuItem } from "@/actions/getMenu";
+import { toast } from "sonner"
 
 const initialMenu: MenuItem[] = [
   {
@@ -79,9 +80,27 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
     0
   );
 
-  const handleSubmit = () => {
-    console.log(menu);
-  }
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('api/update-price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(menu),
+      });
+
+      if (!response.ok) {
+        const { error } = await response.json();
+        throw new Error(error || 'Failed to submit order')
+      }
+
+      toast("Order quantities updated!")
+      setMenu((prevMenu) => prevMenu.map((item) => ({ ...item, quantity: 0 })))
+
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast('Failed to submit order. Please try again.')
+    }
+  };
 
   return (
     <Table>

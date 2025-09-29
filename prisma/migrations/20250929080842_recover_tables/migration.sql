@@ -1,0 +1,40 @@
+-- CreateTable
+CREATE TABLE `menu` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `product` VARCHAR(255) NOT NULL,
+    `type` VARCHAR(255) NOT NULL,
+    `price` DECIMAL(10, 2) NOT NULL,
+    `quantity` INTEGER NULL DEFAULT 0,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `bere` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `Heineken` INTEGER NOT NULL DEFAULT 0,
+    `Corona` INTEGER NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `vin` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `Aperol` INTEGER NOT NULL DEFAULT 0,
+    `Vin_Spumant` INTEGER NOT NULL DEFAULT 0,
+    `Vin_Alb` INTEGER NOT NULL DEFAULT 0,
+    `Prosecco` INTEGER NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `racoritoare` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `Apa_Plata` INTEGER NOT NULL DEFAULT 0,
+    `Apa_Minerala` INTEGER NOT NULL DEFAULT 0,
+    `Cola` INTEGER NOT NULL DEFAULT 0,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
