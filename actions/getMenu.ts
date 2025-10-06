@@ -11,6 +11,7 @@ export type MenuItem = {
 
 export const getMenu = async (): Promise<MenuItem[]> => {
     const items = await prismadb.menu.findMany();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return items.map((item) => ({
         product: item.product,
         type: item.type,
