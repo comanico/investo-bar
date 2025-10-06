@@ -17,6 +17,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const productMap: { [key: string]: { model: any; column: string } } = {
             "Heineken": { model: prismadb.bere, column: 'Heineken' },
             "Corona": { model: prismadb.bere, column: 'Corona' },

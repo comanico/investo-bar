@@ -70,6 +70,7 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
   
   const productKeyMap: Record<string, keyof MenuDataPoint> = {
     heineken: "heineken",
+    corona: "corona",
     prosecco: "prosecco",
     aperol: "aperol_spritz",
     cola: "cola",
