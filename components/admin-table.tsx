@@ -1,5 +1,7 @@
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Table,
   TableBody,
@@ -14,6 +16,19 @@ import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MenuItem } from "@/actions/getMenu";
 import { toast } from "sonner"
+
+interface MenuDataPoint {
+  time: string;
+  heineken: number;
+  corona: number;
+  aperol_spritz: number;
+  vin_spumant: number;
+  vin_alb: number;
+  prosecco: number;
+  apa_plata: number;
+  apa_minerala: number;
+  cola: number;
+}
 
 const initialMenu: MenuItem[] = [
   {
@@ -51,6 +66,16 @@ const initialMenu: MenuItem[] = [
 export function AdminTable({ initial }: { initial: MenuItem[] }) {
   // Use state to manage menu items
   const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
+  const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
+  
+  const productKeyMap: Record<string, keyof MenuDataPoint> = {
+    heineken: "heineken",
+    prosecco: "prosecco",
+    aperol: "aperol_spritz",
+    cola: "cola",
+    apa: "apa_plata",
+  };
+
 
   // Function to handle quantity increase
   const handleIncrement = (product: string) => {
@@ -80,9 +105,34 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
     0
   );
 
+  const newPrice = async () => {
+    try {
+      const response = await axios.get<MenuDataPoint[]>(DATA_URL, { timeout: 5000 });
+      const data: MenuDataPoint[] = response.data;
+      if (!data.length) return;
+      const lastUpdate = data[data.length - 1];
+      setMenu((prev) =>
+        prev.map((item) => {
+          const mapKey = productKeyMap[item.product.toLowerCase()];
+          if (!mapKey) return item;
+          const candidate = lastUpdate[mapKey];
+          return typeof candidate === "number" ? { ...item, price: candidate } : item;
+        })
+      );
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  }
+
+  useEffect(() => {
+    newPrice();
+    const interval = setInterval(newPrice, 10000); // Poll every 10 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   const handleSubmit = async () => {
     try {
-      const response = await fetch('api/update-price', {
+      const response = await fetch('api/update-quantity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(menu),

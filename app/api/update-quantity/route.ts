@@ -48,6 +48,17 @@ export async function POST(req: Request) {
                     })
                 }
             }
+
+            // Adding sales record once quantity updated
+            await prismadb.sales.create({
+                data: {
+                    product: item.product,
+                    type: item.type,
+                    price: item.price,
+                    quantity: item.quantity
+                }
+            });
+
         }
 
         return NextResponse.json({ message: 'Quantities updated successfully' })
