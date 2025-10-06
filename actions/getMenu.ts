@@ -1,7 +1,7 @@
 "use server";
 
 import prismadb from "@/lib/prismadb";
-import { menu } from "@prisma/client"
+import { Menu } from "@prisma/client";
 
 export type MenuItem = {
     product: string;
@@ -12,7 +12,7 @@ export type MenuItem = {
 
 export const getMenu = async (): Promise<MenuItem[]> => {
     const items = await prismadb.menu.findMany();
-    return items.map((item: menu) => ({
+    return items.map((item: Menu) => ({
         product: item.product,
         type: item.type,
         price: Number(item.price),
