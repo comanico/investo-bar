@@ -43,8 +43,8 @@ next-env.d.ts
 # clerk configuration (can include secrets)
 /.clerk/
 
+# prisma generated files
 /lib/generated/prisma
 
-/lib/generated/prisma
-
-/lib/generated/prisma
+# json files
+live_prices.json
