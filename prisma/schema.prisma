@@ -28,19 +28,19 @@ model bere {
   id       Int @id @default(autoincrement())
   Heineken Int @default(0)
   Corona   Int @default(0)
+  Peroni   Int @default(0)
 }
 
 model vin {
   id          Int @id @default(autoincrement())
   Aperol      Int @default(0)
-  Vin_Spumant Int @default(0)
   Vin_Alb     Int @default(0)
+  Vin_Rosu    Int @default(0)
   Prosecco    Int @default(0)
 }
 
 model racoritoare {
   id           Int @id @default(autoincrement())
-  Apa_Plata    Int @default(0)
-  Apa_Minerala Int @default(0)
+  Apa          Int @default(0)
   Cola         Int @default(0)
 }

@@ -21,12 +21,12 @@ interface MenuDataPoint {
   time: string;
   heineken: number;
   corona: number;
-  aperol_spritz: number;
-  vin_spumant: number;
+  peroni: number;
+  aperol: number;
+  vin_rosu: number;
   vin_alb: number;
   prosecco: number;
-  apa_plata: number;
-  apa_minerala: number;
+  apa: number;
   cola: number;
 }
 
@@ -71,10 +71,13 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
   const productKeyMap: Record<string, keyof MenuDataPoint> = {
     heineken: "heineken",
     corona: "corona",
+    peroni: "peroni",
     prosecco: "prosecco",
-    aperol: "aperol_spritz",
+    aperol: "aperol",
+    vin_rosu: "vin_rosu",
+    vin_alb: "vin_alb",
     cola: "cola",
-    apa: "apa_plata",
+    apa: "apa",
   };
 
 

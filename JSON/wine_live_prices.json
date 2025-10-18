@@ -1,0 +1,42 @@
+[
+  {
+    "Interval": "T0",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 14,
+    "Vin_Rosu": 14
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Aperol": 15.5,
+    "Prosecco": 14.5,
+    "Vin_Alb": 14,
+    "Vin_Rosu": 14.5,
+    "Profit": 49,
+    "CumProfit": 49
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Aperol": 15.5,
+    "Prosecco": 14.5,
+    "Vin_Alb": 14,
+    "Vin_Rosu": 14.5,
+    "Profit": 49,
+    "CumProfit": 49
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Aperol": 15.5,
+    "Prosecco": 15,
+    "Vin_Alb": 14,
+    "Vin_Rosu": 14.5,
+    "Profit": 67,
+    "CumProfit": 67
+  }
+]

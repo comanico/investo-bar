@@ -53,13 +53,14 @@ export function SiteHeader() {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <h1 className="text-4xl font-bold text-center text-white mb-2">Investo Society</h1>
+      <h1 className="text-4xl font-bold text-center text-[#5dc23b] mb-2">Investo Society</h1>
       <h2 className="text-2xl font-bold text-center text-white mb-4">
         🍹📈 Preturi Live - Evoluție Dinamică a Băuturilor 🍾💸
       </h2>
-      <div className="flex justify-center items-center text-center sm:px-4 sm:py-2">
-        <span className="leading-none font-bold sm:text-3xl">
-          <Timer minutes={minutes} seconds={seconds} />
+      <div className="flex justify-center items-center mb-4 text-center sm:px-4 sm:py-2">
+        {/* text-align:center; font-size:26px;  color:#fcbf49; margin-bottom:30px; */}
+        <span className="leading-none font-bold text-[#fcbf49] sm:text-3xl">
+        🔁 Următorul preț în: <Timer minutes={minutes} seconds={seconds} />
         </span>
       </div>
     </div>

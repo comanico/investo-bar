@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `bere` ADD COLUMN `Peroni` INTEGER NOT NULL DEFAULT 0;

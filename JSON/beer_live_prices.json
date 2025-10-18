@@ -1,0 +1,38 @@
+[
+  {
+    "Interval": "T0",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Heineken": 9.5,
+    "Peroni": 12,
+    "Corona": 11.5,
+    "Profit": 25.5,
+    "CumProfit": 25.5
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Heineken": 9.5,
+    "Peroni": 12,
+    "Corona": 11.5,
+    "Profit": 25.5,
+    "CumProfit": 25.5
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Heineken": 9.5,
+    "Peroni": 12,
+    "Corona": 11.5,
+    "Profit": 25.5,
+    "CumProfit": 25.5
+  }
+]

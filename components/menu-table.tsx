@@ -7,26 +7,22 @@ import {
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Minus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import type { MenuItem } from "@/actions/getMenu";
-import { toast } from "sonner"
 
 interface MenuDataPoint {
   time: string;
   heineken: number;
   corona: number;
-  aperol_spritz: number;
-  vin_spumant: number;
+  peroni: number;
+  aperol: number;
+  vin_rosu: number;
   vin_alb: number;
   prosecco: number;
-  apa_plata: number;
-  apa_minerala: number;
+  apa: number;
   cola: number;
 }
 
@@ -38,13 +34,37 @@ const initialMenu: MenuItem[] = [
     quantity: 0,
   },
   {
+    product: "Corona",
+    type: "Bere",
+    price: 10,
+    quantity: 0,
+  },
+  {
+    product: "Peroni",
+    type: "Bere",
+    price: 10,
+    quantity: 0,
+  },
+  {
     product: "Prosecco",
     type: "Vin",
-    price: 20,
+    price: 15,
     quantity: 0,
   },
   {
     product: "Aperol",
+    type: "Vin",
+    price: 15,
+    quantity: 0,
+  },
+  {
+    product: "Vin Rosu",
+    type: "Vin",
+    price: 15,
+    quantity: 0,
+  },
+  {
+    product: "Vin Alb",
     type: "Vin",
     price: 15,
     quantity: 0,
@@ -66,45 +86,22 @@ const initialMenu: MenuItem[] = [
 export function MenuTable({ initial }: { initial: MenuItem[] }) {
   // Use state to manage menu items
   const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
+  const [diffs, setDiffs] = useState<Record<string, number>>({});
   const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
 
   const productKeyMap: Record<string, keyof MenuDataPoint> = {
     heineken: "heineken",
     corona: "corona",
+    peroni: "peroni",
     prosecco: "prosecco",
-    aperol: "aperol_spritz",
+    aperol: "aperol",
+    vin_rosu: "vin_rosu",
+    vin_alb: "vin_alb",
     cola: "cola",
-    apa: "apa_plata",
+    apa: "apa",
   };
 
-
-  // Function to handle quantity increase
-  const handleIncrement = (product: string) => {
-    setMenu((prevMenu) =>
-      prevMenu.map((item) =>
-        item.product === product
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
-  };
-
-  // Function to handle quantity decrease
-  const handleDecrement = (product: string) => {
-    setMenu((prevMenu) =>
-      prevMenu.map((item) =>
-        item.product === product && item.quantity > 0
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
-  };
-
-  // Calculate total quantity for the footer
-  const totalPrice = menu.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const normalizeProduct = (name: string) => name.toLowerCase().replace(/\s+/g, "_");
 
   const newPrice = async () => {
     try {
@@ -112,14 +109,32 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
       const data: MenuDataPoint[] = response.data;
       if (!data.length) return;
       const lastUpdate = data[data.length - 1];
+      const prevUpdate = data.length > 1 ? data[data.length - 2] : undefined;
+
+      // update prices
       setMenu((prev) =>
         prev.map((item) => {
-          const mapKey = productKeyMap[item.product.toLowerCase()];
+          const mapKey = productKeyMap[normalizeProduct(item.product)];
           if (!mapKey) return item;
           const candidate = lastUpdate[mapKey];
           return typeof candidate === "number" ? { ...item, price: candidate } : item;
         })
       );
+
+      // compute diffs using last two entries
+      const computedDiffs: Record<string, number> = {};
+      for (const item of (initial?.length ? initial : initialMenu)) {
+        const key = productKeyMap[normalizeProduct(item.product)];
+        if (!key) continue;
+        const latest = lastUpdate[key];
+        const previous = prevUpdate ? prevUpdate[key] : undefined;
+        const latestNum = typeof latest === "number" ? latest : Number(latest);
+        const prevNum = typeof previous === "number" ? previous : Number(previous);
+        computedDiffs[item.product] = Number.isFinite(latestNum) && Number.isFinite(prevNum)
+          ? latestNum - prevNum
+          : 0;
+      }
+      setDiffs(computedDiffs);
     } catch (err) {
       console.error("Fetch error:", err);
     }
@@ -131,47 +146,32 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = async () => {
-    try {
-      const response = await fetch('api/update-quantity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(menu),
-      });
-
-      if (!response.ok) {
-        const { error } = await response.json();
-        throw new Error(error || 'Failed to submit order')
-      }
-
-      toast("Order quantities updated!")
-      setMenu((prevMenu) => prevMenu.map((item) => ({ ...item, quantity: 0 })))
-
-    } catch (error) {
-      console.error('Submit error:', error);
-      toast('Failed to submit order. Please try again.')
-    }
-  };
-
   return (
-    <div className="flex justify-center w-full">
-      <div className="w-[50%]">
+    <div className="flex justify-center w-full h-full">
+      <div className="w-[75%] h-[700%]">
         <Table>
           <TableCaption>
           </TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead>Product</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Price</TableHead>
+              <TableHead className="text-3xl font-bold text-center">Produs</TableHead>
+              <TableHead className="text-3xl font-bold">Preț</TableHead>
+              <TableHead className="text-3xl font-bold">⇅</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {menu.map((item) => (
               <TableRow key={item.product}>
-                <TableCell className="font-medium">{item.product}</TableCell>
-                <TableCell>{item.type}</TableCell>
-                <TableCell>{item.price}</TableCell>
+                <TableCell className="text-xl text-center">{item.product}</TableCell>
+              <TableCell className="text-xl">{item.price}</TableCell>
+              <TableCell className="text-xl">
+                {(() => {
+                  const diff = diffs[item.product] ?? 0;
+                  const cls = diff > 0 ? "text-red-600" : diff < 0 ? "text-green-600" : "text-muted-foreground";
+                  const formatted = `${diff > 0 ? "+" : ""}${diff.toFixed(2)}`;
+                  return <span className={cls}>{formatted}</span>;
+                })()}
+              </TableCell>
               </TableRow>
             ))}
           </TableBody>

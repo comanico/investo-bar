@@ -21,10 +21,13 @@ export async function POST(req: Request) {
         const productMap: { [key: string]: { model: any; column: string } } = {
             "Heineken": { model: prismadb.bere, column: 'Heineken' },
             "Corona": { model: prismadb.bere, column: 'Corona' },
+            "Peroni": { model: prismadb.bere, column: 'Peroni' },
             "Aperol": { model: prismadb.vin, column: 'Aperol' },
             "Prosecco": { model: prismadb.vin, column: 'Prosecco' },
+            "Vin Rosu": { model: prismadb.vin, column: 'Vin_Rosu' },
+            "Vin Alb": { model: prismadb.vin, column: 'Vin_Alb' },
             "Cola": { model: prismadb.racoritoare, column: 'Cola' },
-            "Apa": { model: prismadb.racoritoare, column: 'Apa_Plata' },
+            "Apa": { model: prismadb.racoritoare, column: 'Apa' },
         }
 
         for (const item of menuItems) {
@@ -48,18 +51,17 @@ export async function POST(req: Request) {
                         data: { [column]: { increment: item.quantity } }
                     })
                 }
+                
+                // Adding sales record once quantity updated
+                await prismadb.sales.create({
+                    data: {
+                        product: item.product,
+                        type: item.type,
+                        price: item.price,
+                        quantity: item.quantity
+                    }
+                });
             }
-
-            // Adding sales record once quantity updated
-            await prismadb.sales.create({
-                data: {
-                    product: item.product,
-                    type: item.type,
-                    price: item.price,
-                    quantity: item.quantity
-                }
-            });
-
         }
 
         return NextResponse.json({ message: 'Quantities updated successfully' })

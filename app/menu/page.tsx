@@ -1,7 +1,5 @@
-import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/menu-header";
 import { MenuTable } from "@/components/menu-table";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@clerk/nextjs/server";
 import { getMenu } from "@/actions/getMenu";
 

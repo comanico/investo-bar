@@ -24,12 +24,12 @@ interface ChartDataPoint {
   time: string;
   heineken: number;
   corona: number;
+  peroni: number;
   aperol_spritz: number;
-  vin_spumant: number;
+  vin_rosu: number;
   vin_alb: number;
   prosecco: number;
-  apa_plata: number;
-  apa_minerala: number;
+  apa: number;
   cola: number;
 }
 
@@ -37,14 +37,14 @@ const initialChartData = [
   {
     time: "17:00",
     heineken: 10,
+    peroni: 10,
     aperol_spritz: 16,
     prosecco: 15,
     corona: 12,
     cola: 8,
-    vin_spumant: 10,
+    vin_rosu: 15,
     vin_alb: 15,
-    apa_plata: 8,
-    apa_minerala: 8,
+    apa: 8,
   },
 ];
 
@@ -72,20 +72,20 @@ const chartConfig = {
     label: "Cola",
     color: "var(--chart-5)",
   },
-  vin_spumant: {
-    label: "Vin Spumant",
+  vin_rosu: {
+    label: "Vin Rosu",
     color: "var(--chart-6)",
   },
   vin_alb: {
     label: "Vin Alb",
     color: "var(--chart-7)",
   },
-  apa_plata: {
-    label: "Apa Plata",
+  apa: {
+    label: "Apa",
     color: "var(--chart-8)",
   },
-  apa_minerala: {
-    label: "Apa Minerala",
+  peroni: {
+    label: "Peroni",
     color: "var(--chart-9)",
   },
 } satisfies ChartConfig;
@@ -180,12 +180,12 @@ export function ChartApp() {
     const allValues = chartData.flatMap((point) => [
       point.heineken,
       point.corona,
+      point.peroni,
       point.aperol_spritz,
-      point.vin_spumant,
+      point.vin_rosu,
       point.vin_alb,
       point.prosecco,
-      point.apa_plata,
-      point.apa_minerala,
+      point.apa,
       point.cola,
     ]);
     const min = Math.min(...allValues);
@@ -209,16 +209,16 @@ export function ChartApp() {
         chartData.length > 0
           ? chartData[chartData.length - 1].aperol_spritz
           : 0,
-      vin_spumant:
-        chartData.length > 0 ? chartData[chartData.length - 1].vin_spumant : 0,
+      vin_rosu:
+        chartData.length > 0 ? chartData[chartData.length - 1].vin_rosu : 0,
       vin_alb:
         chartData.length > 0 ? chartData[chartData.length - 1].vin_alb : 0,
       prosecco:
         chartData.length > 0 ? chartData[chartData.length - 1].prosecco : 0,
-      apa_plata:
-        chartData.length > 0 ? chartData[chartData.length - 1].apa_plata : 0,
-      apa_minerala:
-        chartData.length > 0 ? chartData[chartData.length - 1].apa_minerala : 0,
+      apa:
+        chartData.length > 0 ? chartData[chartData.length - 1].apa : 0,
+      peroni:
+        chartData.length > 0 ? chartData[chartData.length - 1].peroni : 0,
       cola: chartData.length > 0 ? chartData[chartData.length - 1].cola : 0,
     }),
     [chartData]
@@ -249,12 +249,12 @@ export function ChartApp() {
               {[
                 "heineken",
                 "corona",
+                "peroni",
                 "aperol_spritz",
-                "vin_spumant",
+                "vin_rosu",
                 "vin_alb",
                 "prosecco",
-                "apa_plata",
-                "apa_minerala",
+                "apa",
                 "cola",
               ].map((key) => {
                 const chart = key as keyof typeof total;

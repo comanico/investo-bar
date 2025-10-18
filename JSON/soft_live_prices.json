@@ -1,0 +1,34 @@
+[
+  {
+    "Interval": "T0",
+    "Apa": 8,
+    "Cola": 8
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Apa": 8,
+    "Cola": 8,
+    "Profit": 18,
+    "CumProfit": 18
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Apa": 8,
+    "Cola": 8,
+    "Profit": 18,
+    "CumProfit": 18
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "",
+    "Apa": 8,
+    "Cola": 8,
+    "Profit": 25.5,
+    "CumProfit": 25.5
+  }
+]
