@@ -17,11 +17,11 @@ logger = logging.getLogger(__name__)
 
 # Input file paths
 INPUT_FILES = [
-    "D:/Git/FratiaInvestitiei/investo-bar/JSON/wine_live_prices.json",
-    "D:/Git/FratiaInvestitiei/investo-bar/JSON/beer_live_prices.json",
-    "D:/Git/FratiaInvestitiei/investo-bar/JSON/soft_live_prices.json"
+    "./JSON/wine_live_prices.json",
+    "./JSON/beer_live_prices.json",
+    "./JSON/soft_live_prices.json"
 ]
-OUTPUT_FILE = "D:/Git/FratiaInvestitiei/investo-bar/JSON/live_prices.json"
+OUTPUT_FILE = "./JSON/live_prices.json"
 
 # S3 configuration
 S3_BUCKET = "investo-bar-data"

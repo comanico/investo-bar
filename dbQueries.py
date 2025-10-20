@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 class dbQueries():
     def __init__(self):
-        self.DATABASE_URL = "mysql://admin:kM1BvaEUIm9hYgUvhKFp@investobar.cwdec6gs2zqk.us-east-1.rds.amazonaws.com:3306/INVESTOBAR"
+        self.DATABASE_URL = ""
         self.parsed_url = urlparse(self.DATABASE_URL)
         self.config = {
             'user': self.parsed_url.username,
