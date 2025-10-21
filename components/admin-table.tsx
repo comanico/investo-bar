@@ -66,6 +66,8 @@ const initialMenu: MenuItem[] = [
 export function AdminTable({ initial }: { initial: MenuItem[] }) {
   // Use state to manage menu items
   const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
+  // State of page while Toast is active
+  const [isToastActive, setIsToastActive] = useState(false);
   const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
   
   const productKeyMap: Record<string, keyof MenuDataPoint> = {
@@ -147,64 +149,90 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
         throw new Error(error || 'Failed to submit order')
       }
 
-      toast("Order quantities updated!")
+      setIsToastActive(true);
+      toast("oOoOoOOrder quantities updated!", {
+        description: `Please add the sum of ${totalPrice} in POS!`,
+        id: "submit-toast",
+        action: {
+          label: "YEEEEEE",
+          onClick: () => {
+            setIsToastActive(false); // Hide overlay on click
+            console.log("Added to POS");
+          },
+        },
+        position: "top-center",
+        duration: 5000, // Auto-dismiss after 5 seconds
+        onAutoClose: () => setIsToastActive(false), // Hide overlay on timeout
+      });
       setMenu((prevMenu) => prevMenu.map((item) => ({ ...item, quantity: 0 })))
-
     } catch (error) {
       console.error('Submit error:', error);
-      toast('Failed to submit order. Please try again.')
+      setIsToastActive(true);
+      toast.error("Failed to submit order. Please try again.", {
+        position: "top-center",
+        duration: 5000,
+        onAutoClose: () => setIsToastActive(false),
+      });
     }
   };
 
   return (
-    <Table>
-      <TableCaption>
-        <Button aria-label="submit" variant="destructive" className="rounded-full p-8 px-30 cursor-pointer" onClick={handleSubmit}>
-          <span className="md:block text-center">Submit</span>
-        </Button>
-      </TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Product</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Price</TableHead>
-          <TableHead className="text-center">Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {menu.map((item) => (
-          <TableRow key={item.product}>
-            <TableCell className="font-medium">{item.product}</TableCell>
-            <TableCell>{item.type}</TableCell>
-            <TableCell>{item.price}</TableCell>
-            <TableCell className="text-center">
-              <Button
-                variant="secondary"
-                size="icon"
-                className="size-8"
-                onClick={() => handleDecrement(item.product)}
-              >
-                <Minus />
-              </Button>
-              <span className="mx-4">{item.quantity}</span>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="size-8"
-                onClick={() => handleIncrement(item.product)}
-              >
-                <Plus />
-              </Button>
-            </TableCell>
+    <div className="relative">
+    {isToastActive && (
+      <div
+          className="fixed inset-0 bg-black/50 z-40 pointer-events-auto"
+          aria-hidden="true"
+        />
+      )}
+      <Table className={isToastActive ? "opacity-50 pointer-events-none" : ""}>
+        <TableCaption>
+          <Button aria-label="submit" variant="destructive" className="rounded-full p-8 px-30 cursor-pointer" onClick={handleSubmit}>
+            <span className="md:block text-center">Submit</span>
+          </Button>
+        </TableCaption>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[100px]">Product</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Price</TableHead>
+            <TableHead className="text-center">Amount</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-center">{totalPrice}</TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {menu.map((item) => (
+            <TableRow key={item.product}>
+              <TableCell className="font-medium">{item.product}</TableCell>
+              <TableCell>{item.type}</TableCell>
+              <TableCell>{item.price}</TableCell>
+              <TableCell className="text-center">
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="size-8"
+                  onClick={() => handleDecrement(item.product)}
+                >
+                  <Minus />
+                </Button>
+                <span className="mx-4">{item.quantity}</span>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="size-8"
+                  onClick={() => handleIncrement(item.product)}
+                >
+                  <Plus />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={3}>Total</TableCell>
+            <TableCell className="text-center">{totalPrice}</TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    </div>
   );
 }

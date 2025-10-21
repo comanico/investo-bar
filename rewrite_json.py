@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import os
 from watchdog.observers import Observer
@@ -50,10 +50,6 @@ KEY_MAPPING = {
     "Cola": "cola"
 }
 
-# Default values for fields not in input JSONs
-DEFAULT_VALUES = {
-}
-
 # Function to read a single JSON file
 def read_json_file(file_path):
     # Retry reads to avoid decoding while producer is still writing
@@ -76,7 +72,7 @@ def read_all_json_files():
 
 # Function to transform data
 def transform_data(json_data_list):
-    output = DEFAULT_VALUES.copy()
+    output = {}
     output["time"] = datetime.now().strftime("%H:%M")
 
     excluded_keys = {"Index", "Interval", "Event", "Profit", "CumProfit"}
@@ -162,6 +158,18 @@ def is_quarter_hour():
     quarter_minutes = [0, 15, 30, 45]
     return any((now.minute % 60) in {(q - 1) % 60, q, (q + 1) % 60} for q in quarter_minutes)
 
+def last_change(changeTime):
+    now = datetime.now().minute
+    changeMinute = datetime.strptime(changeTime, "%H:%M")
+    changeMinute = changeMinute.minute
+    timeDiff = abs(changeMinute - now)
+    if timeDiff in [0,1]:
+        logger.info(f"To many changes within the same timewindow.")
+        logger.info(f"Last change time: {changeTime}")
+        return False
+    logger.info(f"Last change is in a different time window: {changeTime}")
+    return True
+
 # Function to process JSON and upload to S3
 def process_json():
     try:
@@ -202,6 +210,9 @@ def process_json():
             if existing_local and existing_local[-1] == output_data:
                 logger.info("Snapshot is identical to the last one; skipping append.")
                 new_local_data = existing_local
+            elif existing_local and not last_change(existing_local[-1].get("time")):
+                logger.info("Can't append new data already, caching in.")
+                new_local_data = existing_local
             else:
                 new_local_data = existing_local + [output_data]
 
@@ -222,9 +233,7 @@ def process_json():
                 )
                 logger.info(f"Uploaded {S3_KEY} to S3 bucket {S3_BUCKET}")
                 invalidate_cloudfront_cache()
-                # Give some time to chill
-                time.sleep(1000)
-                dbQueries().insertLine() # After every invalidation, need a new line for new timeframe
+                dbQueries().insertLine()
             except ClientError as e:
                 logger.error(f"Error uploading to S3: {e}")
         else:
@@ -296,5 +305,5 @@ if __name__ == "__main__":
         reset_prices_json(delete=True)   # Deletes prices.json on S3
         reset_prices_json(delete=False)  # Sets prices.json to [] on S3
         dbQueries().clearTables() # Clears tables from DB
-        dbQueries().insertLine()  # Inserts line in DB, in order to not be empty
+        dbQueries().initializeTable() # Initializes table from DB
     start_watching()

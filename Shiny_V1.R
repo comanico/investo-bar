@@ -23,7 +23,6 @@ gs4_auth() # or use gs4_deauth() if the sheet is public
 # ---- Sheet URL ----
 sheet_url <- "https://docs.google.com/spreadsheets/d/1P2ITAsvY3pR8mJFJa36idzutiCrrk7XHHbZQrcxcfrg/edit?usp=sharing" # nolint: line_length_linter.
 
-
 # Note: The 'validate' function masking warning is normal and harmless
 # jsonlite's validate function masks shiny's validate, but this doesn't affect functionality # nolint: line_length_linter.
 # Version warnings (4.4.3 vs 4.4.2) are also harmless - packages work across minor versions # nolint: line_length_linter.

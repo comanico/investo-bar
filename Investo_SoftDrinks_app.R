@@ -18,10 +18,10 @@ library(jsonlite)
 
 # --- Persist JSON history ---
 WRITE_JSON <- TRUE
-JSON_PATH <- "./JSON/soft_live_prices.json"
+JSON_PATH <- "D:/Git/FratiaInvestitiei/investo-bar/JSON/soft_live_prices.json"
 
 # ---- MySQL Connection Settings ----
-DATABASE_URL <- ""
+DATABASE_URL <- "mysql://admin:kM1BvaEUIm9hYgUvhKFp@investobar.cwdec6gs2zqk.us-east-1.rds.amazonaws.com:3306/INVESTOBAR"
 
 # Helper to parse DB URL
 parse_db_url <- function(url) {
@@ -85,7 +85,7 @@ DEPTH <- 12
 MAX_CHANGE <- 0.30
 ROUND_TO <- 0.5
 SOFT_FLOOR_DELTA <- 1.0
-UPDATE_INTERVAL_SECONDS <- 20
+# UPDATE_INTERVAL_SECONDS <- 20
 EPS_SHARE <- 1e-6
 
 # --- Warm-up Settings ---
@@ -250,7 +250,7 @@ server <- function(input, output, session) {
     return(total_seconds * 1000) # Convert to milliseconds
   }
 
-  autoInvalidate <- reactiveTimer(UPDATE_INTERVAL_SECONDS * 1000)
+  autoInvalidate <- reactiveTimer(getNext15MinuteInterval())
   output$countdown <- renderUI(tags$div(id = "countdownTimer"))
 
   # ==========================================================
@@ -263,8 +263,6 @@ server <- function(input, output, session) {
     query <- "
       SELECT id, Apa, Cola
       FROM racoritoare
-      ORDER BY id DESC
-      LIMIT 1
     "
 
     # ---- Load Data ----
@@ -407,6 +405,25 @@ server <- function(input, output, session) {
       Price = as.numeric(unlist(new_prices))
     )
     txn_history(rbind(detail, per_drink))
+
+    if (isTRUE(WRITE_JSON)) {
+    dir.create(dirname(JSON_PATH), recursive = TRUE, showWarnings = FALSE)
+    if (file.exists(JSON_PATH)) {
+      json_data <- tryCatch(jsonlite::fromJSON(JSON_PATH, simplifyDataFrame = TRUE), error = function(e) NULL)
+      if (is.null(json_data)) {
+        jsonlite::write_json(new_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
+      } else {
+        if (!is.data.frame(json_data)) json_data <- as.data.frame(json_data, stringsAsFactors = FALSE)
+        for (nm in setdiff(TARGET_COLS, names(json_data))) json_data[[nm]] <- NA
+        json_data <- json_data[, TARGET_COLS, drop = FALSE]
+        combined <- rbind(json_data, new_row)
+        jsonlite::write_json(combined, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
+      }
+    } else {
+      jsonlite::write_json(new_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
+    }
+  }
+
   })
 
   # ==========================================================
