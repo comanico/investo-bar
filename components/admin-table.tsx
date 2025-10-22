@@ -38,6 +38,18 @@ const initialMenu: MenuItem[] = [
     quantity: 0,
   },
   {
+    product: "Corona",
+    type: "Bere",
+    price: 10,
+    quantity: 0,
+  },
+  {
+    product: "Peroni",
+    type: "Bere",
+    price: 10,
+    quantity: 0,
+  },
+  {
     product: "Prosecco",
     type: "Vin",
     price: 20,
@@ -45,6 +57,18 @@ const initialMenu: MenuItem[] = [
   },
   {
     product: "Aperol",
+    type: "Vin",
+    price: 15,
+    quantity: 0,
+  },
+  {
+    product: "Vin Rosu",
+    type: "Vin",
+    price: 15,
+    quantity: 0,
+  },
+  {
+    product: "Vin Alb",
     type: "Vin",
     price: 15,
     quantity: 0,
@@ -115,11 +139,13 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
     try {
       const response = await axios.get<MenuDataPoint[]>(DATA_URL, { timeout: 5000 });
       const data: MenuDataPoint[] = response.data;
+      console.log(data)
       if (!data.length) return;
       const lastUpdate = data[data.length - 1];
       setMenu((prev) =>
         prev.map((item) => {
-          const mapKey = productKeyMap[item.product.toLowerCase()];
+          const normalizedKey = item.product.toLowerCase().replace(/\s+/g, "_");
+          const mapKey = productKeyMap[normalizedKey];
           if (!mapKey) return item;
           const candidate = lastUpdate[mapKey];
           return typeof candidate === "number" ? { ...item, price: candidate } : item;
