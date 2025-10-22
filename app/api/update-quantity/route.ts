@@ -10,8 +10,8 @@ export async function POST(req: Request) {
         if (!userId || !whitelistedUserIds.includes(userId)) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
-
-        const menuItems = await req.json();
+        
+        const { menu: menuItems, username } = await req.json();
 
         if (!Array.isArray(menuItems)) {
             return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
@@ -58,7 +58,8 @@ export async function POST(req: Request) {
                         product: item.product,
                         type: item.type,
                         price: item.price,
-                        quantity: item.quantity
+                        quantity: item.quantity,
+                        username: username || 'Unknown User',
                     }
                 });
             }

@@ -12,8 +12,8 @@
     "Heineken": 10,
     "Peroni": 11,
     "Corona": 12,
-    "Profit": 188.5,
-    "CumProfit": 188.5
+    "Profit": 27.4,
+    "CumProfit": 27.4
   },
   {
     "Index": 1,
@@ -22,48 +22,8 @@
     "Heineken": 10,
     "Peroni": 11,
     "Corona": 12,
-    "Profit": 188.5,
-    "CumProfit": 188.5
-  },
-  {
-    "Index": 2,
-    "Interval": "T 2",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 11,
-    "Corona": 15.5,
-    "Profit": 79.9,
-    "CumProfit": 268.4
-  },
-  {
-    "Index": 3,
-    "Interval": "T 3",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 14.5,
-    "Corona": 11,
-    "Profit": 28.5,
-    "CumProfit": 296.9
-  },
-  {
-    "Index": 4,
-    "Interval": "T 4",
-    "Event": "SMOOTHED",
-    "Heineken": 11.5,
-    "Peroni": 10,
-    "Corona": 11,
-    "Profit": 62,
-    "CumProfit": 358.9
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 13,
-    "Corona": 11,
-    "Profit": 40,
-    "CumProfit": 398.9
+    "Profit": 27.4,
+    "CumProfit": 27.4
   },
   {
     "Index": 1,
@@ -72,58 +32,8 @@
     "Heineken": 10,
     "Peroni": 11,
     "Corona": 12,
-    "Profit": 188.5,
-    "CumProfit": 188.5
-  },
-  {
-    "Index": 2,
-    "Interval": "T 2",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 11,
-    "Corona": 15.5,
-    "Profit": 79.9,
-    "CumProfit": 268.4
-  },
-  {
-    "Index": 3,
-    "Interval": "T 3",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 14.5,
-    "Corona": 11,
-    "Profit": 28.5,
-    "CumProfit": 296.9
-  },
-  {
-    "Index": 4,
-    "Interval": "T 4",
-    "Event": "SMOOTHED",
-    "Heineken": 11.5,
-    "Peroni": 10,
-    "Corona": 11,
-    "Profit": 62,
-    "CumProfit": 358.9
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 13,
-    "Corona": 11,
-    "Profit": 40,
-    "CumProfit": 398.9
-  },
-  {
-    "Index": 6,
-    "Interval": "T 6",
-    "Event": "",
-    "Heineken": 9,
-    "Peroni": 11.5,
-    "Corona": 14.5,
-    "Profit": 72.2,
-    "CumProfit": 471.1
+    "Profit": 27.4,
+    "CumProfit": 27.4
   },
   {
     "Index": 1,
@@ -132,68 +42,8 @@
     "Heineken": 10,
     "Peroni": 11,
     "Corona": 12,
-    "Profit": 188.5,
-    "CumProfit": 188.5
-  },
-  {
-    "Index": 2,
-    "Interval": "T 2",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 11,
-    "Corona": 15.5,
-    "Profit": 79.9,
-    "CumProfit": 268.4
-  },
-  {
-    "Index": 3,
-    "Interval": "T 3",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 14.5,
-    "Corona": 11,
-    "Profit": 28.5,
-    "CumProfit": 296.9
-  },
-  {
-    "Index": 4,
-    "Interval": "T 4",
-    "Event": "SMOOTHED",
-    "Heineken": 11.5,
-    "Peroni": 10,
-    "Corona": 11,
-    "Profit": 62,
-    "CumProfit": 358.9
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 13,
-    "Corona": 11,
-    "Profit": 40,
-    "CumProfit": 398.9
-  },
-  {
-    "Index": 6,
-    "Interval": "T 6",
-    "Event": "",
-    "Heineken": 9,
-    "Peroni": 11.5,
-    "Corona": 14.5,
-    "Profit": 72.2,
-    "CumProfit": 471.1
-  },
-  {
-    "Index": 7,
-    "Interval": "T 7",
-    "Event": "",
-    "Heineken": 9,
-    "Peroni": 10,
-    "Corona": 19,
-    "Profit": 108.5,
-    "CumProfit": 579.6
+    "Profit": 27.4,
+    "CumProfit": 27.4
   },
   {
     "Index": 1,
@@ -202,78 +52,8 @@
     "Heineken": 10,
     "Peroni": 11,
     "Corona": 12,
-    "Profit": 188.5,
-    "CumProfit": 188.5
-  },
-  {
-    "Index": 2,
-    "Interval": "T 2",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 11,
-    "Corona": 15.5,
-    "Profit": 79.9,
-    "CumProfit": 268.4
-  },
-  {
-    "Index": 3,
-    "Interval": "T 3",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 14.5,
-    "Corona": 11,
-    "Profit": 28.5,
-    "CumProfit": 296.9
-  },
-  {
-    "Index": 4,
-    "Interval": "T 4",
-    "Event": "SMOOTHED",
-    "Heineken": 11.5,
-    "Peroni": 10,
-    "Corona": 11,
-    "Profit": 62,
-    "CumProfit": 358.9
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 13,
-    "Corona": 11,
-    "Profit": 40,
-    "CumProfit": 398.9
-  },
-  {
-    "Index": 6,
-    "Interval": "T 6",
-    "Event": "",
-    "Heineken": 9,
-    "Peroni": 11.5,
-    "Corona": 14.5,
-    "Profit": 72.2,
-    "CumProfit": 471.1
-  },
-  {
-    "Index": 7,
-    "Interval": "T 7",
-    "Event": "",
-    "Heineken": 9,
-    "Peroni": 10,
-    "Corona": 19,
-    "Profit": 108.5,
-    "CumProfit": 579.6
-  },
-  {
-    "Index": 8,
-    "Interval": "T 8",
-    "Event": "CRISIS",
-    "Heineken": 10,
-    "Peroni": 11,
-    "Corona": 12,
-    "Profit": 384.1,
-    "CumProfit": 963.7
+    "Profit": 27.4,
+    "CumProfit": 27.4
   },
   {
     "Index": 1,
@@ -282,77 +62,117 @@
     "Heineken": 10,
     "Peroni": 11,
     "Corona": 12,
-    "Profit": 188.5,
-    "CumProfit": 188.5
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12,
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12,
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12,
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12,
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12,
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12,
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12,
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 11,
+    "Corona": 12,
+    "Profit": 27.4,
+    "CumProfit": 27.4
   },
   {
     "Index": 2,
     "Interval": "T 2",
     "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 11,
-    "Corona": 15.5,
-    "Profit": 79.9,
-    "CumProfit": 268.4
-  },
-  {
-    "Index": 3,
-    "Interval": "T 3",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 14.5,
+    "Heineken": 10,
+    "Peroni": 12.5,
     "Corona": 11,
-    "Profit": 28.5,
-    "CumProfit": 296.9
+    "Profit": 168.9,
+    "CumProfit": 196.3
   },
   {
-    "Index": 4,
-    "Interval": "T 4",
+    "Index": 1,
+    "Interval": "T 1",
     "Event": "SMOOTHED",
-    "Heineken": 11.5,
-    "Peroni": 10,
-    "Corona": 11,
-    "Profit": 62,
-    "CumProfit": 358.9
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Heineken": 9,
-    "Peroni": 13,
-    "Corona": 11,
-    "Profit": 40,
-    "CumProfit": 398.9
-  },
-  {
-    "Index": 6,
-    "Interval": "T 6",
-    "Event": "",
-    "Heineken": 9,
-    "Peroni": 11.5,
-    "Corona": 14.5,
-    "Profit": 72.2,
-    "CumProfit": 471.1
-  },
-  {
-    "Index": 7,
-    "Interval": "T 7",
-    "Event": "",
-    "Heineken": 9,
-    "Peroni": 10,
-    "Corona": 19,
-    "Profit": 108.5,
-    "CumProfit": 579.6
-  },
-  {
-    "Index": 8,
-    "Interval": "T 8",
-    "Event": "CRISIS",
     "Heineken": 10,
     "Peroni": 11,
     "Corona": 12,
-    "Profit": 384.1,
-    "CumProfit": 963.7
+    "Profit": 27.4,
+    "CumProfit": 27.4
+  },
+  {
+    "Index": 2,
+    "Interval": "T 2",
+    "Event": "SMOOTHED",
+    "Heineken": 10,
+    "Peroni": 12.5,
+    "Corona": 11,
+    "Profit": 168.9,
+    "CumProfit": 196.3
   }
 ]

@@ -21,6 +21,7 @@ model sales {
   type     String   @db.VarChar(255)
   price    Decimal  @db.Decimal(10, 2)
   quantity Int?     @default(0)
+  username String   @db.VarChar(255) @default("Spender Investobar")
   time     DateTime @default(now())
 }
 

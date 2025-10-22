@@ -15,7 +15,8 @@ import {
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MenuItem } from "@/actions/getMenu";
-import { toast } from "sonner"
+import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
 
 interface MenuDataPoint {
   time: string;
@@ -94,6 +95,10 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
   const [isToastActive, setIsToastActive] = useState(false);
   const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
   
+  // Get user information from Clerk
+  const { user } = useUser();
+  const username = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Unknown User';
+  
   const productKeyMap: Record<string, keyof MenuDataPoint> = {
     heineken: "heineken",
     corona: "corona",
@@ -139,7 +144,6 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
     try {
       const response = await axios.get<MenuDataPoint[]>(DATA_URL, { timeout: 5000 });
       const data: MenuDataPoint[] = response.data;
-      console.log(data)
       if (!data.length) return;
       const lastUpdate = data[data.length - 1];
       setMenu((prev) =>
@@ -167,7 +171,7 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
       const response = await fetch('api/update-quantity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(menu),
+        body: JSON.stringify({ menu, username }),
       });
 
       if (!response.ok) {
@@ -183,7 +187,6 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
           label: "YEEEEEE",
           onClick: () => {
             setIsToastActive(false); // Hide overlay on click
-            console.log("Added to POS");
           },
         },
         position: "top-center",

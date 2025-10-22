@@ -14,8 +14,8 @@
     "Prosecco": 15,
     "Vin_Alb": 15,
     "Vin_Rosu": 15,
-    "Profit": 70.33,
-    "CumProfit": 70.33
+    "Profit": 108.33,
+    "CumProfit": 108.33
   },
   {
     "Index": 1,
@@ -25,8 +25,8 @@
     "Prosecco": 15,
     "Vin_Alb": 15,
     "Vin_Rosu": 15,
-    "Profit": 70.33,
-    "CumProfit": 70.33
+    "Profit": 108.33,
+    "CumProfit": 108.33
   },
   {
     "Index": 1,
@@ -36,19 +36,173 @@
     "Prosecco": 15,
     "Vin_Alb": 15,
     "Vin_Rosu": 15,
-    "Profit": 70.33,
-    "CumProfit": 70.33
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
   },
   {
     "Index": 2,
     "Interval": "T 2",
     "Event": "SMOOTHED",
-    "Aperol": 15.5,
-    "Prosecco": 15.5,
-    "Vin_Alb": 14.5,
-    "Vin_Rosu": 14.5,
-    "Profit": 110.33,
-    "CumProfit": 180.67
+    "Aperol": 15,
+    "Prosecco": 14,
+    "Vin_Alb": 18.5,
+    "Vin_Rosu": 14,
+    "Profit": 171,
+    "CumProfit": 279.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 2,
+    "Interval": "T 2",
+    "Event": "SMOOTHED",
+    "Aperol": 15,
+    "Prosecco": 14,
+    "Vin_Alb": 18.5,
+    "Vin_Rosu": 14,
+    "Profit": 171,
+    "CumProfit": 279.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 2,
+    "Interval": "T 2",
+    "Event": "SMOOTHED",
+    "Aperol": 15,
+    "Prosecco": 14,
+    "Vin_Alb": 18.5,
+    "Vin_Rosu": 14,
+    "Profit": 171,
+    "CumProfit": 279.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 2,
+    "Interval": "T 2",
+    "Event": "SMOOTHED",
+    "Aperol": 15,
+    "Prosecco": 14,
+    "Vin_Alb": 18.5,
+    "Vin_Rosu": 14,
+    "Profit": 171,
+    "CumProfit": 279.33
+  },
+  {
+    "Index": 1,
+    "Interval": "T 1",
+    "Event": "SMOOTHED",
+    "Aperol": 16,
+    "Prosecco": 15,
+    "Vin_Alb": 15,
+    "Vin_Rosu": 15,
+    "Profit": 108.33,
+    "CumProfit": 108.33
+  },
+  {
+    "Index": 2,
+    "Interval": "T 2",
+    "Event": "SMOOTHED",
+    "Aperol": 15,
+    "Prosecco": 14,
+    "Vin_Alb": 18.5,
+    "Vin_Rosu": 14,
+    "Profit": 171,
+    "CumProfit": 279.33
   },
   {
     "Index": 3,
@@ -56,32 +210,10 @@
     "Event": "SMOOTHED",
     "Aperol": 15.5,
     "Prosecco": 14.5,
-    "Vin_Alb": 16,
-    "Vin_Rosu": 14,
-    "Profit": 67,
-    "CumProfit": 247.67
-  },
-  {
-    "Index": 4,
-    "Interval": "T 4",
-    "Event": "SMOOTHED",
-    "Aperol": 16.5,
-    "Prosecco": 14,
-    "Vin_Alb": 14,
-    "Vin_Rosu": 16,
-    "Profit": 70,
-    "CumProfit": 317.67
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Aperol": 15,
-    "Prosecco": 15.5,
-    "Vin_Alb": 15,
-    "Vin_Rosu": 15.5,
-    "Profit": 136.67,
-    "CumProfit": 454.33
+    "Vin_Alb": 17,
+    "Vin_Rosu": 15,
+    "Profit": 536.83,
+    "CumProfit": 816.17
   },
   {
     "Index": 1,
@@ -91,19 +223,19 @@
     "Prosecco": 15,
     "Vin_Alb": 15,
     "Vin_Rosu": 15,
-    "Profit": 70.33,
-    "CumProfit": 70.33
+    "Profit": 108.33,
+    "CumProfit": 108.33
   },
   {
     "Index": 2,
     "Interval": "T 2",
     "Event": "SMOOTHED",
-    "Aperol": 15.5,
-    "Prosecco": 15.5,
-    "Vin_Alb": 14.5,
-    "Vin_Rosu": 14.5,
-    "Profit": 110.33,
-    "CumProfit": 180.67
+    "Aperol": 15,
+    "Prosecco": 14,
+    "Vin_Alb": 18.5,
+    "Vin_Rosu": 14,
+    "Profit": 171,
+    "CumProfit": 279.33
   },
   {
     "Index": 3,
@@ -111,43 +243,10 @@
     "Event": "SMOOTHED",
     "Aperol": 15.5,
     "Prosecco": 14.5,
-    "Vin_Alb": 16,
-    "Vin_Rosu": 14,
-    "Profit": 67,
-    "CumProfit": 247.67
-  },
-  {
-    "Index": 4,
-    "Interval": "T 4",
-    "Event": "SMOOTHED",
-    "Aperol": 16.5,
-    "Prosecco": 14,
-    "Vin_Alb": 14,
-    "Vin_Rosu": 16,
-    "Profit": 70,
-    "CumProfit": 317.67
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Aperol": 15,
-    "Prosecco": 15.5,
-    "Vin_Alb": 15,
-    "Vin_Rosu": 15.5,
-    "Profit": 136.67,
-    "CumProfit": 454.33
-  },
-  {
-    "Index": 6,
-    "Interval": "T 6",
-    "Event": "",
-    "Aperol": 15,
-    "Prosecco": 14,
-    "Vin_Alb": 20.5,
-    "Vin_Rosu": 19,
-    "Profit": 217.33,
-    "CumProfit": 671.67
+    "Vin_Alb": 17,
+    "Vin_Rosu": 15,
+    "Profit": 536.83,
+    "CumProfit": 816.17
   },
   {
     "Index": 1,
@@ -157,19 +256,19 @@
     "Prosecco": 15,
     "Vin_Alb": 15,
     "Vin_Rosu": 15,
-    "Profit": 70.33,
-    "CumProfit": 70.33
+    "Profit": 108.33,
+    "CumProfit": 108.33
   },
   {
     "Index": 2,
     "Interval": "T 2",
     "Event": "SMOOTHED",
-    "Aperol": 15.5,
-    "Prosecco": 15.5,
-    "Vin_Alb": 14.5,
-    "Vin_Rosu": 14.5,
-    "Profit": 110.33,
-    "CumProfit": 180.67
+    "Aperol": 15,
+    "Prosecco": 14,
+    "Vin_Alb": 18.5,
+    "Vin_Rosu": 14,
+    "Profit": 171,
+    "CumProfit": 279.33
   },
   {
     "Index": 3,
@@ -177,54 +276,21 @@
     "Event": "SMOOTHED",
     "Aperol": 15.5,
     "Prosecco": 14.5,
-    "Vin_Alb": 16,
-    "Vin_Rosu": 14,
-    "Profit": 67,
-    "CumProfit": 247.67
+    "Vin_Alb": 17,
+    "Vin_Rosu": 15,
+    "Profit": 536.83,
+    "CumProfit": 816.17
   },
   {
     "Index": 4,
     "Interval": "T 4",
     "Event": "SMOOTHED",
-    "Aperol": 16.5,
+    "Aperol": 16,
     "Prosecco": 14,
-    "Vin_Alb": 14,
-    "Vin_Rosu": 16,
-    "Profit": 70,
-    "CumProfit": 317.67
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Aperol": 15,
-    "Prosecco": 15.5,
     "Vin_Alb": 15,
     "Vin_Rosu": 15.5,
-    "Profit": 136.67,
-    "CumProfit": 454.33
-  },
-  {
-    "Index": 6,
-    "Interval": "T 6",
-    "Event": "",
-    "Aperol": 15,
-    "Prosecco": 14,
-    "Vin_Alb": 20.5,
-    "Vin_Rosu": 19,
-    "Profit": 217.33,
-    "CumProfit": 671.67
-  },
-  {
-    "Index": 7,
-    "Interval": "T 7",
-    "Event": "",
-    "Aperol": 15,
-    "Prosecco": 14,
-    "Vin_Alb": 25,
-    "Vin_Rosu": 17.5,
-    "Profit": 194.17,
-    "CumProfit": 865.83
+    "Profit": 90.5,
+    "CumProfit": 906.67
   },
   {
     "Index": 1,
@@ -234,19 +300,19 @@
     "Prosecco": 15,
     "Vin_Alb": 15,
     "Vin_Rosu": 15,
-    "Profit": 70.33,
-    "CumProfit": 70.33
+    "Profit": 108.33,
+    "CumProfit": 108.33
   },
   {
     "Index": 2,
     "Interval": "T 2",
     "Event": "SMOOTHED",
-    "Aperol": 15.5,
-    "Prosecco": 15.5,
-    "Vin_Alb": 14.5,
-    "Vin_Rosu": 14.5,
-    "Profit": 110.33,
-    "CumProfit": 180.67
+    "Aperol": 15,
+    "Prosecco": 14,
+    "Vin_Alb": 18.5,
+    "Vin_Rosu": 14,
+    "Profit": 171,
+    "CumProfit": 279.33
   },
   {
     "Index": 3,
@@ -254,152 +320,20 @@
     "Event": "SMOOTHED",
     "Aperol": 15.5,
     "Prosecco": 14.5,
-    "Vin_Alb": 16,
-    "Vin_Rosu": 14,
-    "Profit": 67,
-    "CumProfit": 247.67
+    "Vin_Alb": 17,
+    "Vin_Rosu": 15,
+    "Profit": 536.83,
+    "CumProfit": 816.17
   },
   {
     "Index": 4,
     "Interval": "T 4",
     "Event": "SMOOTHED",
-    "Aperol": 16.5,
-    "Prosecco": 14,
-    "Vin_Alb": 14,
-    "Vin_Rosu": 16,
-    "Profit": 70,
-    "CumProfit": 317.67
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Aperol": 15,
-    "Prosecco": 15.5,
-    "Vin_Alb": 15,
-    "Vin_Rosu": 15.5,
-    "Profit": 136.67,
-    "CumProfit": 454.33
-  },
-  {
-    "Index": 6,
-    "Interval": "T 6",
-    "Event": "",
-    "Aperol": 15,
-    "Prosecco": 14,
-    "Vin_Alb": 20.5,
-    "Vin_Rosu": 19,
-    "Profit": 217.33,
-    "CumProfit": 671.67
-  },
-  {
-    "Index": 7,
-    "Interval": "T 7",
-    "Event": "",
-    "Aperol": 15,
-    "Prosecco": 14,
-    "Vin_Alb": 25,
-    "Vin_Rosu": 17.5,
-    "Profit": 194.17,
-    "CumProfit": 865.83
-  },
-  {
-    "Index": 8,
-    "Interval": "T 8",
-    "Event": "CRISIS",
     "Aperol": 16,
-    "Prosecco": 15,
-    "Vin_Alb": 15,
-    "Vin_Rosu": 15,
-    "Profit": 542.67,
-    "CumProfit": 1408.5
-  },
-  {
-    "Index": 1,
-    "Interval": "T 1",
-    "Event": "SMOOTHED",
-    "Aperol": 16,
-    "Prosecco": 15,
-    "Vin_Alb": 15,
-    "Vin_Rosu": 15,
-    "Profit": 70.33,
-    "CumProfit": 70.33
-  },
-  {
-    "Index": 2,
-    "Interval": "T 2",
-    "Event": "SMOOTHED",
-    "Aperol": 15.5,
-    "Prosecco": 15.5,
-    "Vin_Alb": 14.5,
-    "Vin_Rosu": 14.5,
-    "Profit": 110.33,
-    "CumProfit": 180.67
-  },
-  {
-    "Index": 3,
-    "Interval": "T 3",
-    "Event": "SMOOTHED",
-    "Aperol": 15.5,
-    "Prosecco": 14.5,
-    "Vin_Alb": 16,
-    "Vin_Rosu": 14,
-    "Profit": 67,
-    "CumProfit": 247.67
-  },
-  {
-    "Index": 4,
-    "Interval": "T 4",
-    "Event": "SMOOTHED",
-    "Aperol": 16.5,
     "Prosecco": 14,
-    "Vin_Alb": 14,
-    "Vin_Rosu": 16,
-    "Profit": 70,
-    "CumProfit": 317.67
-  },
-  {
-    "Index": 5,
-    "Interval": "T 5",
-    "Event": "SMOOTHED",
-    "Aperol": 15,
-    "Prosecco": 15.5,
     "Vin_Alb": 15,
     "Vin_Rosu": 15.5,
-    "Profit": 136.67,
-    "CumProfit": 454.33
-  },
-  {
-    "Index": 6,
-    "Interval": "T 6",
-    "Event": "",
-    "Aperol": 15,
-    "Prosecco": 14,
-    "Vin_Alb": 20.5,
-    "Vin_Rosu": 19,
-    "Profit": 217.33,
-    "CumProfit": 671.67
-  },
-  {
-    "Index": 7,
-    "Interval": "T 7",
-    "Event": "",
-    "Aperol": 15,
-    "Prosecco": 14,
-    "Vin_Alb": 25,
-    "Vin_Rosu": 17.5,
-    "Profit": 194.17,
-    "CumProfit": 865.83
-  },
-  {
-    "Index": 8,
-    "Interval": "T 8",
-    "Event": "",
-    "Aperol": 16.5,
-    "Prosecco": 14.5,
-    "Vin_Alb": 24.5,
-    "Vin_Rosu": 15.5,
-    "Profit": 665.67,
-    "CumProfit": 1531.5
+    "Profit": 90.5,
+    "CumProfit": 906.67
   }
 ]
