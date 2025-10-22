@@ -21,7 +21,7 @@ WRITE_JSON <- TRUE
 JSON_PATH <- "D:/Git/FratiaInvestitiei/investo-bar/JSON/beer_live_prices.json"
 
 # ---- MySQL Connection Settings ----
-DATABASE_URL <- "mysql://admin:kM1BvaEUIm9hYgUvhKFp@investobar.cwdec6gs2zqk.us-east-1.rds.amazonaws.com:3306/INVESTOBAR"
+DATABASE_URL <- ""
 
 # Helper to parse DB URL
 parse_db_url <- function(url) {
