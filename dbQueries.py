@@ -107,7 +107,7 @@ class dbQueries():
                     last_row = cursor.fetchone()
                     config["empty"] = last_row is None or all(x == 0 or x is None for x in last_row)
                 if all(x["empty"] == True for x in table_configs):
-                    print(f"Last row in {table} is empty ({', '.join(columns)} = 0 or NULL). Skipping insert.")
+                    print(f"All tables have last line empty. Skipping insert.")
                 else:
                     # Insert a new row with zeros
                     for config in table_configs:

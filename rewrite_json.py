@@ -160,11 +160,10 @@ def is_quarter_hour():
 
 def last_change(changeTime):
     now = datetime.now().minute
-    changeMinute = datetime.strptime(changeTime, "%H:%M")
-    changeMinute = changeMinute.minute
+    changeMinute = datetime.strptime(changeTime, "%H:%M").minute
     timeDiff = abs(changeMinute - now)
-    if timeDiff in [0,1]:
-        logger.info(f"To many changes within the same timewindow.")
+    if timeDiff in [0, 1]:
+        logger.info(f"Too many changes within the same time window.")
         logger.info(f"Last change time: {changeTime}")
         return False
     logger.info(f"Last change is in a different time window: {changeTime}")
@@ -186,7 +185,7 @@ def process_json():
             logger.info("No product data found in inputs; skipping snapshot write.")
             return
 
-        # Append/merge to local live_prices.json (maintain an array of snapshots)
+        # Read existing local data
         existing_local: list
         try:
             if os.path.exists(OUTPUT_FILE):
@@ -198,32 +197,32 @@ def process_json():
         except Exception:
             existing_local = []
 
-        # Merge with last snapshot if same minute (same time string)
-        if existing_local and isinstance(existing_local[-1], dict) and existing_local[-1].get("time") == output_data["time"]:
-            merged = existing_local[-1].copy()
-            merged.update(output_data)
-            existing_local[-1] = merged
-            new_local_data = existing_local
-            logger.info("Merged snapshot into existing entry for current minute.")
-        else:
-            # Avoid appending exact duplicate of the last snapshot
-            if existing_local and existing_local[-1] == output_data:
-                logger.info("Snapshot is identical to the last one; skipping append.")
+        # Only update local file and S3 at quarter-hour marks
+        if is_quarter_hour():
+            # Check if we can append a new snapshot (not in the same quarter-hour window)
+            if existing_local and isinstance(existing_local[-1], dict) and existing_local[-1].get("time") == output_data["time"]:
+                merged = existing_local[-1].copy()
+                merged.update(output_data)
+                existing_local[-1] = merged
                 new_local_data = existing_local
+                logger.info("Merged snapshot into existing entry for current minute.")
             elif existing_local and not last_change(existing_local[-1].get("time")):
-                logger.info("Can't append new data already, caching in.")
-                new_local_data = existing_local
+                logger.info("Can't append new data; within same quarter-hour window.")
+                return
             else:
+                # Avoid appending exact duplicate of the last snapshot
+                if existing_local and existing_local[-1] == output_data:
+                    logger.info("Snapshot is identical to the last one; skipping append.")
+                    return
                 new_local_data = existing_local + [output_data]
 
-        with open(OUTPUT_FILE, 'w') as f_out:
-            json.dump(new_local_data, f_out, indent=2)
-        logger.info(f"Appended new snapshot and saved to {OUTPUT_FILE}")
-        
-        # Only upload to S3 and invalidate CloudFront at quarter-hour marks
-        if is_quarter_hour():
+            # Write to local file
+            with open(OUTPUT_FILE, 'w') as f_out:
+                json.dump(new_local_data, f_out, indent=2)
+            logger.info(f"Appended new snapshot and saved to {OUTPUT_FILE}")
+            
+            # Upload the full array to S3
             try:
-                # Upload the full array to S3 so consumers receive history
                 json_content = json.dumps(new_local_data, indent=2)
                 s3_client.put_object(
                     Bucket=S3_BUCKET,
@@ -237,7 +236,7 @@ def process_json():
             except ClientError as e:
                 logger.error(f"Error uploading to S3: {e}")
         else:
-            logger.info("Not a quarter-hour mark (minute in [0, 15, 30, 45] and second == 0). Skipping S3 upload and CloudFront invalidation.")
+            logger.info("Not a quarter-hour mark (minute in [0, 15, 30, 45] and second == 0). Skipping local file update and S3 upload.")
     except Exception as e:
         logger.error(f"Error processing JSON: {e}")
 
@@ -247,7 +246,6 @@ class FileChangeHandler(FileSystemEventHandler):
         super().__init__()
         self._timer = None
         self._lock = threading.Lock()
-
 
     def on_modified(self, event):
         if not event.is_directory and os.path.abspath(event.src_path) in INPUT_FILES_ABS:
