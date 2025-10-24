@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Table,
@@ -88,17 +88,19 @@ const initialMenu: MenuItem[] = [
   },
 ];
 
-export function AdminTable({ initial }: { initial: MenuItem[] }) {
+export function AdminTable({ initial }: { initial?: MenuItem[] }) {
   // Use state to manage menu items
   const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
   // State of page while Toast is active
   const [isToastActive, setIsToastActive] = useState(false);
   const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
-  
+
   // Get user information from Clerk
   const { user } = useUser();
-  const username = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : 'Unknown User';
-  
+  const username = user
+    ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+    : "Unknown User";
+
   const productKeyMap: Record<string, keyof MenuDataPoint> = {
     heineken: "heineken",
     corona: "corona",
@@ -110,7 +112,6 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
     cola: "cola",
     apa: "apa",
   };
-
 
   // Function to handle quantity increase
   const handleIncrement = (product: string) => {
@@ -142,7 +143,9 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
 
   const newPrice = async () => {
     try {
-      const response = await axios.get<MenuDataPoint[]>(DATA_URL, { timeout: 5000 });
+      const response = await axios.get<MenuDataPoint[]>(DATA_URL, {
+        timeout: 5000,
+      });
       const data: MenuDataPoint[] = response.data;
       if (!data.length) return;
       const lastUpdate = data[data.length - 1];
@@ -152,13 +155,15 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
           const mapKey = productKeyMap[normalizedKey];
           if (!mapKey) return item;
           const candidate = lastUpdate[mapKey];
-          return typeof candidate === "number" ? { ...item, price: candidate } : item;
+          return typeof candidate === "number"
+            ? { ...item, price: candidate }
+            : item;
         })
       );
     } catch (err) {
       console.error("Fetch error:", err);
     }
-  }
+  };
 
   useEffect(() => {
     newPrice();
@@ -168,15 +173,15 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch('api/update-quantity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("api/update-quantity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ menu, username }),
       });
 
       if (!response.ok) {
         const { error } = await response.json();
-        throw new Error(error || 'Failed to submit order')
+        throw new Error(error || "Failed to submit order");
       }
 
       setIsToastActive(true);
@@ -193,9 +198,9 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
         duration: 5000, // Auto-dismiss after 5 seconds
         onAutoClose: () => setIsToastActive(false), // Hide overlay on timeout
       });
-      setMenu((prevMenu) => prevMenu.map((item) => ({ ...item, quantity: 0 })))
+      setMenu((prevMenu) => prevMenu.map((item) => ({ ...item, quantity: 0 })));
     } catch (error) {
-      console.error('Submit error:', error);
+      console.error("Submit error:", error);
       setIsToastActive(true);
       toast.error("Failed to submit order. Please try again.", {
         position: "top-center",
@@ -207,15 +212,20 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
 
   return (
     <div className="relative">
-    {isToastActive && (
-      <div
+      {isToastActive && (
+        <div
           className="fixed inset-0 bg-black/50 z-40 pointer-events-auto"
           aria-hidden="true"
         />
       )}
       <Table className={isToastActive ? "opacity-50 pointer-events-none" : ""}>
         <TableCaption>
-          <Button aria-label="submit" variant="destructive" className="rounded-full p-8 px-30 cursor-pointer" onClick={handleSubmit}>
+          <Button
+            aria-label="submit"
+            variant="destructive"
+            className="rounded-full p-8 px-30 cursor-pointer"
+            onClick={handleSubmit}
+          >
             <span className="md:block text-center">Submit</span>
           </Button>
         </TableCaption>
@@ -228,32 +238,51 @@ export function AdminTable({ initial }: { initial: MenuItem[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {menu.map((item) => (
-            <TableRow key={item.product}>
-              <TableCell className="font-medium">{item.product}</TableCell>
-              <TableCell>{item.type}</TableCell>
-              <TableCell>{item.price}</TableCell>
-              <TableCell className="text-center">
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="size-8"
-                  onClick={() => handleDecrement(item.product)}
-                >
-                  <Minus />
-                </Button>
-                <span className="mx-4">{item.quantity}</span>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="size-8"
-                  onClick={() => handleIncrement(item.product)}
-                >
-                  <Plus />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          {(() => {
+            // Group menu items by type
+            const groupedMenu = menu.reduce((acc, item) => {
+              if (!acc[item.type]) {
+                acc[item.type] = [];
+              }
+              acc[item.type].push(item);
+              return acc;
+            }, {} as Record<string, typeof menu>);
+
+            // Define the order of types
+            const typeOrder = ["Bere", "Vin", "Racoritoare"];
+
+            return typeOrder.map((type) => {
+              const items = groupedMenu[type] || [];
+              if (items.length === 0) return null;
+
+              return items.map((item) => (
+                <TableRow key={item.product}>
+                  <TableCell className="font-medium">{item.product}</TableCell>
+                  <TableCell>{item.type}</TableCell>
+                  <TableCell>{item.price}</TableCell>
+                  <TableCell className="text-center">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => handleDecrement(item.product)}
+                    >
+                      <Minus />
+                    </Button>
+                    <span className="mx-4">{item.quantity}</span>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="size-8"
+                      onClick={() => handleIncrement(item.product)}
+                    >
+                      <Plus />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ));
+            });
+          })()}
         </TableBody>
         <TableFooter>
           <TableRow>

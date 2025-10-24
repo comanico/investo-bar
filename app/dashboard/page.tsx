@@ -1,20 +1,25 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { AdminTable } from "@/components/admin-table";
+import { DynamicTable } from "@/components/dynamic-table";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { auth } from "@clerk/nextjs/server";
 import { getMenu } from "@/actions/getMenu";
+import { getSales } from "@/actions/getSales";
+import { getBere } from "@/actions/getBere";
+import { getVin } from "@/actions/getVin";
+import { getRacoritoare } from "@/actions/getRacoritoare";
 
 async function Page() {
+  const whitelistedUserIds = (process.env.WHITELISTED_USERS || "").split(",");
 
-  const { userId } = await auth();
-  const whitelistedUserIds = (process.env.WHITELISTED_USERS || "").split(',')
-
-  if (userId && !whitelistedUserIds.includes(userId)) {
-    return <div>Access denied...</div>;
-  }
-
-  const initial = await getMenu();
+  // Fetch all data on the server side
+  const [initialMenu, salesData, bereData, vinData, racoritoareData] =
+    await Promise.all([
+      getMenu(),
+      getSales(),
+      getBere(),
+      getVin(),
+      getRacoritoare(),
+    ]);
 
   return (
     <SidebarProvider
@@ -28,9 +33,13 @@ async function Page() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <AdminTable initial={initial} />
-        </div>
+        <DynamicTable
+          initialMenu={initialMenu}
+          salesData={salesData}
+          bereData={bereData}
+          vinData={vinData}
+          racoritoareData={racoritoareData}
+        />
       </SidebarInset>
     </SidebarProvider>
   );

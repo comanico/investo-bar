@@ -4,24 +4,16 @@ import { auth } from "@clerk/nextjs/server";
 import { getMenu } from "@/actions/getMenu";
 
 async function Page() {
+  const initial = await getMenu();
 
-    const { userId } = await auth();
-    const whitelistedUserIds = (process.env.WHITELISTED_USERS || "").split(',')
-
-    if (userId && !whitelistedUserIds.includes(userId)) {
-        return <div>Access denied...</div>;
-    }
-
-    const initial = await getMenu();
-
-    return (
-        <>
-            <SiteHeader />
-            <div className="flex flex-1 flex-col">
-                <MenuTable initial={initial} />
-            </div>
-        </>
-    );
+  return (
+    <>
+      <SiteHeader />
+      <div className="flex flex-1 flex-col">
+        <MenuTable initial={initial} />
+      </div>
+    </>
+  );
 }
 
 export default Page;
