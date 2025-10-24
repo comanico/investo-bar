@@ -9,8 +9,6 @@ import { getVin } from "@/actions/getVin";
 import { getRacoritoare } from "@/actions/getRacoritoare";
 
 async function Page() {
-  const whitelistedUserIds = (process.env.WHITELISTED_USERS || "").split(",");
-
   // Fetch all data on the server side
   const [initialMenu, salesData, bereData, vinData, racoritoareData] =
     await Promise.all([
