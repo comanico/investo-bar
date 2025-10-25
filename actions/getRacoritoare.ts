@@ -16,3 +16,4 @@ export const getRacoritoare = async (): Promise<RacoritoareItem[]> => {
     Cola: item.Cola,
   }));
 };
+

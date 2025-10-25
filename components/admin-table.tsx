@@ -23,7 +23,7 @@ interface MenuDataPoint {
   heineken: number;
   corona: number;
   peroni: number;
-  aperol: number;
+  aperol_spritz: number;
   vin_rosu: number;
   vin_alb: number;
   prosecco: number;
@@ -57,7 +57,7 @@ const initialMenu: MenuItem[] = [
     quantity: 0,
   },
   {
-    product: "Aperol",
+    product: "Aperol Spritz",
     type: "Vin",
     price: 15,
     quantity: 0,
@@ -106,7 +106,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
     corona: "corona",
     peroni: "peroni",
     prosecco: "prosecco",
-    aperol: "aperol",
+    aperol_spritz: "aperol_spritz",
     vin_rosu: "vin_rosu",
     vin_alb: "vin_alb",
     cola: "cola",

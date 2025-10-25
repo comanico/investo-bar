@@ -9,7 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { VinItem } from "@/actions/getVin";
+
+interface VinItem {
+  id: number;
+  Aperol_Spritz: number;
+  Vin_Alb: number;
+  Vin_Rosu: number;
+  Prosecco: number;
+}
 
 export function VinTable({ items }: { items: VinItem[] }) {
   return (
@@ -17,33 +24,22 @@ export function VinTable({ items }: { items: VinItem[] }) {
       <TableHeader>
         <TableRow>
           <TableHead>ID</TableHead>
-          <TableHead>Aperol</TableHead>
+          <TableHead>Aperol Spritz</TableHead>
           <TableHead>Vin Alb</TableHead>
           <TableHead>Vin Rosu</TableHead>
           <TableHead>Prosecco</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {items.length === 0 ? (
-          <TableRow>
-            <TableCell
-              colSpan={5}
-              className="text-center text-muted-foreground"
-            >
-              No wine data available
-            </TableCell>
+        {items.map((item) => (
+          <TableRow key={item.id}>
+            <TableCell>{item.id}</TableCell>
+            <TableCell>{item.Aperol_Spritz}</TableCell>
+            <TableCell>{item.Vin_Alb}</TableCell>
+            <TableCell>{item.Vin_Rosu}</TableCell>
+            <TableCell>{item.Prosecco}</TableCell>
           </TableRow>
-        ) : (
-          items.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>{item.id}</TableCell>
-              <TableCell>{item.Aperol}</TableCell>
-              <TableCell>{item.Vin_Alb}</TableCell>
-              <TableCell>{item.Vin_Rosu}</TableCell>
-              <TableCell>{item.Prosecco}</TableCell>
-            </TableRow>
-          ))
-        )}
+        ))}
       </TableBody>
     </Table>
   );

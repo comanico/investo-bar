@@ -34,7 +34,7 @@ model bere {
 
 model vin {
   id          Int @id @default(autoincrement())
-  Aperol      Int @default(0)
+  Aperol_Spritz      Int @default(0)
   Vin_Alb     Int @default(0)
   Vin_Rosu    Int @default(0)
   Prosecco    Int @default(0)
