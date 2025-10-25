@@ -117,7 +117,8 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
       // update prices
       setMenu((prev) =>
         prev.map((item) => {
-          const mapKey = productKeyMap[normalizeProduct(item.product)];
+          const normalizedKey = item.product.toLowerCase().replace(/\s+/g, "_");
+          const mapKey = productKeyMap[normalizedKey];
           if (!mapKey) return item;
           const candidate = lastUpdate[mapKey];
           return typeof candidate === "number"
