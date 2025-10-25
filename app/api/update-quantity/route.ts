@@ -22,7 +22,7 @@ export async function POST(req: Request) {
             "Heineken": { model: prismadb.bere, column: 'Heineken' },
             "Corona": { model: prismadb.bere, column: 'Corona' },
             "Peroni": { model: prismadb.bere, column: 'Peroni' },
-            "Aperol": { model: prismadb.vin, column: 'Aperol' },
+            "Aperol Spritz": { model: prismadb.vin, column: 'Aperol Spritz' },
             "Prosecco": { model: prismadb.vin, column: 'Prosecco' },
             "Vin Rosu": { model: prismadb.vin, column: 'Vin_Rosu' },
             "Vin Alb": { model: prismadb.vin, column: 'Vin_Alb' },
