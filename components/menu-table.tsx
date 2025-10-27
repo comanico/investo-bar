@@ -104,6 +104,7 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
     aperol_spritz: "aperol_spritz",
     vin_rosu: "vin_rosu",
     vin_alb: "vin_alb",
+    vin_spumant_fara_alcool: "vin_spumant_fara_alcool",
     cola: "cola",
     apa: "apa",
   };
