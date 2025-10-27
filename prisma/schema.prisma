@@ -42,6 +42,7 @@ model vin {
 
 model racoritoare {
   id           Int @id @default(autoincrement())
+  Vin_Spumant_Fara_Alcool Int @default(0)
   Apa          Int @default(0)
   Cola         Int @default(0)
 }
