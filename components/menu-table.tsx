@@ -169,30 +169,49 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {menu.map((item) => (
-              <TableRow key={item.product}>
-                <TableCell className="text-xl text-center">
-                  {item.product}
-                </TableCell>
-                <TableCell className="text-xl">{item.price}</TableCell>
-                <TableCell className="text-xl">
-                  {(() => {
-                    const diff = diffs[item.product] ?? 0;
-                    const cls =
-                      diff > 0
-                        ? "text-red-600"
-                        : diff < 0
-                        ? "text-green-600"
-                        : "text-muted-foreground";
-                    const formatted = `${diff > 0 ? "+" : ""}${diff.toFixed(
-                      2
-                    )}`;
-                    return <span className={cls}>{formatted}</span>;
-                  })()}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+            {(() => {
+              // Group menu items by type
+              const groupedMenu = menu.reduce((acc, item) => {
+                if (!acc[item.type]) {
+                  acc[item.type] = [];
+                }
+                acc[item.type].push(item);
+                return acc;
+              }, {} as Record<string, typeof menu>);
+
+              // Define the order of types
+              const typeOrder = ["Bere", "Vin", "Racoritoare"];
+
+              return typeOrder.map((type) => {
+                const items = groupedMenu[type] || [];
+                if (items.length === 0) return null;
+
+                return items.map((item) => (
+                  <TableRow key={item.product}>
+                    <TableCell className="text-xl text-center">
+                      {item.product}
+                    </TableCell>
+                    <TableCell className="text-xl">{item.price}</TableCell>
+                    <TableCell className="text-xl">
+                      {(() => {
+                        const diff = diffs[item.product] ?? 0;
+                        const cls =
+                          diff > 0
+                            ? "text-red-600"
+                            : diff < 0
+                            ? "text-green-600"
+                            : "text-muted-foreground";
+                        const formatted = `${diff > 0 ? "+" : ""}${diff.toFixed(
+                          2
+                        )}`;
+                        return <span className={cls}>{formatted}</span>;
+                      })()}
+                    </TableCell>
+                  </TableRow>
+                ));
+              });
+            })()}
+          </TableBody>{" "}
         </Table>
       </div>
     </div>
