@@ -43,6 +43,7 @@ KEY_MAPPING = {
     "Prosecco": "prosecco",
     "Vin_Alb": "vin_alb",
     "Vin_Rosu": "vin_rosu",
+    "Vin_Spumant_Fara_Alcool": "vin_spumant_fara_alcool",
     "Heineken": "heineken",
     "Peroni": "peroni",
     "Corona": "corona",

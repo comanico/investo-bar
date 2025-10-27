@@ -29,6 +29,7 @@ interface ChartDataPoint {
   vin_rosu: number;
   vin_alb: number;
   prosecco: number;
+  vin_spumant_fara_alcool: number;
   apa: number;
   cola: number;
 }
@@ -41,9 +42,10 @@ const initialChartData = [
     aperol_spritz: 16,
     prosecco: 15,
     corona: 12,
-    cola: 8,
     vin_rosu: 15,
     vin_alb: 15,
+    vin_spumant_fara_alcool: 12,
+    cola: 9,
     apa: 8,
   },
 ];
@@ -87,6 +89,10 @@ const chartConfig = {
   peroni: {
     label: "Peroni",
     color: "var(--chart-9)",
+  },
+  vin_spumant_fara_alcool: {
+    label: "Vin Spumant Fara Alcool",
+    color: "var(--chart-10)",
   },
 } satisfies ChartConfig;
 
@@ -185,6 +191,7 @@ export function ChartApp() {
       point.vin_rosu,
       point.vin_alb,
       point.prosecco,
+      point.vin_spumant_fara_alcool,
       point.apa,
       point.cola,
     ]);
@@ -215,10 +222,12 @@ export function ChartApp() {
         chartData.length > 0 ? chartData[chartData.length - 1].vin_alb : 0,
       prosecco:
         chartData.length > 0 ? chartData[chartData.length - 1].prosecco : 0,
-      apa:
-        chartData.length > 0 ? chartData[chartData.length - 1].apa : 0,
-      peroni:
-        chartData.length > 0 ? chartData[chartData.length - 1].peroni : 0,
+      apa: chartData.length > 0 ? chartData[chartData.length - 1].apa : 0,
+      peroni: chartData.length > 0 ? chartData[chartData.length - 1].peroni : 0,
+      vin_spumant_fara_alcool:
+        chartData.length > 0
+          ? chartData[chartData.length - 1].vin_spumant_fara_alcool
+          : 0,
       cola: chartData.length > 0 ? chartData[chartData.length - 1].cola : 0,
     }),
     [chartData]
@@ -254,6 +263,7 @@ export function ChartApp() {
                 "vin_rosu",
                 "vin_alb",
                 "prosecco",
+                "vin_spumant_fara_alcool",
                 "apa",
                 "cola",
               ].map((key) => {

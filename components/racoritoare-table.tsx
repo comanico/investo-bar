@@ -17,6 +17,7 @@ export function RacoritoareTable({ items }: { items: RacoritoareItem[] }) {
       <TableHeader>
         <TableRow>
           <TableHead>ID</TableHead>
+          <TableHead>Vin Spumant Fara Alcool</TableHead>
           <TableHead>Apa</TableHead>
           <TableHead>Cola</TableHead>
         </TableRow>
@@ -35,6 +36,7 @@ export function RacoritoareTable({ items }: { items: RacoritoareItem[] }) {
           items.map((item) => (
             <TableRow key={item.id}>
               <TableCell>{item.id}</TableCell>
+              <TableCell>{item.Vin_Spumant_Fara_Alcool}</TableCell>
               <TableCell>{item.Apa}</TableCell>
               <TableCell>{item.Cola}</TableCell>
             </TableRow>

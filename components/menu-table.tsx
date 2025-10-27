@@ -22,6 +22,7 @@ interface MenuDataPoint {
   vin_rosu: number;
   vin_alb: number;
   prosecco: number;
+  vin_spumant_fara_alcool: number;
   apa: number;
   cola: number;
 }
@@ -36,7 +37,7 @@ const initialMenu: MenuItem[] = [
   {
     product: "Corona",
     type: "Bere",
-    price: 10,
+    price: 12,
     quantity: 0,
   },
   {
@@ -54,7 +55,7 @@ const initialMenu: MenuItem[] = [
   {
     product: "Aperol Spritz",
     type: "Vin",
-    price: 15,
+    price: 16,
     quantity: 0,
   },
   {
@@ -70,15 +71,21 @@ const initialMenu: MenuItem[] = [
     quantity: 0,
   },
   {
+    product: "Vin Spumant Fara Alcool",
+    type: "Racoritoare",
+    price: 12,
+    quantity: 0,
+  },
+  {
     product: "Cola",
     type: "Racoritoare",
-    price: 5,
+    price: 9,
     quantity: 0,
   },
   {
     product: "Apa",
     type: "Racoritoare",
-    price: 5,
+    price: 8,
     quantity: 0,
   },
 ];

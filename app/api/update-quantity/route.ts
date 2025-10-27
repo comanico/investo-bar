@@ -26,6 +26,7 @@ export async function POST(req: Request) {
             "Prosecco": { model: prismadb.vin, column: 'Prosecco' },
             "Vin Rosu": { model: prismadb.vin, column: 'Vin_Rosu' },
             "Vin Alb": { model: prismadb.vin, column: 'Vin_Alb' },
+            "Vin Spumant Fara Alcool": { model: prismadb.racoritoare, column: 'Vin_Spumant_Fara_Alcool'},
             "Cola": { model: prismadb.racoritoare, column: 'Cola' },
             "Apa": { model: prismadb.racoritoare, column: 'Apa' },
         }

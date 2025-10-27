@@ -51,7 +51,7 @@ class dbQueries():
                     for query in [
                         "INSERT INTO bere (Heineken, Corona, Peroni) VALUES (0,0,0);",
                         "INSERT INTO vin (Aperol_Spritz, Vin_Rosu, Vin_Alb, Prosecco) VALUES (0,0,0,0);",
-                        "INSERT INTO racoritoare (Apa, Cola) VALUES (0,0);"
+                        "INSERT INTO racoritoare (Vin_Spumant_Fara_Alcool, Apa, Cola) VALUES (0, 0,0);"
                         ]:
                         cursor = connection.cursor()
                         cursor.execute(query)
@@ -92,9 +92,9 @@ class dbQueries():
                     },
                     {
                         'table': 'racoritoare',
-                        'columns': ['Apa', 'Cola'],
-                        'insert_query': "INSERT INTO racoritoare (Apa, Cola) VALUES (%s, %s)",
-                        'values': (0, 0),
+                        'columns': ['Vin_Spumant_Fara_Alcool','Apa', 'Cola'],
+                        'insert_query': "INSERT INTO racoritoare (Vin_Spumant_Fara_Alcool, Apa, Cola) VALUES (%s, %s, %s)",
+                        'values': (0, 0, 0),
                         'empty': True
                     }
                 ]
