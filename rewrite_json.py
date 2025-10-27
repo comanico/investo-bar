@@ -39,7 +39,7 @@ OUTPUT_FILE_ABS = os.path.abspath(OUTPUT_FILE)
 
 # Key mapping for transformation
 KEY_MAPPING = {
-    "Aperol": "aperol_spritz",
+    "Aperol_Spritz": "aperol_spritz",
     "Prosecco": "prosecco",
     "Vin_Alb": "vin_alb",
     "Vin_Rosu": "vin_rosu",

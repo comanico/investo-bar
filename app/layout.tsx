@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import {
-  ClerkProvider
-} from '@clerk/nextjs'
+import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -19,9 +17,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Investo Bar",
-  description: "Learn about investing, trading, and finance with your mates at Investo Bar",
+  description:
+    "Learn about investing, trading, and finance with your mates at Investo Bar",
   icons: {
-    icon: '/InvestoBarIcon.svg', // /public path
+    icon: "/InvestoBarIcon.svg", // /public path
   },
 };
 
@@ -38,7 +37,7 @@ export default function RootLayout({
         >
           <ThemeProvider
             attribute="class"
-            defaultTheme="system"
+            defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >

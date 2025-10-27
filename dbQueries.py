@@ -50,7 +50,7 @@ class dbQueries():
                     print("Successfully connected to the database!")
                     for query in [
                         "INSERT INTO bere (Heineken, Corona, Peroni) VALUES (0,0,0);",
-                        "INSERT INTO vin (Aperol, Vin_Rosu, Vin_Alb, Prosecco) VALUES (0,0,0,0);",
+                        "INSERT INTO vin (Aperol_Spritz, Vin_Rosu, Vin_Alb, Prosecco) VALUES (0,0,0,0);",
                         "INSERT INTO racoritoare (Apa, Cola) VALUES (0,0);"
                         ]:
                         cursor = connection.cursor()
@@ -85,8 +85,8 @@ class dbQueries():
                     },
                     {
                         'table': 'vin',
-                        'columns': ['Aperol', 'Vin_Rosu', 'Vin_Alb', 'Prosecco'],
-                        'insert_query': "INSERT INTO vin (Aperol, Vin_Rosu, Vin_Alb, Prosecco) VALUES (%s, %s, %s, %s)",
+                        'columns': ['Aperol_Spritz', 'Vin_Rosu', 'Vin_Alb', 'Prosecco'],
+                        'insert_query': "INSERT INTO vin (Aperol_Spritz, Vin_Rosu, Vin_Alb, Prosecco) VALUES (%s, %s, %s, %s)",
                         'values': (0, 0, 0, 0),
                         'empty': True
                     },
