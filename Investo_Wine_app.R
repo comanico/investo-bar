@@ -18,7 +18,7 @@ library(jsonlite)
 
 # --- Persist JSON history ---
 WRITE_JSON <- TRUE
-JSON_PATH <- "D:/Git/FratiaInvestitiei/investo-bar/JSON/wine_live_prices.json"
+JSON_PATH <- "./JSON/wine_live_prices.json"
 
 # ---- MySQL Connection Settings ----
 DATABASE_URL <- ""
@@ -47,7 +47,7 @@ db_config <- parse_db_url(DATABASE_URL)
 
 # --- Base Selling Prices (RON per bottle) ---
 BASE_PRICES <- c(
-  Aperol = 16,
+  Aperol_Spritz = 16,
   Prosecco = 15,
   Vin_Alb = 15,
   Vin_Rosu = 15
@@ -55,7 +55,7 @@ BASE_PRICES <- c(
 
 # --- Bottle Costs (RON per bottle) ---
 BOTTLE_COST <- c(
-  Aperol = 25.00,
+  Aperol_Spritz = 25.00,
   Prosecco = 26.00,
   Vin_Alb = 27.00,
   Vin_Rosu = 20.00
@@ -63,7 +63,7 @@ BOTTLE_COST <- c(
 
 # --- Units per Bottle (servings) ---
 UNITS_PER_BOTTLE <- c(
-  Aperol = 3,
+  Aperol_Spritz = 3,
   Prosecco = 3,
   Vin_Alb = 3,
   Vin_Rosu = 3
@@ -267,7 +267,7 @@ server <- function(input, output, session) {
 
     # --- Read latest data ---
     query <- "
-      SELECT id, Aperol, Vin_Rosu, Vin_Alb, Prosecco
+      SELECT id, Aperol_Spritz, Vin_Rosu, Vin_Alb, Prosecco
       FROM vin
     "
 
@@ -413,22 +413,22 @@ server <- function(input, output, session) {
     txn_history(rbind(detail, per_drink))
 
     if (isTRUE(WRITE_JSON)) {
-    dir.create(dirname(JSON_PATH), recursive = TRUE, showWarnings = FALSE)
-    if (file.exists(JSON_PATH)) {
-      json_data <- tryCatch(jsonlite::fromJSON(JSON_PATH, simplifyDataFrame = TRUE), error = function(e) NULL)
-      if (is.null(json_data)) {
-        jsonlite::write_json(new_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
+      dir.create(dirname(JSON_PATH), recursive = TRUE, showWarnings = FALSE)
+      if (file.exists(JSON_PATH)) {
+        json_data <- tryCatch(jsonlite::fromJSON(JSON_PATH, simplifyDataFrame = TRUE), error = function(e) NULL)
+        if (is.null(json_data)) {
+          jsonlite::write_json(new_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
+        } else {
+          if (!is.data.frame(json_data)) json_data <- as.data.frame(json_data, stringsAsFactors = FALSE)
+          for (nm in setdiff(TARGET_COLS, names(json_data))) json_data[[nm]] <- NA
+          json_data <- json_data[, TARGET_COLS, drop = FALSE]
+          combined <- rbind(json_data, new_row)
+          jsonlite::write_json(combined, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
+        }
       } else {
-        if (!is.data.frame(json_data)) json_data <- as.data.frame(json_data, stringsAsFactors = FALSE)
-        for (nm in setdiff(TARGET_COLS, names(json_data))) json_data[[nm]] <- NA
-        json_data <- json_data[, TARGET_COLS, drop = FALSE]
-        combined <- rbind(json_data, new_row)
-        jsonlite::write_json(combined, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
+        jsonlite::write_json(new_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
       }
-    } else {
-      jsonlite::write_json(new_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
     }
-  }
   })
 
   # ==========================================================
