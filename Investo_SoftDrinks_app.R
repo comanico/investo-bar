@@ -1,11 +1,14 @@
 # ==========================================================
-# INVESTO SOCIETY — SOFT DRINKS MARKET SIMULATION
-# Dynamic Volume Sensitivity Model (Cost-Based Profit Logic)
+# INVESTO SOCIETY — SOFT MARKET SIMULATION
+# Rolling JSON Log + Crisis Button + Flash + Sound Alerts
+# SQL VERSION (REPLACES GOOGLE SHEETS)
 # ==========================================================
 
-# ---- Libraries ----
 library(shiny)
-library(googlesheets4)
+library(shinyjs)
+library(DBI)
+library(RMySQL)
+library(pool)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
@@ -13,497 +16,633 @@ library(DT)
 library(jsonlite)
 
 # ==========================================================
-# ================== SETTINGS (PARAMETERS) ==================
+# SQL SETTINGS
 # ==========================================================
 
-# --- Persist JSON history ---
-WRITE_JSON <- TRUE
-JSON_PATH <- "./JSON/soft_live_prices.json"
-
-# ---- MySQL Connection Settings ----
 DATABASE_URL <- ""
 
-# Helper to parse DB URL
 parse_db_url <- function(url) {
   url <- sub("^mysql://", "", url)
   parts <- strsplit(url, "@")[[1]]
-  if (length(parts) != 2) stop("Invalid DB URL format")
-
   creds <- strsplit(parts[1], ":")[[1]]
-  host_port_db <- strsplit(parts[2], "/")[[1]]
-  host_port <- strsplit(host_port_db[1], ":")[[1]]
-  dbname <- host_port_db[2]
-
+  hp <- strsplit(parts[2], "/")[[1]]
+  host_port <- strsplit(hp[1], ":")[[1]]
   list(
     username = creds[1],
     password = creds[2],
     host = host_port[1],
     port = as.integer(host_port[2]),
-    dbname = dbname
+    dbname = hp[2]
   )
 }
 
-db_config <- parse_db_url(DATABASE_URL)
+cfg <- parse_db_url(DATABASE_URL)
 
-# --- Base Selling Prices (RON per bottle) ---
-BASE_PRICES <- c(
-  Vin_Spumant_Fara_Alcool = 12,
-  Apa = 8,
-  Cola = 9
+pool <- dbPool(
+  RMySQL::MySQL(),
+  user = cfg$username,
+  password = cfg$password,
+  host = cfg$host,
+  port = cfg$port,
+  dbname = cfg$dbname
 )
 
-# --- Bottle Costs (RON per bottle) ---
-BOTTLE_COST <- c(
-  Vin_Spumant_Fara_Alcool = 25.00,
-  Apa = 3.50,
-  Cola = 4.50
-)
+# ==========================================================
+# CONSTANTS
+# ==========================================================
 
-# --- Units per Bottle (servings) ---
-UNITS_PER_BOTTLE <- c(
-  Vin_Spumant_Fara_Alcool = 3,
-  Apa = 1,
-  Cola = 1
-)
+BASE_PRICES <- c(Vin_Spumant_Fara_Alcool = 12, Apa = 10, Cola = 10)
+BOTTLE_COST <- c(Vin_Spumant_Fara_Alcool = 25.00, Apa = 3.50, Cola = 4.50)
+EPS_SHARE <- 1e-6
+CRISIS_LABEL <- "CRISIS"
 
-if (!file.exists(JSON_PATH)) {
-  json_row <- data.frame(Interval = "T0", as.list(BASE_PRICES), stringsAsFactors = FALSE) # nolint: line_length_linter.
-  json_row <- rbind(json_row)
-  write_json(json_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
+JSON_OUTPUT_DIR <- "./JSON"
+MASTER_JSON_FILE <- file.path(JSON_OUTPUT_DIR, "soft_live_prices.json")
+dir.create(JSON_OUTPUT_DIR, recursive = TRUE, showWarnings = FALSE)
+
+# ==========================================================
+# TIMERS
+# ==========================================================
+
+get_next_trigger_time_engine <- function(now = Sys.time()) {
+  tz <- attr(now, "tzone")
+  if (is.null(tz)) tz <- ""
+  base <- as.POSIXct(strftime(now, "%Y-%m-%d %H:00:00", tz = tz), tz = tz)
+  mins <- c(14, 29, 44, 59)
+  cand <- base + mins * 60 + 30
+  nxt <- cand[cand > now]
+  if (length(nxt) == 0) base + 3600 + 14 * 60 + 30 else min(nxt)
 }
 
-# --- Crisis Mode Parameters ---
-CRISIS_MODE <- "time_or_spike"
-CRISIS_WINDOW <- c(4L, 8L)
-CRISIS_MULTIPLIER <- 2.0
-CRISIS_LABEL <- "CRISIS"
-SHOW_CRISIS_LINE <- TRUE
-
-# --- Dynamic Price Sensitivity Parameters ---
-ALPHA_SHARE <- 0.20
-ABS_IMPACT_WEIGHT <- 0.20
-LAMBDA <- 0.90
-LAMBDA_SHARE <- 0.90
-DEPTH <- 12
-MAX_CHANGE <- 0.30
-ROUND_TO <- 0.5
-SOFT_FLOOR_DELTA <- 1.0
-# UPDATE_INTERVAL_SECONDS <- 20
-EPS_SHARE <- 1e-6
-
-# --- Warm-up Settings ---
-WARMUP_PERIOD <- 5
-LAMBDA_RAMP <- 10
+get_next_trigger_time_UI <- function(now = Sys.time()) {
+  tz <- attr(now, "tzone")
+  if (is.null(tz)) tz <- ""
+  base <- as.POSIXct(strftime(now, "%Y-%m-%d %H:00:00", tz = tz), tz = tz)
+  mins <- c(14, 29, 44, 59)
+  cand <- base + mins * 60 + 30
+  cand[cand < now] <- cand[cand < now] + 3600
+  min(cand)
+}
 
 # ==========================================================
-# ===================== USER INTERFACE ======================
+# UI
 # ==========================================================
+
 ui <- fluidPage(
-  tags$head(tags$style(HTML("
-    body {background:#111; color:#eee; font-family:'Segoe UI'; padding:20px;}
-    #mainTitle {text-align:center; font-size:40px; font-weight:bold; color:#00d8ff; margin-top:10px;}
-    #subTitle {text-align:center; font-size:20px; margin-bottom:20px; color:#f0f0f0;}
-    #countdownTimer {text-align:center; font-size:26px; font-weight:bold; color:#fcbf49; margin-bottom:30px;}
-    table {color:#eee;}
-  "))),
-  div(id = "mainTitle", "Investo Society — Soft Drinks Market (Dynamic Volume Sensitivity)"),
-  div(id = "subTitle", "🥤📈 Real-time adaptive pricing model for low-volatility markets"),
+  useShinyjs(),
+  tags$head(
+    tags$style(HTML("
+      body {background:#111; color:#eee; font-family:'Segoe UI';}
+    ")),
+    tags$script(HTML("
+      function flashScreen() {
+        var body = document.body;
+        var old = window.getComputedStyle(body).backgroundColor;
+        body.style.transition='background-color 0.5s';
+        body.style.backgroundColor='red';
+        setTimeout(()=>body.style.backgroundColor=old,5000);
+      }
+      function playCrisisSound() {
+        var a = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
+        a.play();
+      }
+    "))
+  ),
+  h1("Investo Society — Soft Market Live Monitoring", style = "text-align:center; color:#00ff88;"),
+  h3("🍺📈 Dynamic Volume Sensitivity Model — SQL Edition", style = "text-align:center;"),
+  div(
+    style = "text-align:center;",
+    actionButton(
+      "triggerCrisis",
+      "Trigger Crisis Next Interval",
+      style = "background:red; color:black; font-size:20px; font-weight:bold;"
+    )
+  ),
+  div(id = "crisisScheduled", "⚠ Crisis scheduled!", style = "display:none; color:red; text-align:center; font-size:20px;"),
   htmlOutput("countdown"),
+  div(id = "crisisActivated", "🚨 CRISIS ACTIVATED!", style = "display:none; text-align:center; font-size:24px; background:red;"),
   uiOutput("styledPriceTable"),
-  tags$script(HTML("
-    function getTimeUntilNext15Minute() {
-      const now = new Date();
-      const currentMinutes = now.getMinutes();
-      const currentSeconds = now.getSeconds();
-
-      // Calculate next 15-minute mark (0, 15, 30, 45)
-      let next15Minute;
-      if (currentMinutes < 15) {
-        next15Minute = 15;
-      } else if (currentMinutes < 30) {
-        next15Minute = 30;
-      } else if (currentMinutes < 45) {
-        next15Minute = 45;
-      } else {
-        next15Minute = 60; // Next hour, minute 0
-      }
-
-      // Calculate seconds until next 15-minute mark
-      const minutesUntil = next15Minute - currentMinutes - 1;
-      const secondsUntil = 60 - currentSeconds;
-      const totalSeconds = minutesUntil * 60 + secondsUntil;
-
-      return totalSeconds;
-    }
-
-    let countdown = getTimeUntilNext15Minute();
-
-    function updateCountdown() {
-      if (countdown <= 0) {
-        countdown = getTimeUntilNext15Minute();
-        // Trigger page refresh when countdown reaches 0
-        location.reload();
-      }
-
-      let minutes = Math.floor(countdown / 60);
-      let seconds = countdown % 60;
-      document.getElementById('countdownTimer').innerText =
-        '🔁 Următorul update în: ' + minutes + ' minute ' + (seconds < 10 ? '0' : '') + seconds + ' secunde';
-      countdown--;
-    }
-
-    setInterval(updateCountdown, 1000);
-  ")),
-  plotOutput("pricePlot", height = "520px"),
-  br(),
-  h3("Per-interval details (Price & Quantity by Drink)"),
+  plotOutput("pricePlot", height = 520),
+  h3("Per-interval details (Price & Quantity by Soft Drink)"),
   DTOutput("periodMatrix")
 )
 
 # ==========================================================
-# ====================== SERVER LOGIC =======================
+# SERVER
 # ==========================================================
+
 server <- function(input, output, session) {
-  # ---------- DB Connection (pooled for Shiny) ----------
-  pool <- pool::dbPool(
-    RMySQL::MySQL(),
-    user = db_config$username,
-    password = db_config$password,
-    host = db_config$host,
-    port = db_config$port,
-    dbname = db_config$dbname,
-    idleTimeout = 3600000
-  )
+  # =====================================
+  # MODEL CONFIG
+  # =====================================
 
-  onStop(function() {
-    pool::poolClose(pool)
-  })
+  START_TIME <- as.POSIXct("2025-01-01 18:00:00")
+  INTERVAL_LENGTH <- 15 * 60
 
-  # ---- Helper Functions ----
-  safe_rbind <- function(a, b, cols) {
-    for (nm in setdiff(cols, names(a))) a[[nm]] <- NA
-    for (nm in setdiff(cols, names(b))) b[[nm]] <- NA
-    a <- a[, cols, drop = FALSE]
-    b <- b[, cols, drop = FALSE]
-    rbind(a, b)
-  }
+  ALPHA_SHARE <- 0.1
+  ABS_IMPACT_WEIGHT <- 0.9
+  LAMBDA <- 0.05
+  LAMBDA_SHARE <- 0.05
 
-  dynamic_lambda <- function(t, max_lambda, warmup = 5, ramp = 10) {
-    if (t <= warmup) {
-      return(0)
-    }
-    weight <- min(1, (t - warmup) / ramp)
-    return(weight * max_lambda)
-  }
+  DEPTH <- 5
+  MAX_CHANGE <- 0.40
+  ROUND_TO <- 0.5
+  SOFT_FLOOR_DELTA <- 2
 
-  warmup_smoothing <- function(t, max = 1) {
-    if (t <= WARMUP_PERIOD) {
-      return((5 + t) / 10)
-    } else {
-      return(max)
-    }
-  }
+  WARMUP_PERIOD <- 1
+  LAMBDA_RAMP <- 1
 
-  # ---- Reactive State Holders ----
-  TARGET_COLS <- c("Index", "Interval", "Event", names(BASE_PRICES), "Profit", "CumProfit")
-  last_row <- reactiveVal(0L)
+  CRISIS_TIMES <- c(0L, 0L, 0L)
+
+  SPIKE_MULTIPLIER <- 2
+  SPIKE_DROP_PCT <- 0.3
+
+  # =====================================
+  # STATE
+  # =====================================
+
+  EVENT_COUNTER <- reactiveVal(0)
+  crisis_triggered <- reactiveVal(FALSE)
+  last_row <- reactiveVal(0)
+
   ema_volumes <- reactiveVal(NULL)
   ema_shares <- reactiveVal(NULL)
   warmup_count <- reactiveVal(0)
+
   cum_profit <- reactiveVal(0)
-  cum_sold <- reactiveVal(setNames(rep(0, length(BASE_PRICES)), names(BASE_PRICES)))
+  cum_sold <- reactiveVal(setNames(rep(0, 3), names(BASE_PRICES)))
+
   current_prices <- BASE_PRICES
-  crisis_triggered <- reactiveVal(FALSE)
-  crisis_index <- reactiveVal(NA_integer_)
-  crisis_random_index <- reactiveVal(sample(CRISIS_WINDOW[1]:CRISIS_WINDOW[2], 1))
 
-  price_history <- reactiveVal(data.frame(
-    Index = 0, Interval = "T0", Event = "T0",
-    as.list(BASE_PRICES), Profit = 0, CumProfit = 0
-  ))
+  price_history <- reactiveVal(
+    data.frame(
+      Index = 0,
+      Interval = "T0",
+      Event = "T0",
+      Vin_Spumant_Fara_Alcool = 12,
+      Apa = 8,
+      Cola = 9,
+      Profit = 0,
+      CumProfit = 0
+    )
+  )
 
-  txn_history <- reactiveVal(data.frame(
-    Index = 0, Interval = "T0", Event = "T0",
-    Drink = names(BASE_PRICES), Quantity = 0, Price = as.numeric(BASE_PRICES)
-  ))
+  txn_history <- reactiveVal(
+    data.frame(
+      Index = 0,
+      Interval = "T0",
+      Event = "T0",
+      Drink = names(BASE_PRICES),
+      Quantity = 0,
+      Price = BASE_PRICES
+    )
+  )
 
-  # ---- Timer ----
-  # Calculate time until next 15-minute mark for reactive timer
-  getNext15MinuteInterval <- function() {
-    now <- Sys.time()
-    current_minutes <- as.numeric(format(now, "%M"))
-    current_seconds <- as.numeric(format(now, "%S"))
+  scheduler_initialized <- reactiveVal(FALSE)
+  backfill_done <- reactiveVal(FALSE)
 
-    # Calculate next 15-minute mark
-    if (current_minutes < 15) {
-      next_15_minute <- 15
-    } else if (current_minutes < 30) {
-      next_15_minute <- 30
-    } else if (current_minutes < 45) {
-      next_15_minute <- 45
-    } else {
-      next_15_minute <- 60 # Next hour, minute 0
-    }
-
-    # Calculate milliseconds until next 15-minute mark
-    minutes_until <- next_15_minute - current_minutes - 1
-    seconds_until <- 60 - current_seconds
-    total_seconds <- minutes_until * 60 + seconds_until
-
-    return(total_seconds * 1000) # Convert to milliseconds
+  safe_rbind <- function(a, b) {
+    common <- union(names(a), names(b))
+    for (nm in setdiff(common, names(a))) a[[nm]] <- NA
+    for (nm in setdiff(common, names(b))) b[[nm]] <- NA
+    rbind(a[, common], b[, common])
   }
 
-  autoInvalidate <- reactiveTimer(getNext15MinuteInterval())
-  output$countdown <- renderUI(tags$div(id = "countdownTimer"))
+  # =====================================
+  # JSON writer (ADAPTED TO MATCH REQUESTED FORMAT)
+  # =====================================
+
+  write_master_json <- function(index, interval, event_label, price_vec, profit_tick = NA, cumP = NA, is_T0 = FALSE) {
+    if (file.exists(MASTER_JSON_FILE)) {
+      js <- tryCatch(fromJSON(MASTER_JSON_FILE, simplifyVector = FALSE), error = function(e) list())
+      if (!is.list(js)) js <- list()
+    } else {
+      js <- list()
+    }
+
+    if (is_T0) {
+      row_obj <- list(
+        Interval = interval,
+        Vin_Spumant_Fara_Alcool = as.numeric(price_vec[["Vin_Spumant_Fara_Alcool"]]),
+        Apa = as.numeric(price_vec[["Apa"]]),
+        Cola = as.numeric(price_vec[["Cola"]])
+      )
+    } else {
+      row_obj <- list(
+        Index = as.integer(index),
+        Interval = as.character(interval),
+        Event = as.character(event_label),
+        Vin_Spumant_Fara_Alcool = as.numeric(price_vec[["Vin_Spumant_Fara_Alcool"]]),
+        Apa = as.numeric(price_vec[["Apa"]]),
+        Cola = as.numeric(price_vec[["Cola"]]),
+        Profit = as.numeric(profit_tick),
+        CumProfit = as.numeric(cumP)
+      )
+    }
+
+    js <- append(js, list(row_obj))
+    write_json(js, MASTER_JSON_FILE, pretty = TRUE, auto_unbox = TRUE)
+  }
 
   # ==========================================================
-  # ================= CORE SIMULATION LOOP ===================
+  # CRISIS BUTTON
   # ==========================================================
+
+  observeEvent(input$triggerCrisis, {
+    crisis_triggered(TRUE)
+    show("crisisScheduled")
+  })
+
+  # ==========================================================
+  # COUNTDOWN
+  # ==========================================================
+
+  countdownTimer <- reactiveTimer(1000)
+
   observe({
-    autoInvalidate()
-
-    # --- Read latest data ---
-    query <- "
-      SELECT id, Vin_Spumant_Fara_Alcool, Apa, Cola
-      FROM racoritoare
-    "
-
-    # ---- Load Data ----
-    df <- tryCatch(
-      {
-        DBI::dbGetQuery(pool, query)
-      },
-      error = function(e) {
-        load_error(paste("DB query failed:", e$message))
-        return(NULL)
-      }
+    countdownTimer()
+    now <- Sys.time()
+    next_t <- get_next_trigger_time_UI(now)
+    secs <- as.integer(difftime(next_t, now, units = "secs"))
+    secs <- max(0, secs)
+    output$countdown <- renderUI(
+      HTML(sprintf(
+        "<div style='text-align:center;'>Next UI refresh in %02d:%02d</div>",
+        secs %/% 60, secs %% 60
+      ))
     )
+  })
 
-    if (is.null(df) || nrow(df) == 0) {
-      load_error("No data in bere table or query failed")
+  # ==========================================================
+  # CORE ENGINE
+  # ==========================================================
+
+  process_row <- function(row_index, v_vec, write_latest = TRUE) {
+    interval_ts <- format(START_TIME + row_index * INTERVAL_LENGTH, "%H:%M")
+
+    # ----------------------------------------------------------
+    # CRISIS MODE
+    # ----------------------------------------------------------
+
+    if (crisis_triggered()) {
+      runjs("flashScreen();")
+      runjs("playCrisisSound();")
+      show("crisisActivated")
+      runjs("setTimeout(()=>$('#crisisActivated').hide(),5000);")
+
+      crisis_index <- last_row() # DO NOT increment tick index
+
+      # reset EMAs
+      hist_tx <- txn_history()
+      if (nrow(hist_tx) > 0) {
+        avgd <- hist_tx %>%
+          group_by(Drink) %>%
+          summarise(avgQ = mean(Quantity))
+        avg <- setNames(avgd$avgQ[match(names(BASE_PRICES), avgd$Drink)], names(BASE_PRICES))
+        avg[is.na(avg)] <- 0
+        ema_volumes(avg)
+        tot <- sum(avg)
+        ema_shares(if (tot > 0) avg / tot else rep(1 / 3, 3))
+      }
+
+      new_prices <- current_prices
+      for (d in names(new_prices)) new_prices[[d]] <- min(new_prices[[d]], BASE_PRICES[[d]] - 1)
+
+      EVENT_COUNTER(EVENT_COUNTER() + 1)
+
+      price_history(
+        safe_rbind(
+          price_history(),
+          data.frame(
+            Index = crisis_index,
+            Interval = "CRISIS",
+            Event = "CRISIS_TRIGGERED",
+            Vin_Spumant_Fara_Alcool = new_prices["Vin_Spumant_Fara_Alcool"],
+            Apa = new_prices["Apa"],
+            Cola = new_prices["Cola"],
+            Profit = 0,
+            CumProfit = cum_profit()
+          )
+        )
+      )
+
+      if (write_latest) {
+        write_master_json(
+          index = crisis_index,
+          interval = "CRISIS",
+          event_label = "CRISIS_TRIGGERED",
+          price_vec = new_prices,
+          profit_tick = 0,
+          cumP = cum_profit(),
+          is_T0 = FALSE
+        )
+      }
+
+      crisis_triggered(FALSE)
+      hide("crisisScheduled")
+      return(invisible(NULL))
+    }
+
+    # ----------------------------------------------------------
+    # NORMAL ENGINE
+    # ----------------------------------------------------------
+
+    if (sum(v_vec) == 0) {
+      last_row(row_index)
       return()
     }
-    df <- df[, intersect(names(df), names(BASE_PRICES)), drop = FALSE]
-    df[] <- lapply(df, function(x) suppressWarnings(as.numeric(x)))
-    df[is.na(df)] <- 0
+
+    is_warmup <- warmup_count() < WARMUP_PERIOD
+
+    if (is_warmup) {
+      ema_volumes(if (is.null(ema_volumes())) v_vec else (1 - LAMBDA) * ema_volumes() + LAMBDA * v_vec)
+      tot <- sum(v_vec)
+      if (tot > 0) {
+        sh <- v_vec / tot
+        ema_shares(if (is.null(ema_shares())) sh else (1 - LAMBDA_SHARE) * ema_shares() + LAMBDA_SHARE * sh)
+      }
+      warmup_count(warmup_count() + 1)
+    }
+
+    avg_qty <- mean(v_vec[v_vec > 0])
+    if (!is.finite(avg_qty) || avg_qty <= 0) avg_qty <- 1
+
+    DEPTH_dyn <- DEPTH * avg_qty
+    ABSW_dyn <- ABS_IMPACT_WEIGHT * (1 / log(avg_qty + 1))
+
+    lambda_t <- if (row_index <= WARMUP_PERIOD) 0 else min(1, (row_index - WARMUP_PERIOD) / LAMBDA_RAMP) * LAMBDA
+    lambda_sh <- if (row_index <= WARMUP_PERIOD) 0 else min(1, (row_index - WARMUP_PERIOD) / LAMBDA_RAMP) * LAMBDA_SHARE
+
+    ema_new <- (1 - lambda_t) * ema_volumes() + lambda_t * v_vec
+    cur_sh <- if (sum(v_vec) > 0) v_vec / sum(v_vec) else ema_shares()
+    sh_new <- (1 - lambda_sh) * ema_shares() + lambda_sh * cur_sh
+
+    new_prices <- current_prices
+    event_label <- if (is_warmup) "SMOOTHED" else ""
+
+    for (drink in names(BASE_PRICES)) {
+      p_t <- current_prices[[drink]]
+      b0 <- BASE_PRICES[[drink]]
+
+      s_now <- cur_sh[[drink]]
+      s_exp <- sh_new[[drink]]
+      denom <- (s_exp * (1 - s_exp)) + EPS_SHARE
+      oi_share <- (s_now - s_exp) / denom
+
+      e_vol <- ema_new[[drink]]
+      x_vol <- v_vec[[drink]]
+      oi_abs <- (x_vol - e_vol) / (e_vol + DEPTH_dyn)
+
+      oi_share <- max(min(oi_share, 1), -1)
+      oi_abs <- max(min(oi_abs, 1), -1)
+
+      oi_raw <- ALPHA_SHARE * oi_share + ABSW_dyn * oi_abs
+      if (is_warmup) oi_raw <- oi_raw * ((5 + row_index) / 10)
+
+      p_new <- p_t * (1 + oi_raw)
+      ratio <- p_new / p_t
+      if (ratio > 1 + MAX_CHANGE) p_new <- p_t * (1 + MAX_CHANGE)
+      if (ratio < 1 - MAX_CHANGE) p_new <- p_t * (1 - MAX_CHANGE)
+
+      p_new <- round(p_new / ROUND_TO) * ROUND_TO
+      p_new <- max(p_new, b0 - SOFT_FLOOR_DELTA)
+
+      if (p_new > SPIKE_MULTIPLIER * b0) {
+        p_new <- round((p_new * (1 - SPIKE_DROP_PCT)) / ROUND_TO) * ROUND_TO
+        event_label <- paste(event_label, "SPIKE_CORRECTED")
+      }
+
+      new_prices[[drink]] <- p_new
+    }
+
+    if (row_index %in% CRISIS_TIMES) {
+      new_prices <- BASE_PRICES
+      event_label <- CRISIS_LABEL
+    }
+
+    profit_tick <- sum(v_vec * (unlist(new_prices) - BOTTLE_COST))
+    cumP <- cum_profit() + profit_tick
+
+    current_prices <<- new_prices
+    ema_volumes(ema_new)
+    ema_shares(sh_new)
+
+    cum_sold(cum_sold() + v_vec)
+    cum_profit(cumP)
+
+    last_row(row_index)
+
+    price_history(
+      safe_rbind(
+        price_history(),
+        data.frame(
+          Index = row_index,
+          Interval = interval_ts,
+          Event = event_label,
+          Vin_Spumant_Fara_Alcool = new_prices["Vin_Spumant_Fara_Alcool"],
+          Apa = new_prices["Apa"],
+          Cola = new_prices["Cola"],
+          Profit = round(profit_tick, 2),
+          CumProfit = round(cumP, 2)
+        )
+      )
+    )
+
+    txn_history(
+      rbind(
+        txn_history(),
+        data.frame(
+          Index = rep(row_index, length(new_prices)),
+          Interval = rep(interval_ts, length(new_prices)),
+          Event = rep(event_label, length(new_prices)),
+          Drink = names(new_prices),
+          Quantity = as.numeric(v_vec[names(new_prices)]),
+          Price = as.numeric(new_prices),
+          stringsAsFactors = FALSE
+        )
+      )
+    )
+
+    if (write_latest) {
+      EVENT_COUNTER(EVENT_COUNTER() + 1)
+      write_master_json(
+        index = row_index,
+        interval = interval_ts,
+        event_label = event_label,
+        price_vec = new_prices,
+        profit_tick = round(profit_tick, 2),
+        cumP = round(cumP, 2),
+        is_T0 = FALSE
+      )
+    }
+  }
+
+  # ==========================================================
+  # BACKFILL FROM SQL AT STARTUP
+  # ==========================================================
+
+  observe({
+    if (backfill_done()) {
+      return()
+    }
+
+    if (file.exists(MASTER_JSON_FILE)) file.remove(MASTER_JSON_FILE)
+    EVENT_COUNTER(0)
+
+    # WRITE INITIAL T0 ROW IN REQUESTED JSON FORMAT
+    write_master_json(
+      index = 0,
+      interval = "T0",
+      event_label = "T0",
+      price_vec = BASE_PRICES,
+      profit_tick = NA,
+      cumP = NA,
+      is_T0 = TRUE
+    )
+
+    df <- tryCatch(
+      dbGetQuery(
+        pool,
+        "SELECT Vin_Spumant_Fara_Alcool, Apa, Cola FROM racoritoare"
+      ),
+      error = function(e) NULL
+    )
+    if (is.null(df)) {
+      backfill_done(TRUE)
+      return()
+    }
+
+    df <- df[rowSums(df) > 0, , drop = FALSE]
+    if (nrow(df) == 0) {
+      backfill_done(TRUE)
+      return()
+    }
+
+    for (i in seq_len(nrow(df))) {
+      v_vec <- df[i, ]
+      process_row(i, v_vec, write_latest = TRUE)
+    }
+
+    backfill_done(TRUE)
+  })
+
+  # ==========================================================
+  # LIVE ENGINE LOOP — SQL POLLING
+  # ==========================================================
+
+  observe({
+    if (!backfill_done()) {
+      invalidateLater(1000)
+      return()
+    }
+
+    now <- Sys.time()
+    next_t <- get_next_trigger_time_engine(now)
+    delay_ms <- max(1000L, as.integer(difftime(next_t, now, units = "secs") * 1000))
+    invalidateLater(delay_ms)
+
+    if (!scheduler_initialized()) {
+      scheduler_initialized(TRUE)
+      return()
+    }
+
+    df <- tryCatch(dbGetQuery(pool, "SELECT Vin_Spumant_Fara_Alcool, Apa, Cola FROM racoritoare"), error = function(e) NULL)
+    if (is.null(df)) {
+      return()
+    }
+
     df <- df[rowSums(df) > 0, , drop = FALSE]
     if (nrow(df) == 0) {
       return()
     }
 
-    row_index <- last_row() + 1L
+    row_index <- last_row() + 1
+
     if (row_index > nrow(df)) {
+      if (crisis_triggered()) {
+        v_vec <- setNames(rep(0, 3), names(BASE_PRICES))
+        process_row(row_index, v_vec)
+      }
       return()
     }
-    v_vec <- as.numeric(df[row_index, ])
-    names(v_vec) <- names(df)
-    if (sum(v_vec) == 0) {
-      last_row(row_index)
-      return()
-    }
-    # --- Warm-up Phase ---
-    is_warmup <- warmup_count() < WARMUP_PERIOD
-    if (is_warmup) {
-      ema_volumes(if (is.null(ema_volumes())) v_vec else (1 - LAMBDA) * ema_volumes() + LAMBDA * v_vec)
-      total <- sum(v_vec)
-      if (total > 0) {
-        new_shares <- v_vec / total
-        ema_shares(if (is.null(ema_shares())) new_shares else (1 - LAMBDA_SHARE) * ema_shares() + LAMBDA_SHARE * new_shares)
-      }
-      warmup_count(warmup_count() + 1)
-    }
 
-    # --- Adaptive Dynamics ---
-    avg_qty <- mean(v_vec[v_vec > 0])
-    if (!is.finite(avg_qty) || avg_qty <= 0) avg_qty <- 1
-    DEPTH_dyn <- 5 * avg_qty
-    ABS_IMPACT_WEIGHT_dyn <- 0.2 * (1 / log(avg_qty + 1))
-
-    # --- EMA Updates ---
-    lambda_t <- dynamic_lambda(row_index, LAMBDA, WARMUP_PERIOD, LAMBDA_RAMP)
-    lambda_share_t <- dynamic_lambda(row_index, LAMBDA_SHARE, WARMUP_PERIOD, LAMBDA_RAMP)
-    ema_prev <- ema_volumes()
-    ema_new <- (1 - lambda_t) * ema_prev + lambda_t * v_vec
-    cum_prev <- cum_sold()
-    cum_new <- cum_prev + v_vec
-    tot <- sum(v_vec)
-    cur_sh <- if (tot > 0) v_vec / tot else ema_shares()
-    sh_prev <- ema_shares()
-    sh_new <- (1 - lambda_share_t) * sh_prev + lambda_share_t * cur_sh
-
-    # --- Price Update Loop ---
-    new_prices <- current_prices
-    for (drink in names(BASE_PRICES)) {
-      p_t <- current_prices[[drink]]
-      b0 <- BASE_PRICES[[drink]]
-      s_now <- cur_sh[[drink]]
-      s_exp <- sh_new[[drink]]
-      denom <- (s_exp * (1 - s_exp)) + EPS_SHARE
-      oi_share <- (s_now - s_exp) / denom
-      e_vol <- ema_new[[drink]]
-      x_vol <- v_vec[[drink]]
-      oi_abs <- (x_vol - e_vol) / (e_vol + DEPTH_dyn)
-      oi_share <- max(min(oi_share, 1), -1)
-      oi_abs <- max(min(oi_abs, 1), -1)
-      oi_raw <- (ALPHA_SHARE * oi_share) + (ABS_IMPACT_WEIGHT_dyn * oi_abs)
-      oi_smoothed <- oi_raw * warmup_smoothing(row_index)
-      p_new <- p_t * (1 + oi_smoothed)
-      ratio <- p_new / p_t
-      if (ratio > 1 + MAX_CHANGE) p_new <- p_t * (1 + MAX_CHANGE)
-      if (ratio < 1 - MAX_CHANGE) p_new <- p_t * (1 - MAX_CHANGE)
-      p_new <- round(p_new / ROUND_TO) * ROUND_TO
-      p_new <- max(p_new, b0 - SOFT_FLOOR_DELTA)
-      new_prices[[drink]] <- p_new
-    }
-
-    # --- Crisis Logic ---
-    event_label <- if (is_warmup) "SMOOTHED" else ""
-    rand_crisis_idx <- crisis_random_index()
-    if ((CRISIS_MODE %in% c("time_or_spike", "spike_only")) && any(unlist(new_prices) > CRISIS_MULTIPLIER * BASE_PRICES) && !crisis_triggered()) {
-      new_prices <- BASE_PRICES
-      event_label <- CRISIS_LABEL
-      crisis_triggered(TRUE)
-      crisis_index(row_index)
-    }
-    if ((CRISIS_MODE %in% c("time_or_spike", "time_only")) && row_index == rand_crisis_idx && !crisis_triggered()) {
-      new_prices <- BASE_PRICES
-      event_label <- CRISIS_LABEL
-      crisis_triggered(TRUE)
-      crisis_index(row_index)
-    }
-
-    # --- Profit Calculation (Cost-Based) ---
-    profit_tick <- 0
-    for (drink in names(BASE_PRICES)) {
-      units_sold <- v_vec[[drink]]
-      sell_price <- new_prices[[drink]]
-      cost_per_unit <- BOTTLE_COST[[drink]] / UNITS_PER_BOTTLE[[drink]]
-      profit_tick <- profit_tick + units_sold * (sell_price - cost_per_unit)
-    }
-    cum_profit_new <- cum_profit() + profit_tick
-
-    # --- Update States ---
-    current_prices <<- new_prices
-    ema_volumes(ema_new)
-    ema_shares(sh_new)
-    cum_sold(cum_new)
-    cum_profit(cum_profit_new)
-    last_row(row_index)
-
-    # --- History Update ---
-    hist <- price_history()
-    new_row <- data.frame(
-      Index = row_index, Interval = paste("T", row_index),
-      Event = event_label, as.list(new_prices),
-      Profit = round(profit_tick, 2), CumProfit = round(cum_profit_new, 2)
-    )
-    hist <- safe_rbind(hist, new_row, TARGET_COLS)
-    price_history(hist)
-
-    detail <- txn_history()
-    per_drink <- data.frame(
-      Index = row_index, Interval = paste("T", row_index),
-      Event = event_label, Drink = names(new_prices),
-      Quantity = as.numeric(v_vec[names(new_prices)]),
-      Price = as.numeric(unlist(new_prices))
-    )
-    txn_history(rbind(detail, per_drink))
-
-    if (isTRUE(WRITE_JSON)) {
-      dir.create(dirname(JSON_PATH), recursive = TRUE, showWarnings = FALSE)
-      if (file.exists(JSON_PATH)) {
-        json_data <- tryCatch(jsonlite::fromJSON(JSON_PATH, simplifyDataFrame = TRUE), error = function(e) NULL)
-        if (is.null(json_data)) {
-          jsonlite::write_json(new_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
-        } else {
-          if (!is.data.frame(json_data)) json_data <- as.data.frame(json_data, stringsAsFactors = FALSE)
-          for (nm in setdiff(TARGET_COLS, names(json_data))) json_data[[nm]] <- NA
-          json_data <- json_data[, TARGET_COLS, drop = FALSE]
-          combined <- rbind(json_data, new_row)
-          jsonlite::write_json(combined, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
-        }
-      } else {
-        jsonlite::write_json(new_row, JSON_PATH, pretty = TRUE, auto_unbox = TRUE)
-      }
-    }
+    v_vec <- df[row_index, ]
+    process_row(row_index, v_vec)
   })
 
   # ==========================================================
-  # ====================== OUTPUTS ===========================
+  # OUTPUTS
   # ==========================================================
+
   output$styledPriceTable <- renderUI({
-    hist <- price_history()
-    if (nrow(hist) == 0) {
-      return(NULL)
-    }
-    latest <- tail(hist, 1)
+    h <- price_history()
+    latest <- tail(h, 1)
+
     tbl <- data.frame(
-      Bautura = names(BASE_PRICES),
-      Pret = as.numeric(latest[1, names(BASE_PRICES)]),
-      Delta = as.numeric(latest[1, names(BASE_PRICES)]) - BASE_PRICES
+      Drink = names(BASE_PRICES),
+      Price = unlist(latest[1, names(BASE_PRICES)]),
+      Delta = unlist(latest[1, names(BASE_PRICES)]) - BASE_PRICES
     )
-    crisis_badge <- if (nzchar(latest$Event[1])) tags$span(style = "color:red; font-weight:bold;", paste0("🚨 ", latest$Event[1])) else NULL
+
+    crisis_badge <- if (nzchar(latest$Event[1])) {
+      tags$span(style = "color:red; font-weight:bold;", paste("🚨", latest$Event[1]))
+    }
+
     tags$table(
-      style = "margin:auto; width:60%; border-collapse:collapse; text-align:center;",
-      tags$thead(tags$tr(tags$th("Băutură"), tags$th("Preț"), tags$th("Δ vs T0"))),
+      style = "margin:auto; width:60%;",
+      tags$thead(tags$tr(tags$th("Drink"), tags$th("Price"), tags$th("Δ"))),
       tags$tbody(
         lapply(1:nrow(tbl), function(i) {
-          tags$tr(tags$td(tbl$Bautura[i]), tags$td(sprintf("%.2f", tbl$Pret[i])), tags$td(sprintf("%+.2f", tbl$Delta[i])))
+          tags$tr(
+            tags$td(tbl$Drink[i]),
+            tags$td(sprintf("%.2f", tbl$Price[i])),
+            tags$td(sprintf("%+.2f", tbl$Delta[i]))
+          )
         }),
-        tags$tr(tags$td("Profit interval"), tags$td(colspan = 2, sprintf("%.2f", latest$Profit))),
-        tags$tr(tags$td("Profit cumulat"), tags$td(colspan = 2, sprintf("%.2f", latest$CumProfit))),
-        tags$tr(tags$td(colspan = 3, style = "text-align:center;", crisis_badge))
+        tags$tr(tags$td("Interval"), tags$td(colspan = 2, latest$Interval)),
+        tags$tr(tags$td("Profit"), tags$td(colspan = 2, latest$Profit)),
+        tags$tr(tags$td("Total"), tags$td(colspan = 2, latest$CumProfit)),
+        tags$tr(tags$td(colspan = 3, crisis_badge))
       )
     )
   })
 
   output$pricePlot <- renderPlot({
-    hist <- price_history()
-    if (nrow(hist) < 2) {
+    h <- price_history()
+    if (nrow(h) < 2) {
       return(NULL)
     }
-    hist_long <- hist %>% pivot_longer(cols = names(BASE_PRICES), names_to = "Drink", values_to = "Price")
-    p <- ggplot(hist_long, aes(Index, Price, color = Drink)) +
+    h$Interval <- factor(h$Interval, levels = unique(h$Interval))
+    hl <- h %>% pivot_longer(cols = names(BASE_PRICES), names_to = "Drink", values_to = "Price")
+    ggplot(hl, aes(Interval, Price, color = Drink)) +
       geom_line(size = 1.2) +
       geom_point(size = 2) +
-      theme_minimal(base_size = 15) +
-      labs(title = "Evoluția prețurilor în timp", x = "Interval", y = "Preț (lei)") +
-      theme(
-        plot.background = element_rect(fill = "#111", color = NA),
-        panel.background = element_rect(fill = "#111", color = NA),
-        axis.text = element_text(color = "#ccc"),
-        axis.title = element_text(color = "#eee"),
-        plot.title = element_text(color = "#fff", hjust = 0.5)
-      )
-    if (SHOW_CRISIS_LINE && !is.na(crisis_index())) {
-      p <- p + geom_vline(xintercept = crisis_index(), linetype = "dashed", color = "red", linewidth = 1.3)
-    }
-    p
+      theme_minimal(base_size = 15)
   })
 
   output$periodMatrix <- renderDT({
-    df_long <- txn_history()
-    if (nrow(df_long) == 0) {
+    df <- txn_history()
+    if (nrow(df) == 0) {
       return(NULL)
     }
-    df_long <- df_long %>%
+    df2 <- df %>%
       group_by(Index, Interval, Event, Drink) %>%
-      summarise(
-        Price = mean(Price, na.rm = TRUE),
-        Quantity = sum(Quantity, na.rm = TRUE),
-        .groups = "drop"
-      )
-    wide <- pivot_wider(df_long,
+      summarise(Price = mean(Price), Quantity = sum(Quantity), .groups = "drop")
+    wide <- pivot_wider(
+      df2,
       id_cols = c(Index, Interval, Event),
       names_from = Drink,
       values_from = c(Price, Quantity),
-      names_glue = "{Drink} {.value}"
+      names_glue = "{Drink}_{.value}"
     )
-    datatable(wide, rownames = FALSE, options = list(pageLength = 10, scrollX = TRUE))
+    datatable(wide, options = list(scrollX = TRUE))
   })
+
+  onStop(function() poolClose(pool))
 }
 
 # ==========================================================
-# ===================== RUN APPLICATION ====================
+# RUN APP
 # ==========================================================
+
 runApp(shinyApp(ui, server))
