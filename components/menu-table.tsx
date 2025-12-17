@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import * as React from "react";
 import axios from "axios";
 import {
   Table,
@@ -91,10 +92,30 @@ const initialMenu: MenuItem[] = [
 ];
 
 export function MenuTable({ initial }: { initial: MenuItem[] }) {
+  // Merge initial data with initialMenu to ensure all items are present
+  // This ensures items like "Vin Alb" show up even if not in database
+  const mergedMenu = React.useMemo(() => {
+    if (!initial?.length) return initialMenu;
+
+    // Create a map of initial items by product name for quick lookup
+    const initialMap = new Map(initial.map((item) => [item.product, item]));
+
+    // Start with initialMenu and update prices from initial if they exist
+    return initialMenu.map((item) => {
+      const dbItem = initialMap.get(item.product);
+      return dbItem ? { ...item, price: dbItem.price } : item;
+    });
+  }, [initial]);
+
   // Use state to manage menu items
-  const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
+  const [menu, setMenu] = useState(mergedMenu);
   const [diffs, setDiffs] = useState<Record<string, number>>({});
   const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
+
+  // Sync menu state when mergedMenu changes (e.g., when initial prop changes)
+  useEffect(() => {
+    setMenu(mergedMenu);
+  }, [mergedMenu]);
 
   const productKeyMap: Record<string, keyof MenuDataPoint> = {
     heineken: "heineken",
@@ -112,7 +133,35 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
   const normalizeProduct = (name: string) =>
     name.toLowerCase().replace(/\s+/g, "_");
 
-  const newPrice = async () => {
+  // Calculate the next target time (00, 15, 30, or 45 minutes)
+  const getNextTargetTime = (now: Date = new Date()) => {
+    const currentMinutes = now.getMinutes();
+    let targetMinutes = Math.ceil(currentMinutes / 15) * 15;
+    // eslint-disable-next-line prefer-const
+    let target = new Date(now);
+    target.setMinutes(targetMinutes, 0, 0);
+    if (targetMinutes >= 60) {
+      target.setHours(now.getHours() + 1);
+      target.setMinutes(0);
+      targetMinutes = 0;
+    }
+    if (target.getTime() <= now.getTime()) {
+      target.setMinutes(targetMinutes + 15, 0, 0);
+      if (targetMinutes + 15 >= 60) {
+        target.setHours(now.getHours() + 1);
+        target.setMinutes(0);
+      }
+    }
+    return target;
+  };
+
+  // Use a ref to track the initial prop without causing effect re-runs
+  const initialRef = useRef(initial);
+  useEffect(() => {
+    initialRef.current = initial;
+  }, [initial]);
+
+  const newPrice = useCallback(async () => {
     try {
       const response = await axios.get<MenuDataPoint[]>(DATA_URL, {
         timeout: 5000,
@@ -137,7 +186,10 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
 
       // compute diffs using last two entries
       const computedDiffs: Record<string, number> = {};
-      for (const item of initial?.length ? initial : initialMenu) {
+      const currentInitial = initialRef.current?.length
+        ? initialRef.current
+        : initialMenu;
+      for (const item of currentInitial) {
         const key = productKeyMap[normalizeProduct(item.product)];
         if (!key) continue;
         const latest = lastUpdate[key];
@@ -154,13 +206,33 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
     } catch (err) {
       console.error("Fetch error:", err);
     }
-  };
-
-  useEffect(() => {
-    newPrice();
-    const interval = setInterval(newPrice, 10000); // Pull every 10 seconds
-    return () => clearInterval(interval);
   }, []);
+
+  // Fetch data initially and at every 15-minute interval
+  useEffect(() => {
+    // Initial fetch
+    newPrice();
+
+    // Schedule fetches at 15-minute intervals (00, 15, 30, 45)
+    const scheduleNextFetch = (): ReturnType<typeof setTimeout> => {
+      const now = new Date();
+      const target = getNextTargetTime(now);
+      const delay = Math.max(0, target.getTime() - now.getTime());
+
+      // Schedule fetch at the next 15-minute mark
+      return setTimeout(() => {
+        newPrice();
+        // After fetching, schedule the next one
+        timeoutRef.current = scheduleNextFetch();
+      }, delay);
+    };
+
+    const timeoutRef = { current: scheduleNextFetch() };
+
+    return () => {
+      clearTimeout(timeoutRef.current);
+    };
+  }, [newPrice]);
 
   return (
     <div className="flex justify-center w-full h-full">

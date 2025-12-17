@@ -155,31 +155,31 @@ export function ChartApp() {
     return () => clearInterval(interval);
   }, []);
 
+  // Use a ref to track the latest chartData without causing effect re-runs
+  const chartDataRef = React.useRef(chartData);
+  React.useEffect(() => {
+    chartDataRef.current = chartData;
+  }, [chartData]);
+
   // Fetch data from JSON file
-  const fetchChartData = async () => {
+  const fetchChartData = React.useCallback(async () => {
     try {
       const response = await axios.get<ChartDataPoint[]>(DATA_URL, {
         timeout: 5000,
       });
       const data: ChartDataPoint[] = response.data;
 
-      if (data.length > chartData.length) {
+      // Update if we have new data
+      if (data.length > chartDataRef.current.length) {
         finalChartData.current = data;
         setChartData(data);
-        const target = getNextTargetTime();
-        const now = new Date();
-        const difference = target.getTime() - now.getTime();
-        const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((difference % (1000 * 60)) / 1000);
-        setMinutes(m);
-        setSeconds(s);
       }
       setError(null);
     } catch (err) {
       setError("Failed to fetch chart data");
       console.error("Fetch error:", err);
     }
-  };
+  }, []);
 
   const yAxisDomain = React.useMemo(() => {
     if (chartData.length === 0) return [0, 10];
@@ -200,12 +200,31 @@ export function ChartApp() {
     return [Math.floor(min - 0.5), Math.ceil(max + 0.5)];
   }, [chartData]);
 
-  // Fetch data initially and every 10 seconds
+  // Fetch data initially and at every 15-minute interval
   React.useEffect(() => {
+    // Initial fetch
     fetchChartData();
-    const interval = setInterval(fetchChartData, 10000); // Poll every 10 seconds
-    return () => clearInterval(interval);
-  }, [chartData]);
+
+    // Schedule fetches at 15-minute intervals (00, 15, 30, 45)
+    const scheduleNextFetch = (): ReturnType<typeof setTimeout> => {
+      const now = new Date();
+      const target = getNextTargetTime(now);
+      const delay = Math.max(0, target.getTime() - now.getTime());
+
+      // Schedule fetch at the next 15-minute mark
+      return setTimeout(() => {
+        fetchChartData();
+        // After fetching, schedule the next one
+        timeoutRef.current = scheduleNextFetch();
+      }, delay);
+    };
+
+    const timeoutRef = { current: scheduleNextFetch() };
+
+    return () => {
+      clearTimeout(timeoutRef.current);
+    };
+  }, [fetchChartData]);
 
   const total = React.useMemo(
     () => ({
