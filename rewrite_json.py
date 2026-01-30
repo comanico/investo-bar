@@ -10,6 +10,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 import threading
 from dbQueries import dbQueries
+from proces_verbal import procesVerbal
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -234,6 +235,7 @@ def process_json():
                 logger.info(f"Uploaded {S3_KEY} to S3 bucket {S3_BUCKET}")
                 invalidate_cloudfront_cache()
                 dbQueries().insertLine()
+                procesVerbal().writeProcesVerbal()
             except ClientError as e:
                 logger.error(f"Error uploading to S3: {e}")
         else:
