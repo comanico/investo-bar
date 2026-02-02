@@ -127,8 +127,8 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
       prevMenu.map((item) =>
         item.product === product
           ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -138,15 +138,15 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
       prevMenu.map((item) =>
         item.product === product && item.quantity > 0
           ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
   // Calculate total quantity for the footer
   const totalPrice = menu.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
 
   const newPrice = async () => {
@@ -166,7 +166,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
           return typeof candidate === "number"
             ? { ...item, price: candidate }
             : item;
-        })
+        }),
       );
     } catch (err) {
       console.error("Fetch error:", err);
@@ -248,16 +248,18 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
         <TableBody>
           {(() => {
             // Group menu items by type
-            const groupedMenu = menu.reduce((acc, item) => {
-              if (!acc[item.type]) {
-                acc[item.type] = [];
-              }
-              acc[item.type].push(item);
-              return acc;
-            }, {} as Record<string, typeof menu>);
-
+            const groupedMenu = menu.reduce(
+              (acc, item) => {
+                if (!acc[item.type]) {
+                  acc[item.type] = [];
+                }
+                acc[item.type].push(item);
+                return acc;
+              },
+              {} as Record<string, typeof menu>,
+            );
             // Define the order of types
-            const typeOrder = ["Bere", "Vin", "Racoritoare"];
+            const typeOrder = ["Bere", "Vin", "Racoritoare", "Shot"];
 
             return typeOrder.map((type) => {
               const items = groupedMenu[type] || [];

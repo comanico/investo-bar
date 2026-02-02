@@ -88,6 +88,18 @@ const initialMenu: MenuItem[] = [
     price: 8,
     quantity: 0,
   },
+  {
+    product: "Tequilla",
+    type: "Shot",
+    price: 12,
+    quantity: 0,
+  },
+  {
+    product: "Fireball",
+    type: "Shot",
+    price: 12,
+    quantity: 0,
+  },
 ];
 
 export function MenuTable({ initial }: { initial: MenuItem[] }) {
@@ -132,7 +144,7 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
           return typeof candidate === "number"
             ? { ...item, price: candidate }
             : item;
-        })
+        }),
       );
 
       // compute diffs using last two entries
@@ -179,16 +191,19 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
           <TableBody>
             {(() => {
               // Group menu items by type
-              const groupedMenu = menu.reduce((acc, item) => {
-                if (!acc[item.type]) {
-                  acc[item.type] = [];
-                }
-                acc[item.type].push(item);
-                return acc;
-              }, {} as Record<string, typeof menu>);
+              const groupedMenu = menu.reduce(
+                (acc, item) => {
+                  if (!acc[item.type]) {
+                    acc[item.type] = [];
+                  }
+                  acc[item.type].push(item);
+                  return acc;
+                },
+                {} as Record<string, typeof menu>,
+              );
 
               // Define the order of types
-              const typeOrder = ["Bere", "Vin", "Racoritoare"];
+              const typeOrder = ["Bere", "Vin", "Racoritoare", "Shot"];
 
               return typeOrder.map((type) => {
                 const items = groupedMenu[type] || [];
@@ -207,10 +222,10 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
                           diff > 0
                             ? "text-red-600"
                             : diff < 0
-                            ? "text-green-600"
-                            : "text-muted-foreground";
+                              ? "text-green-600"
+                              : "text-muted-foreground";
                         const formatted = `${diff > 0 ? "+" : ""}${diff.toFixed(
-                          2
+                          2,
                         )}`;
                         return <span className={cls}>{formatted}</span>;
                       })()}
