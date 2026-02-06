@@ -91,13 +91,13 @@ const initialMenu: MenuItem[] = [
   {
     product: "Tequilla",
     type: "Shot",
-    price: 12,
+    price: 10,
     quantity: 0,
   },
   {
     product: "Fireball",
     type: "Shot",
-    price: 12,
+    price: 10,
     quantity: 0,
   },
 ];
