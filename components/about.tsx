@@ -7,7 +7,7 @@ type Props = {
   setSelectedPage: (value: SelectedPage) => void;
 };
 
-export default function CommunitySection({ setSelectedPage }: Props) {
+export default function About({ setSelectedPage }: Props) {
   const { t } = useTranslation();
 
   return (
@@ -15,12 +15,8 @@ export default function CommunitySection({ setSelectedPage }: Props) {
       <motion.div onViewportEnter={() => setSelectedPage(SelectedPage.About)}>
         <div className="mx-auto max-w-5xl px-6">
           <div className="text-center">
-            <h2 className="text-3xl font-semibold">
-              {t("about.title")}
-            </h2>
-            <p className="mt-6">
-              {t("about.description")}
-            </p>
+            <h2 className="text-3xl font-semibold">{t("about.title")}</h2>
+            <p className="mt-6">{t("about.description")}</p>
           </div>
           <div className="mx-auto mt-12 flex max-w-lg flex-wrap justify-center gap-3">
             <Link
