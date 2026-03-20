@@ -8,6 +8,7 @@
     "home": "Home",
     "feature": "Feature",
     "solution": "Solution",
+    "reviews": "Reviews",
     "about": "About"
   },
   "features": {
@@ -37,6 +38,10 @@
       "title": "Community",
       "description": "An experience that blends social energy with professional growth. At Investo Bar, you don’t just meet people—you meet potential. A place where ideas are born and industries take shape."
     }
+  },
+    "reviews":{
+    "title": "InvestoBar as experienced by our community",
+    "description":"See what people have to say about our initiative!"
   },
   "about": {
     "title": "When an entrepreneur, lawyer, economist and engineer want to help their community grow smarter, stronger, and more connected.",
