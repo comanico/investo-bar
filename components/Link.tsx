@@ -20,7 +20,6 @@ function Link({ page, selectedPage, setSelectedPage, className }: Props) {
       enumValue: SelectedPage.Solution,
       href: "solution",
     },
-    [t("menu.reviews")]: { enumValue: SelectedPage.Reviews, href: "reviews" },
     [t("menu.about")]: { enumValue: SelectedPage.About, href: "about" },
   };
 
@@ -33,12 +32,10 @@ function Link({ page, selectedPage, setSelectedPage, className }: Props) {
 
   const href = pageToEnum[page]?.href || "home";
 
-  return (
+return (
     <AnchorLink
       className={`${className} ${
-        selectedPage === pageToEnum[page]?.enumValue
-          ? "text-accent-foreground"
-          : ""
+        selectedPage === pageToEnum[page]?.enumValue ? "text-accent-foreground" : ""
       }`}
       href={`#${href}`}
       onClick={handleClick}

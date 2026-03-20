@@ -8,7 +8,7 @@ type Props = {
   setSelectedPage: (value: SelectedPage) => void;
 };
 
-export default function Solution({ setSelectedPage }: Props) {
+export default function ContentSection({ setSelectedPage }: Props) {
   const { t } = useTranslation();
 
   return (

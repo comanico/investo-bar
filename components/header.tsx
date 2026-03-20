@@ -17,6 +17,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// const menuItems = [
+//   { name: "Feature", href: "#link" },
+//   { name: "Solution", href: "#link" },
+//   { name: "About", href: "#link" },
+// ];
+
 type Props = {
   selectedPage: SelectedPage;
   setSelectedPage: (value: SelectedPage) => void;
@@ -30,7 +36,6 @@ export const HeroHeader = ({ selectedPage, setSelectedPage }: Props) => {
     { name: t("menu.home"), href: SelectedPage.Home },
     { name: t("menu.feature"), href: SelectedPage.Feature },
     { name: t("menu.solution"), href: SelectedPage.Solution },
-    { name: t("menu.reviews"), href: SelectedPage.Reviews },
     { name: t("menu.about"), href: SelectedPage.About },
   ];
 
@@ -50,7 +55,7 @@ export const HeroHeader = ({ selectedPage, setSelectedPage }: Props) => {
     <header>
       <nav
         data-state={menuState && "active"}
-        className="bg-background/50 fixed z-50 w-full border-b backdrop-blur-3xl"
+        className="bg-background/50 fixed z-20 w-full border-b backdrop-blur-3xl"
       >
         <div className="mx-auto max-w-6xl px-6 transition-all duration-300">
           <div className="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">

@@ -8,7 +8,6 @@
     "home": "Acasă",
     "feature": "Funcționalitate",
     "solution": "Soluție",
-    "reviews":"Testimoniale",
     "about": "Despre"
   },
   "features": {
@@ -38,10 +37,6 @@
       "title": "Comnunitate",
       "description": "O experiență care îmbină energia socială cu creșterea profesională. La Investo Bar, nu doar întâlnești oameni, ci întâlnești potențial. Un loc unde ideile se nasc și industriile prind contur."
     }
-  },
-  "reviews":{
-    "title": "Experiența InvestoBar prin ochii comunității",
-    "description":"Vezi ce are lumea de zis despre inițiativă!"
   },
   "about": {
     "title": "Când un antreprenor, un avocat, un economist și un inginer doresc să ajute comunitatea lor să crească mai inteligent, mai puternic și mai conectat.",

@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 export default function HeroSection() {
   const { t } = useTranslation();
   const [selectedPage, setSelectedPage] = React.useState<SelectedPage>(
-    SelectedPage.Home,
+    SelectedPage.Home
   );
   return (
     <>
@@ -37,7 +37,7 @@ export default function HeroSection() {
                 </div>
 
                 <Image
-                  className="-z-10 ml-auto h-56 w-full object-contain sm:h-96 lg:absolute lg:inset-0 lg:-right-20 lg:-top-96 lg:order-last lg:h-max lg:w-2/3 lg:object-contain"
+                  className="-z-10 order-first ml-auto h-56 w-full object-contain sm:h-96 lg:absolute lg:inset-0 lg:-right-20 lg:-top-96 lg:order-last lg:h-max lg:w-2/3 lg:object-contain"
                   src="InvestoBar.svg"
                   alt="Abstract Object"
                   height="4000"
