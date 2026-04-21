@@ -114,7 +114,7 @@ export function ChartApp() {
   const getNextTargetTime = (now: Date = new Date()) => {
     const currentMinutes = now.getMinutes();
     let targetMinutes = Math.ceil(currentMinutes / 15) * 15;
-    let target = new Date(now);
+    const target = new Date(now);
     target.setMinutes(targetMinutes, 0, 0);
     if (targetMinutes >= 60) {
       target.setHours(now.getHours() + 1);

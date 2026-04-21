@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Table,
   TableBody,
@@ -100,7 +99,6 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
   const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
   // State of page while Toast is active
   const [isToastActive, setIsToastActive] = useState(false);
-  const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
 
   // Get user information from Clerk
   const { user } = useUser();
