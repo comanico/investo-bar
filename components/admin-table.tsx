@@ -151,12 +151,21 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
 
   const newPrice = async () => {
     try {
-      const response = await axios.get<MenuDataPoint[]>(DATA_URL, {
-        timeout: 5000,
+      const response = await fetch("/api/get-file?key=live_prices.json", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
-      const data: MenuDataPoint[] = response.data;
-      if (!data.length) return;
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data) || data.length === 0) return;
+
       const lastUpdate = data[data.length - 1];
+
       setMenu((prev) =>
         prev.map((item) => {
           const normalizedKey = item.product.toLowerCase().replace(/\s+/g, "_");
@@ -175,7 +184,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
 
   useEffect(() => {
     newPrice();
-    const interval = setInterval(newPrice, 10000); // Poll every 10 seconds
+    const interval = setInterval(newPrice, 30000); // Poll every 30 seconds
     return () => clearInterval(interval);
   }, []);
 

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Table,
   TableBody,
@@ -28,85 +27,31 @@ interface MenuDataPoint {
 }
 
 const initialMenu: MenuItem[] = [
-  {
-    product: "Heineken",
-    type: "Bere",
-    price: 10,
-    quantity: 0,
-  },
-  {
-    product: "Corona",
-    type: "Bere",
-    price: 12,
-    quantity: 0,
-  },
-  {
-    product: "Peroni",
-    type: "Bere",
-    price: 10,
-    quantity: 0,
-  },
-  {
-    product: "Prosecco",
-    type: "Vin",
-    price: 15,
-    quantity: 0,
-  },
-  {
-    product: "Aperol Spritz",
-    type: "Vin",
-    price: 16,
-    quantity: 0,
-  },
-  {
-    product: "Vin Rosu",
-    type: "Vin",
-    price: 15,
-    quantity: 0,
-  },
-  {
-    product: "Vin Alb",
-    type: "Vin",
-    price: 15,
-    quantity: 0,
-  },
+  { product: "Heineken", type: "Bere", price: 10, quantity: 0 },
+  { product: "Corona", type: "Bere", price: 12, quantity: 0 },
+  { product: "Peroni", type: "Bere", price: 10, quantity: 0 },
+  { product: "Prosecco", type: "Vin", price: 15, quantity: 0 },
+  { product: "Aperol Spritz", type: "Vin", price: 16, quantity: 0 },
+  { product: "Vin Rosu", type: "Vin", price: 15, quantity: 0 },
+  { product: "Vin Alb", type: "Vin", price: 15, quantity: 0 },
   {
     product: "Vin Spumant Fara Alcool",
     type: "Racoritoare",
     price: 12,
     quantity: 0,
   },
-  {
-    product: "Cola",
-    type: "Racoritoare",
-    price: 9,
-    quantity: 0,
-  },
-  {
-    product: "Apa",
-    type: "Racoritoare",
-    price: 8,
-    quantity: 0,
-  },
-  {
-    product: "Tequilla",
-    type: "Shot",
-    price: 10,
-    quantity: 0,
-  },
-  {
-    product: "Fireball",
-    type: "Shot",
-    price: 10,
-    quantity: 0,
-  },
+  { product: "Cola", type: "Racoritoare", price: 9, quantity: 0 },
+  { product: "Apa", type: "Racoritoare", price: 8, quantity: 0 },
+  { product: "Tequilla", type: "Shot", price: 10, quantity: 0 },
+  { product: "Fireball", type: "Shot", price: 10, quantity: 0 },
 ];
 
 export function MenuTable({ initial }: { initial: MenuItem[] }) {
-  // Use state to manage menu items
   const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
   const [diffs, setDiffs] = useState<Record<string, number>>({});
-  const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
+  const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
+    null,
+  );
 
   const productKeyMap: Record<string, keyof MenuDataPoint> = {
     heineken: "heineken",
@@ -126,15 +71,22 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
 
   const newPrice = async () => {
     try {
-      const response = await axios.get<MenuDataPoint[]>(DATA_URL, {
-        timeout: 5000,
+      const response = await fetch("/api/get-file?key=live_prices.json", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
-      const data: MenuDataPoint[] = response.data;
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: MenuDataPoint[] = await response.json();
       if (!data.length) return;
+
       const lastUpdate = data[data.length - 1];
       const prevUpdate = data.length > 1 ? data[data.length - 2] : undefined;
 
-      // update prices
+      // Update prices
       setMenu((prev) =>
         prev.map((item) => {
           const normalizedKey = item.product.toLowerCase().replace(/\s+/g, "_");
@@ -147,7 +99,7 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
         }),
       );
 
-      // compute diffs using last two entries
+      // Compute diffs
       const computedDiffs: Record<string, number> = {};
       for (const item of initial?.length ? initial : initialMenu) {
         const key = productKeyMap[normalizeProduct(item.product)];
@@ -163,16 +115,35 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
             : 0;
       }
       setDiffs(computedDiffs);
+
+      // Mark this minute as fetched
+      const now = new Date();
+      setLastFetchedMinute(now.getMinutes());
     } catch (err) {
       console.error("Fetch error:", err);
     }
   };
 
   useEffect(() => {
+    // Initial fetch on mount
     newPrice();
-    const interval = setInterval(newPrice, 10000); // Pull every 10 seconds
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const currentMinute = now.getMinutes();
+
+      // Only fetch at minutes 0, 15, 30, 45
+      const allowedMinutes = [0, 15, 30, 45];
+      const shouldFetch = allowedMinutes.includes(currentMinute);
+
+      // Prevent multiple fetches in the same minute
+      if (shouldFetch && currentMinute !== lastFetchedMinute) {
+        newPrice();
+      }
+    }, 1000); // Check every second
+
     return () => clearInterval(interval);
-  }, []);
+  }, [lastFetchedMinute]);
 
   return (
     <div className="flex justify-center w-full h-full">
@@ -190,19 +161,15 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
           </TableHeader>
           <TableBody>
             {(() => {
-              // Group menu items by type
               const groupedMenu = menu.reduce(
                 (acc, item) => {
-                  if (!acc[item.type]) {
-                    acc[item.type] = [];
-                  }
+                  if (!acc[item.type]) acc[item.type] = [];
                   acc[item.type].push(item);
                   return acc;
                 },
                 {} as Record<string, typeof menu>,
               );
 
-              // Define the order of types
               const typeOrder = ["Bere", "Vin", "Racoritoare", "Shot"];
 
               return typeOrder.map((type) => {
@@ -224,9 +191,7 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
                             : diff < 0
                               ? "text-green-600"
                               : "text-muted-foreground";
-                        const formatted = `${diff > 0 ? "+" : ""}${diff.toFixed(
-                          2,
-                        )}`;
+                        const formatted = `${diff > 0 ? "+" : ""}${diff.toFixed(2)}`;
                         return <span className={cls}>{formatted}</span>;
                       })()}
                     </TableCell>
@@ -234,7 +199,7 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
                 ));
               });
             })()}
-          </TableBody>{" "}
+          </TableBody>
         </Table>
       </div>
     </div>

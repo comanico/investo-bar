@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import axios from "axios";
-import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import {
   Card,
   CardContent,
@@ -99,21 +98,22 @@ const chartConfig = {
 export function ChartApp() {
   const [chartData, setChartData] =
     React.useState<ChartDataPoint[]>(initialChartData);
-  const finalChartData = React.useRef(chartData);
   const [error, setError] = React.useState<string | null>(null);
   const [activeChart, setActiveChart] =
     React.useState<keyof typeof chartConfig>("heineken");
+  const [lastFetchedMinute, setLastFetchedMinute] = React.useState<
+    number | null
+  >(null);
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [minutes, setMinutes] = React.useState<number>(15);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [seconds, setSeconds] = React.useState<number>(0);
-  const DATA_URL = "https://d2xgbzki9fbs74.cloudfront.net/api/prices.json";
 
   // Calculate the next target time (00, 15, 30, or 45 minutes)
   const getNextTargetTime = (now: Date = new Date()) => {
     const currentMinutes = now.getMinutes();
     let targetMinutes = Math.ceil(currentMinutes / 15) * 15;
-    // eslint-disable-next-line prefer-const
     let target = new Date(now);
     target.setMinutes(targetMinutes, 0, 0);
     if (targetMinutes >= 60) {
@@ -131,7 +131,7 @@ export function ChartApp() {
     return target;
   };
 
-  // Initialize and update timer logic (for API updates, not displayed)
+  // Timer logic for countdown (kept as-is)
   React.useEffect(() => {
     let target = getNextTargetTime();
 
@@ -145,7 +145,7 @@ export function ChartApp() {
 
       const m = Math.max(
         0,
-        Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+        Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
       );
       const s = Math.max(0, Math.floor((difference % (1000 * 60)) / 1000));
       setMinutes(m);
@@ -155,26 +155,40 @@ export function ChartApp() {
     return () => clearInterval(interval);
   }, []);
 
-  // Fetch data from JSON file
+  // Fetch data from S3 via secure API + override time with current fetch time
   const fetchChartData = async () => {
     try {
-      const response = await axios.get<ChartDataPoint[]>(DATA_URL, {
-        timeout: 5000,
+      const response = await fetch("/api/get-file?key=live_prices.json", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
       });
-      const data: ChartDataPoint[] = response.data;
 
-      if (data.length > chartData.length) {
-        finalChartData.current = data;
-        setChartData(data);
-        const target = getNextTargetTime();
-        const now = new Date();
-        const difference = target.getTime() - now.getTime();
-        const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((difference % (1000 * 60)) / 1000);
-        setMinutes(m);
-        setSeconds(s);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      setError(null);
+
+      const data: ChartDataPoint[] = await response.json();
+
+      if (Array.isArray(data) && data.length > 0) {
+        // Get current time and format as HH:MM
+        const now = new Date();
+        const currentTime = now.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "Europe/Bucharest",
+        });
+
+        // Update the last record's time with the actual fetch time
+        const updatedData = [...data];
+        updatedData[updatedData.length - 1] = {
+          ...updatedData[updatedData.length - 1],
+          time: currentTime,
+        };
+
+        setChartData(updatedData);
+        setLastFetchedMinute(now.getMinutes());
+        setError(null);
+      }
     } catch (err) {
       setError("Failed to fetch chart data");
       console.error("Fetch error:", err);
@@ -200,12 +214,25 @@ export function ChartApp() {
     return [Math.floor(min - 0.5), Math.ceil(max + 0.5)];
   }, [chartData]);
 
-  // Fetch data initially and every 10 seconds
+  // Fetch only at minutes 0, 15, 30, 45
   React.useEffect(() => {
-    fetchChartData();
-    const interval = setInterval(fetchChartData, 10000); // Poll every 10 seconds
+    fetchChartData(); // Initial fetch on mount
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const currentMinute = now.getMinutes();
+      const allowedMinutes = [0, 15, 30, 45];
+
+      if (
+        allowedMinutes.includes(currentMinute) &&
+        currentMinute !== lastFetchedMinute
+      ) {
+        fetchChartData();
+      }
+    }, 1000); // Check every second
+
     return () => clearInterval(interval);
-  }, [chartData]);
+  }, [lastFetchedMinute]);
 
   const total = React.useMemo(
     () => ({
@@ -230,18 +257,15 @@ export function ChartApp() {
           : 0,
       cola: chartData.length > 0 ? chartData[chartData.length - 1].cola : 0,
     }),
-    [chartData]
+    [chartData],
   );
 
   const getButtonColor = (key: keyof typeof total) => {
-    if (chartData.length < 2) return "bg-muted/50"; // Neutral if insufficient data
+    if (chartData.length < 2) return "bg-muted/50";
     const currentPrice = chartData[chartData.length - 1][key];
     const previousPrice = chartData[chartData.length - 2][key];
-    if (currentPrice < previousPrice) {
-      return "bg-green-500 text-white";
-    } else if (currentPrice > previousPrice) {
-      return "bg-red-500 text-white";
-    }
+    if (currentPrice < previousPrice) return "bg-green-500 text-white";
+    if (currentPrice > previousPrice) return "bg-red-500 text-white";
     return "bg-muted/50";
   };
 
@@ -273,7 +297,7 @@ export function ChartApp() {
                     key={chart}
                     data-active={activeChart === chart}
                     className={`flex flex-1 flex-col justify-center gap-1 border-t px-4 py-4 text-left sm:border-t-0 sm:border-l sm:px-6 sm:py-6 transition-colors duration-300 ease-in-out ${getButtonColor(
-                      chart
+                      chart,
                     )} data-[active=true]:bg-gray-100 data-[active=true]:text-black`}
                     onClick={() => setActiveChart(chart)}
                   >
@@ -299,10 +323,7 @@ export function ChartApp() {
               <LineChart
                 accessibilityLayer
                 data={chartData}
-                margin={{
-                  left: 12,
-                  right: 12,
-                }}
+                margin={{ left: 12, right: 12 }}
               >
                 <CartesianGrid vertical={false} />
                 <XAxis
