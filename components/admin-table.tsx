@@ -99,6 +99,9 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
   const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
   // State of page while Toast is active
   const [isToastActive, setIsToastActive] = useState(false);
+  const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
+    null,
+  );
 
   // Get user information from Clerk
   const { user } = useUser();
@@ -175,6 +178,9 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
             : item;
         }),
       );
+
+      const now = new Date();
+      setLastFetchedMinute(now.getMinutes());
     } catch (err) {
       console.error("Fetch error:", err);
     }
@@ -182,9 +188,20 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
 
   useEffect(() => {
     newPrice();
-    const interval = setInterval(newPrice, 30000); // Poll every 30 seconds
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const currentMinute = now.getMinutes();
+      const allowedMinutes = [0, 15, 30, 45];
+      const shouldFetch = allowedMinutes.includes(currentMinute);
+
+      if (shouldFetch && currentMinute !== lastFetchedMinute) {
+        newPrice();
+      }
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [lastFetchedMinute]);
 
   const handleSubmit = async () => {
     try {
