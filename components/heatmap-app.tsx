@@ -14,6 +14,10 @@ interface ChartDataPoint {
   vin_spumant_fara_alcool: number;
   apa: number;
   cola: number;
+  jameson: number;
+  jameson_black_barrel: number;
+  fireball: number;
+  tequilla: number;
 }
 
 const initialChartData: ChartDataPoint[] = [
@@ -29,6 +33,10 @@ const initialChartData: ChartDataPoint[] = [
     vin_spumant_fara_alcool: 12,
     cola: 9,
     apa: 8,
+    jameson: 18,
+    jameson_black_barrel: 25,
+    fireball: 12,
+    tequilla: 12,
   },
 ];
 
@@ -43,6 +51,10 @@ const priceKeys = [
   "vin_spumant_fara_alcool",
   "apa",
   "cola",
+  "jameson",
+  "jameson_black_barrel",
+  "fireball",
+  "tequilla",
 ] as const;
 
 type ProductKey = (typeof priceKeys)[number];
@@ -58,6 +70,10 @@ const productLabels: Record<ProductKey, string> = {
   vin_spumant_fara_alcool: "Vin Spumant Fara Alcool",
   apa: "Apa",
   cola: "Cola",
+  jameson: "Jameson",
+  jameson_black_barrel: "Jameson Black Barrel",
+  fireball: "Fireball",
+  tequilla: "Tequilla",
 };
 
 export function HeatmapApp() {
@@ -129,7 +145,7 @@ export function HeatmapApp() {
       priceKeys.reduce(
         (accumulator, key) => {
           accumulator[key] =
-            chartData.length > 0 ? chartData[chartData.length - 1][key] : 0;
+            chartData.length > 0 ? (chartData[chartData.length - 1][key] ?? 0) : 0;
           return accumulator;
         },
         {} as Record<ProductKey, number>,
@@ -140,8 +156,8 @@ export function HeatmapApp() {
   const getTileColor = (key: ProductKey) => {
     if (chartData.length < 2) return "bg-muted/50 text-foreground";
 
-    const currentPrice = chartData[chartData.length - 1][key];
-    const previousPrice = chartData[chartData.length - 2][key];
+    const currentPrice = chartData[chartData.length - 1][key] ?? 0;
+    const previousPrice = chartData[chartData.length - 2][key] ?? 0;
 
     if (currentPrice < previousPrice) return "bg-green-500 text-white";
     if (currentPrice > previousPrice) return "bg-red-500 text-white";
@@ -157,7 +173,7 @@ export function HeatmapApp() {
   }
 
   return (
-    <div className="grid h-screen w-full grid-cols-2 grid-rows-5 gap-px bg-border md:grid-cols-5 md:grid-rows-2">
+    <div className="grid h-screen w-full grid-cols-2 grid-rows-7 gap-px bg-border md:grid-cols-7 md:grid-rows-2">
       {priceKeys.map((key) => (
         <div
           key={key}

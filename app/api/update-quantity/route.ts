@@ -29,6 +29,10 @@ export async function POST(req: Request) {
             "Vin Spumant Fara Alcool": { model: prismadb.racoritoare, column: 'Vin_Spumant_Fara_Alcool'},
             "Cola": { model: prismadb.racoritoare, column: 'Cola' },
             "Apa": { model: prismadb.racoritoare, column: 'Apa' },
+            "Jameson": { model: prismadb.spirtoase, column: 'Jameson' },
+            "Jameson Black Barrel": { model: prismadb.spirtoase, column: 'Jameson_Black_Barrel' },
+            "Fireball": { model: prismadb.spirtoase, column: 'Fireball' },
+            "Tequilla": { model: prismadb.spirtoase, column: 'Tequilla' },
         }
 
         for (const item of menuItems) {

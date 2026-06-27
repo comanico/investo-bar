@@ -46,3 +46,11 @@ model racoritoare {
   Apa          Int @default(0)
   Cola         Int @default(0)
 }
+
+model spirtoase {
+  id                   Int @id @default(autoincrement())
+  Jameson              Int @default(0)
+  Jameson_Black_Barrel Int @default(0)
+  Fireball             Int @default(0)
+  Tequilla             Int @default(0)
+}

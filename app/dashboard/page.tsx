@@ -7,17 +7,25 @@ import { getSales } from "@/actions/getSales";
 import { getBere } from "@/actions/getBere";
 import { getVin } from "@/actions/getVin";
 import { getRacoritoare } from "@/actions/getRacoritoare";
+import { getSpirtoase } from "@/actions/getSpirtoase";
 
 async function Page() {
   // Fetch all data on the server side
-  const [initialMenu, salesData, bereData, vinData, racoritoareData] =
-    await Promise.all([
-      getMenu(),
-      getSales(),
-      getBere(),
-      getVin(),
-      getRacoritoare(),
-    ]);
+  const [
+    initialMenu,
+    salesData,
+    bereData,
+    vinData,
+    racoritoareData,
+    spirtoaseData,
+  ] = await Promise.all([
+    getMenu(),
+    getSales(),
+    getBere(),
+    getVin(),
+    getRacoritoare(),
+    getSpirtoase(),
+  ]);
 
   return (
     <SidebarProvider
@@ -37,6 +45,7 @@ async function Page() {
           bereData={bereData}
           vinData={vinData}
           racoritoareData={racoritoareData}
+          spirtoaseData={spirtoaseData}
         />
       </SidebarInset>
     </SidebarProvider>

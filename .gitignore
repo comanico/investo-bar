@@ -50,9 +50,15 @@ next-env.d.ts
 live_prices.json
 *prices.json
 
-# bash & logs
-beer_log.txt
+# bash scripts
 ping-shiny.sh
 run_all.sh
-softdrinks_log.txt
-wine_log.txt
+
+# R scripts
+*.R
+
+# Python scripts
+*.py
+
+# text files
+*.txt

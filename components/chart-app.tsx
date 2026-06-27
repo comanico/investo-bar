@@ -31,6 +31,10 @@ interface ChartDataPoint {
   vin_spumant_fara_alcool: number;
   apa: number;
   cola: number;
+  jameson: number;
+  jameson_black_barrel: number;
+  fireball: number;
+  tequilla: number;
 }
 
 const initialChartData = [
@@ -46,6 +50,10 @@ const initialChartData = [
     vin_spumant_fara_alcool: 12,
     cola: 9,
     apa: 8,
+    jameson: 18,
+    jameson_black_barrel: 25,
+    fireball: 12,
+    tequilla: 12,
   },
 ];
 
@@ -92,6 +100,22 @@ const chartConfig = {
   vin_spumant_fara_alcool: {
     label: "Vin Spumant Fara Alcool",
     color: "var(--chart-10)",
+  },
+  jameson: {
+    label: "Jameson",
+    color: "var(--chart-11)",
+  },
+  jameson_black_barrel: {
+    label: "Jameson Black Barrel",
+    color: "var(--chart-12)",
+  },
+  fireball: {
+    label: "Fireball",
+    color: "var(--chart-1)",
+  },
+  tequilla: {
+    label: "Tequilla",
+    color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
@@ -208,7 +232,12 @@ export function ChartApp() {
       point.vin_spumant_fara_alcool,
       point.apa,
       point.cola,
-    ]);
+      point.jameson,
+      point.jameson_black_barrel,
+      point.fireball,
+      point.tequilla,
+    ]).filter((value): value is number => typeof value === "number");
+    if (allValues.length === 0) return [0, 10];
     const min = Math.min(...allValues);
     const max = Math.max(...allValues);
     return [Math.floor(min - 0.5), Math.ceil(max + 0.5)];
@@ -256,14 +285,24 @@ export function ChartApp() {
           ? chartData[chartData.length - 1].vin_spumant_fara_alcool
           : 0,
       cola: chartData.length > 0 ? chartData[chartData.length - 1].cola : 0,
+      jameson:
+        chartData.length > 0 ? (chartData[chartData.length - 1].jameson ?? 0) : 0,
+      jameson_black_barrel:
+        chartData.length > 0
+          ? (chartData[chartData.length - 1].jameson_black_barrel ?? 0)
+          : 0,
+      fireball:
+        chartData.length > 0 ? (chartData[chartData.length - 1].fireball ?? 0) : 0,
+      tequilla:
+        chartData.length > 0 ? (chartData[chartData.length - 1].tequilla ?? 0) : 0,
     }),
     [chartData],
   );
 
   const getButtonColor = (key: keyof typeof total) => {
     if (chartData.length < 2) return "bg-muted/50";
-    const currentPrice = chartData[chartData.length - 1][key];
-    const previousPrice = chartData[chartData.length - 2][key];
+    const currentPrice = chartData[chartData.length - 1][key] ?? 0;
+    const previousPrice = chartData[chartData.length - 2][key] ?? 0;
     if (currentPrice < previousPrice) return "bg-green-500 text-white";
     if (currentPrice > previousPrice) return "bg-red-500 text-white";
     return "bg-muted/50";
@@ -290,6 +329,10 @@ export function ChartApp() {
                 "vin_spumant_fara_alcool",
                 "apa",
                 "cola",
+                "jameson",
+                "jameson_black_barrel",
+                "fireball",
+                "tequilla",
               ].map((key) => {
                 const chart = key as keyof typeof total;
                 return (

@@ -6,13 +6,21 @@ import { SalesTable } from "@/components/sales-table";
 import { BereTable } from "@/components/bere-table";
 import { VinTable } from "@/components/vin-table";
 import { RacoritoareTable } from "@/components/racoritoare-table";
+import { SpirtoaseTable } from "@/components/spirtoase-table";
 import type { MenuItem } from "@/actions/getMenu";
 import type { SalesItem } from "@/actions/getSales";
 import type { BereItem } from "@/actions/getBere";
 import type { VinItem } from "@/actions/getVin";
 import type { RacoritoareItem } from "@/actions/getRacoritoare";
+import type { SpirtoaseItem } from "@/actions/getSpirtoase";
 
-type TableView = "menu" | "sales" | "bere" | "vin" | "racoritoare";
+type TableView =
+  | "menu"
+  | "sales"
+  | "bere"
+  | "vin"
+  | "racoritoare"
+  | "spirtoase";
 
 interface DynamicTableProps {
   initialMenu: MenuItem[];
@@ -20,6 +28,7 @@ interface DynamicTableProps {
   bereData: BereItem[];
   vinData: VinItem[];
   racoritoareData: RacoritoareItem[];
+  spirtoaseData: SpirtoaseItem[];
 }
 
 export function DynamicTable({
@@ -28,6 +37,7 @@ export function DynamicTable({
   bereData,
   vinData,
   racoritoareData,
+  spirtoaseData,
 }: DynamicTableProps) {
   const [currentView, setCurrentView] = useState<TableView>("menu");
 
@@ -36,7 +46,11 @@ export function DynamicTable({
     const handleHashChange = () => {
       const hash = window.location.hash;
       const view = hash.replace("#view=", "") as TableView;
-      if (["menu", "sales", "bere", "vin", "racoritoare"].includes(view)) {
+      if (
+        ["menu", "sales", "bere", "vin", "racoritoare", "spirtoase"].includes(
+          view,
+        )
+      ) {
         setCurrentView(view);
       }
     };
@@ -61,6 +75,8 @@ export function DynamicTable({
         return <VinTable items={vinData} />;
       case "racoritoare":
         return <RacoritoareTable items={racoritoareData} />;
+      case "spirtoase":
+        return <SpirtoaseTable items={spirtoaseData} />;
       default:
         return <AdminTable initial={initialMenu} />;
     }

@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { MenuItem } from "@/actions/getMenu";
+import { DEFAULT_MENU_ITEMS, MENU_TYPE_ORDER } from "@/lib/menu-items";
 
 interface MenuDataPoint {
   time: string;
@@ -24,30 +25,18 @@ interface MenuDataPoint {
   vin_spumant_fara_alcool: number;
   apa: number;
   cola: number;
+  jameson: number;
+  jameson_black_barrel: number;
+  fireball: number;
+  tequilla: number;
 }
 
-const initialMenu: MenuItem[] = [
-  { product: "Heineken", type: "Bere", price: 10, quantity: 0 },
-  { product: "Corona", type: "Bere", price: 12, quantity: 0 },
-  { product: "Peroni", type: "Bere", price: 10, quantity: 0 },
-  { product: "Prosecco", type: "Vin", price: 15, quantity: 0 },
-  { product: "Aperol Spritz", type: "Vin", price: 16, quantity: 0 },
-  { product: "Vin Rosu", type: "Vin", price: 15, quantity: 0 },
-  { product: "Vin Alb", type: "Vin", price: 15, quantity: 0 },
-  {
-    product: "Vin Spumant Fara Alcool",
-    type: "Racoritoare",
-    price: 12,
-    quantity: 0,
-  },
-  { product: "Cola", type: "Racoritoare", price: 9, quantity: 0 },
-  { product: "Apa", type: "Racoritoare", price: 8, quantity: 0 },
-  { product: "Tequilla", type: "Shot", price: 10, quantity: 0 },
-  { product: "Fireball", type: "Shot", price: 10, quantity: 0 },
-];
+const initialMenu = DEFAULT_MENU_ITEMS;
 
 export function MenuTable({ initial }: { initial: MenuItem[] }) {
-  const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
+  const [menu, setMenu] = useState(
+    initial.length > 0 ? initial : initialMenu,
+  );
   const [diffs, setDiffs] = useState<Record<string, number>>({});
   const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
     null,
@@ -64,6 +53,10 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
     vin_spumant_fara_alcool: "vin_spumant_fara_alcool",
     cola: "cola",
     apa: "apa",
+    jameson: "jameson",
+    jameson_black_barrel: "jameson_black_barrel",
+    fireball: "fireball",
+    tequilla: "tequilla",
   };
 
   const normalizeProduct = (name: string) =>
@@ -101,7 +94,7 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
 
       // Compute diffs
       const computedDiffs: Record<string, number> = {};
-      for (const item of initial?.length ? initial : initialMenu) {
+      for (const item of menu) {
         const key = productKeyMap[normalizeProduct(item.product)];
         if (!key) continue;
         const latest = lastUpdate[key];
@@ -170,7 +163,7 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
                 {} as Record<string, typeof menu>,
               );
 
-              const typeOrder = ["Bere", "Vin", "Racoritoare", "Shot"];
+              const typeOrder = MENU_TYPE_ORDER;
 
               return typeOrder.map((type) => {
                 const items = groupedMenu[type] || [];

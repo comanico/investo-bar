@@ -14,6 +14,7 @@ import {
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { MenuItem } from "@/actions/getMenu";
+import { DEFAULT_MENU_ITEMS, MENU_TYPE_ORDER } from "@/lib/menu-items";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
 
@@ -29,74 +30,19 @@ interface MenuDataPoint {
   vin_spumant_fara_alcool: number;
   apa: number;
   cola: number;
+  jameson: number;
+  jameson_black_barrel: number;
+  fireball: number;
+  tequilla: number;
 }
 
-const initialMenu: MenuItem[] = [
-  {
-    product: "Heineken",
-    type: "Bere",
-    price: 10,
-    quantity: 0,
-  },
-  {
-    product: "Corona",
-    type: "Bere",
-    price: 12,
-    quantity: 0,
-  },
-  {
-    product: "Peroni",
-    type: "Bere",
-    price: 10,
-    quantity: 0,
-  },
-  {
-    product: "Prosecco",
-    type: "Vin",
-    price: 15,
-    quantity: 0,
-  },
-  {
-    product: "Aperol Spritz",
-    type: "Vin",
-    price: 16,
-    quantity: 0,
-  },
-  {
-    product: "Vin Rosu",
-    type: "Vin",
-    price: 15,
-    quantity: 0,
-  },
-  {
-    product: "Vin Alb",
-    type: "Vin",
-    price: 15,
-    quantity: 0,
-  },
-  {
-    product: "Vin Spumant Fara Alcool",
-    type: "Racoritoare",
-    price: 12,
-    quantity: 0,
-  },
-  {
-    product: "Cola",
-    type: "Racoritoare",
-    price: 9,
-    quantity: 0,
-  },
-  {
-    product: "Apa",
-    type: "Racoritoare",
-    price: 8,
-    quantity: 0,
-  },
-];
+const initialMenu = DEFAULT_MENU_ITEMS;
 
 export function AdminTable({ initial }: { initial?: MenuItem[] }) {
   // Use state to manage menu items
-  const [menu, setMenu] = useState(initial?.length ? initial : initialMenu);
+  const [menu, setMenu] = useState(
+    initial && initial.length > 0 ? initial : initialMenu,
+  );
   // State of page while Toast is active
   const [isToastActive, setIsToastActive] = useState(false);
   const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
@@ -120,6 +66,10 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
     vin_spumant_fara_alcool: "vin_spumant_fara_alcool",
     cola: "cola",
     apa: "apa",
+    jameson: "jameson",
+    jameson_black_barrel: "jameson_black_barrel",
+    fireball: "fireball",
+    tequilla: "tequilla",
   };
 
   // Function to handle quantity increase
@@ -283,7 +233,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
               {} as Record<string, typeof menu>,
             );
             // Define the order of types
-            const typeOrder = ["Bere", "Vin", "Racoritoare", "Shot"];
+            const typeOrder = MENU_TYPE_ORDER;
 
             return typeOrder.map((type) => {
               const items = groupedMenu[type] || [];
