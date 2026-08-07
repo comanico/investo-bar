@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/table";
 import type { MenuItem } from "@/actions/getMenu";
 import { DEFAULT_MENU_ITEMS, MENU_TYPE_ORDER } from "@/lib/menu-items";
+import Counter from "./ui/counter";
+import { getPricePlaces, getDiffPlaces, PlaceValue } from "@/actions/getPlaces";
 
 interface MenuDataPoint {
   time: string;
@@ -34,9 +36,7 @@ interface MenuDataPoint {
 const initialMenu = DEFAULT_MENU_ITEMS;
 
 export function MenuTable({ initial }: { initial: MenuItem[] }) {
-  const [menu, setMenu] = useState(
-    initial.length > 0 ? initial : initialMenu,
-  );
+  const [menu, setMenu] = useState(initial.length > 0 ? initial : initialMenu);
   const [diffs, setDiffs] = useState<Record<string, number>>({});
   const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
     null,
@@ -174,7 +174,18 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
                     <TableCell className="text-xl text-center">
                       {item.product}
                     </TableCell>
-                    <TableCell className="text-xl">{item.price}</TableCell>
+                    <TableCell className="text-xl">
+                      <Counter
+                        value={item.price}
+                        fontSize={20}
+                        places={getPricePlaces(item.price)}
+                        gap={1}
+                        horizontalPadding={0}
+                        gradientFrom="transparent"
+                        gradientTo="transparent"
+                        fontWeight={600}
+                      />
+                    </TableCell>
                     <TableCell className="text-xl">
                       {(() => {
                         const diff = diffs[item.product] ?? 0;
@@ -184,8 +195,23 @@ export function MenuTable({ initial }: { initial: MenuItem[] }) {
                             : diff < 0
                               ? "text-green-600"
                               : "text-muted-foreground";
-                        const formatted = `${diff > 0 ? "+" : ""}${diff.toFixed(2)}`;
-                        return <span className={cls}>{formatted}</span>;
+                        return (
+                          <span
+                            className={`inline-flex items-center gap-0.5 ${cls}`}
+                          >
+                            {diff > 0 ? "+" : ""}
+                            <Counter
+                              value={Math.abs(diff)}
+                              fontSize={18}
+                              places={getDiffPlaces(diff)}
+                              gap={1}
+                              horizontalPadding={0}
+                              gradientFrom="transparent"
+                              gradientTo="transparent"
+                              fontWeight={600}
+                            />
+                          </span>
+                        );
                       })()}
                     </TableCell>
                   </TableRow>
