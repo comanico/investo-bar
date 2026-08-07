@@ -1,6 +1,6 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
-import { DynamicTable } from "@/components/dynamic-table";
+import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { SiteHeader } from "@/components/ui/site-header";
+import { DynamicTable } from "@/components/tables/dynamic-table";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getMenu } from "@/actions/getMenu";
 import { getSales } from "@/actions/getSales";

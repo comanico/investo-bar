@@ -1,4 +1,4 @@
-import { cn } from "../lib/utils";
+import { cn } from "../../lib/utils";
 import InvestoBarIcon from "@/public/InvestoBarIcon.svg";
 
 export const Logo = ({

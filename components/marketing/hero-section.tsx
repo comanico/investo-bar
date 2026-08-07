@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { HeroHeader } from "./header";
 import { InfiniteSlider } from "@/components/ui/infinite-slider";
 import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 import Image from "next/image";
 import { SelectedPage } from "@/lib/types";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { HeroHeader } from "./header";
 
 export default function HeroSection() {
   const { t } = useTranslation();

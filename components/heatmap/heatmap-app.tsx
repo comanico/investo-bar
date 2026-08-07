@@ -145,7 +145,9 @@ export function HeatmapApp() {
       priceKeys.reduce(
         (accumulator, key) => {
           accumulator[key] =
-            chartData.length > 0 ? (chartData[chartData.length - 1][key] ?? 0) : 0;
+            chartData.length > 0
+              ? (chartData[chartData.length - 1][key] ?? 0)
+              : 0;
           return accumulator;
         },
         {} as Record<ProductKey, number>,

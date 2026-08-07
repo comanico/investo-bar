@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AdminTable } from "@/components/admin-table";
-import { SalesTable } from "@/components/sales-table";
-import { BereTable } from "@/components/bere-table";
-import { VinTable } from "@/components/vin-table";
-import { RacoritoareTable } from "@/components/racoritoare-table";
-import { SpirtoaseTable } from "@/components/spirtoase-table";
+import { AdminTable } from "@/components/dashboard/admin-table";
+import { SalesTable } from "@/components/tables/sales-table";
+import { BereTable } from "@/components/tables/bere-table";
+import { VinTable } from "@/components/tables/vin-table";
+import { RacoritoareTable } from "@/components/tables/racoritoare-table";
+import { SpirtoaseTable } from "@/components/tables/spirtoase-table";
 import type { MenuItem } from "@/actions/getMenu";
 import type { SalesItem } from "@/actions/getSales";
 import type { BereItem } from "@/actions/getBere";

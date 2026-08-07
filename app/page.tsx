@@ -4,15 +4,15 @@ import { useEffect, useState } from "react";
 import { SelectedPage } from "@/lib/types";
 
 // Scroller
-import I18nProvider from "@/components/i18n-provider";
+import I18nProvider from "@/components/ui/i18n-provider";
 
 // Sections
-import About from "@/components/about";
-import Solution from "@/components/solution";
-import FooterSection from "@/components/footer";
-import HeroSection from "@/components/hero-section";
-import Reviews from "@/components/reviews";
-import Features from "@/components/features";
+import About from "@/components/marketing/about";
+import Solution from "@/components/marketing/solution";
+import FooterSection from "@/components/marketing/footer";
+import HeroSection from "@/components/marketing/hero-section";
+import Reviews from "@/components/marketing/reviews";
+import Features from "@/components/marketing/features";
 
 export default function Home() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

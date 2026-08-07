@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Timer from "../timer";
+import Timer from "../ui/timer";
 import { getNextTargetTime } from "@/actions/getNextTargetTime";
 
 export function HeatmenuHeader() {

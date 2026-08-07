@@ -1,4 +1,4 @@
-import { ChartApp } from "@/components/chart-app";
+import { ChartApp } from "@/components/chart/chart-app";
 
 export default function LiveChart() {
   return (

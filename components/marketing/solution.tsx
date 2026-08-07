@@ -1,5 +1,5 @@
 import { BadgeEuro, ArrowLeftRight } from "lucide-react";
-import { ChartLineInteractive } from "./chart-line-interactive";
+import { ChartLineInteractive } from "../chart/chart-line-interactive";
 import { motion } from "framer-motion";
 import { SelectedPage } from "@/lib/types";
 import { useTranslation } from "react-i18next";

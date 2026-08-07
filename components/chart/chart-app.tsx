@@ -15,7 +15,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ScrollArea, ScrollBar } from "./ui/scroll-area";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
 export const description = "An interactive line chart";
 
@@ -221,22 +221,24 @@ export function ChartApp() {
 
   const yAxisDomain = React.useMemo(() => {
     if (chartData.length === 0) return [0, 10];
-    const allValues = chartData.flatMap((point) => [
-      point.heineken,
-      point.corona,
-      point.peroni,
-      point.aperol_spritz,
-      point.vin_rosu,
-      point.vin_alb,
-      point.prosecco,
-      point.vin_spumant_fara_alcool,
-      point.apa,
-      point.cola,
-      point.jameson,
-      point.jameson_black_barrel,
-      point.fireball,
-      point.tequilla,
-    ]).filter((value): value is number => typeof value === "number");
+    const allValues = chartData
+      .flatMap((point) => [
+        point.heineken,
+        point.corona,
+        point.peroni,
+        point.aperol_spritz,
+        point.vin_rosu,
+        point.vin_alb,
+        point.prosecco,
+        point.vin_spumant_fara_alcool,
+        point.apa,
+        point.cola,
+        point.jameson,
+        point.jameson_black_barrel,
+        point.fireball,
+        point.tequilla,
+      ])
+      .filter((value): value is number => typeof value === "number");
     if (allValues.length === 0) return [0, 10];
     const min = Math.min(...allValues);
     const max = Math.max(...allValues);
@@ -286,15 +288,21 @@ export function ChartApp() {
           : 0,
       cola: chartData.length > 0 ? chartData[chartData.length - 1].cola : 0,
       jameson:
-        chartData.length > 0 ? (chartData[chartData.length - 1].jameson ?? 0) : 0,
+        chartData.length > 0
+          ? (chartData[chartData.length - 1].jameson ?? 0)
+          : 0,
       jameson_black_barrel:
         chartData.length > 0
           ? (chartData[chartData.length - 1].jameson_black_barrel ?? 0)
           : 0,
       fireball:
-        chartData.length > 0 ? (chartData[chartData.length - 1].fireball ?? 0) : 0,
+        chartData.length > 0
+          ? (chartData[chartData.length - 1].fireball ?? 0)
+          : 0,
       tequilla:
-        chartData.length > 0 ? (chartData[chartData.length - 1].tequilla ?? 0) : 0,
+        chartData.length > 0
+          ? (chartData[chartData.length - 1].tequilla ?? 0)
+          : 0,
     }),
     [chartData],
   );

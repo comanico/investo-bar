@@ -1,11 +1,11 @@
 "use client";
-import ALink from "@/components/Link";
+import ALink from "@/components/ui/Link";
 import Link from "next/link";
 import { SelectedPage } from "@/lib/types";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/marketing/logo";
 import { Menu, X } from "lucide-react";
 import React from "react";
-import { ModeToggle } from "./mode-toggle";
+import { ModeToggle } from "../ui/mode-toggle";
 import { useTranslation } from "react-i18next";
 import {
   Select,

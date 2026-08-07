@@ -1,5 +1,5 @@
 import AnchorLink from "react-anchor-link-smooth-scroll";
-import { SelectedPage } from "../lib/types";
+import { SelectedPage } from "../../lib/types";
 import { useTranslation } from "react-i18next";
 
 type Props = {

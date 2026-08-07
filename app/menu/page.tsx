@@ -1,5 +1,5 @@
-import { SiteHeader } from "@/components/menu-header";
-import { MenuTable } from "@/components/menu-table";
+import { SiteHeader } from "@/components/menu/menu-header";
+import { MenuTable } from "@/components/menu/menu-table";
 import { getMenu } from "@/actions/getMenu";
 
 async function Page() {

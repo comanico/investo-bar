@@ -1,6 +1,6 @@
 "use client";
 
-import Counter from "./ui/counter";
+import Counter from "./counter";
 
 interface Props {
   minutes: number;

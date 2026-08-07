@@ -13,8 +13,8 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 
-import { NavMain } from "@/components/nav-main";
-import { NavUser } from "@/components/nav-user";
+import { NavMain } from "@/components/dashboard/nav-main";
+import { NavUser } from "@/components/dashboard/nav-user";
 import {
   Sidebar,
   SidebarContent,
