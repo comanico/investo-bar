@@ -2,7 +2,7 @@ import Counter from "../ui/counter";
 import { cn } from "@/lib/utils";
 import type { HeatmenuItem } from "@/lib/types";
 import { Beer, Wine, CupSoda, Martini, type LucideIcon } from "lucide-react";
-import { getPricePlaces, getDiffPlaces, PlaceValue } from "@/actions/getPlaces";
+import { getPricePlaces, getDiffPlaces } from "@/actions/getPlaces";
 
 const TYPE_ICONS: Record<string, LucideIcon> = {
   Bere: Beer,

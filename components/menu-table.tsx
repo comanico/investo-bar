@@ -13,7 +13,7 @@ import {
 import type { MenuItem } from "@/actions/getMenu";
 import { DEFAULT_MENU_ITEMS, MENU_TYPE_ORDER } from "@/lib/menu-items";
 import Counter from "./ui/counter";
-import { getPricePlaces, getDiffPlaces, PlaceValue } from "@/actions/getPlaces";
+import { getPricePlaces, getDiffPlaces } from "@/actions/getPlaces";
 
 interface MenuDataPoint {
   time: string;
