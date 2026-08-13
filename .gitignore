@@ -62,3 +62,6 @@ run_all.sh
 
 # text files
 *.txt
+
+# Prisma Migrations
+/prisma/migrations
