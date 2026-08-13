@@ -21,7 +21,6 @@ export function HeatmenuCard({ item }: { item: HeatmenuItem }) {
   return (
     <article
       className={cn(
-        // even size + clip children
         "relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-3xl",
         "aspect-[3/4] sm:aspect-square xl:aspect-[4/3]",
         "border border-white/10 bg-white/5 p-4 backdrop-blur-xl",

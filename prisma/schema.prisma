@@ -54,3 +54,16 @@ model spirtoase {
   Fireball             Int @default(0)
   Tequilla             Int @default(0)
 }
+
+model Placement {
+  id        String   @id @default(cuid())
+  venueId   String
+  kind      String   
+  label     String   
+  token     String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([venueId, active])
+}
