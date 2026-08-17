@@ -11,6 +11,7 @@ import {
   IconReport,
   IconSearch,
   IconSettings,
+  IconBottle,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -39,6 +40,11 @@ const data = {
       title: "Menu",
       url: "dashboard#view=menu",
       icon: IconListDetails,
+    },
+    {
+      title: "Orders",
+      url: "dashboard#view=orders",
+      icon: IconBottle,
     },
     {
       title: "Sales",

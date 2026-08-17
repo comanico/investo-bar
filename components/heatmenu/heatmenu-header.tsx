@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import Timer from "../ui/timer";
 import { getNextTargetTime } from "@/actions/getNextTargetTime";
 
-export function HeatmenuHeader() {
+type Props = {
+  subtitle?: string;
+};
+
+export function HeatmenuHeader({ subtitle }: Props) {
   const [minutes, setMinutes] = useState(15);
   const [seconds, setSeconds] = useState(0);
 
@@ -43,6 +47,9 @@ export function HeatmenuHeader() {
       >
         Investor Bar Menu
       </h1>
+      {subtitle ? (
+        <p className="mt-2 text-sm text-white/60">{subtitle}</p>
+      ) : null}
       <div className="leading-none font-bold text-white sm:text-3xl">
         <Timer minutes={minutes} seconds={seconds} />
       </div>

@@ -3,46 +3,52 @@
 import { useCallback, useEffect, useState } from "react";
 import { HeatmenuHeader } from "./heatmenu-header";
 import { HeatmenuGrid } from "./heatmenu-grid";
-import { HeatmenuItem, MenuDataPoint, productKeyMap } from "@/lib/types";
-import { DEFAULT_MENU_ITEMS } from "@/lib/menu-items";
+import { HeatmenuItem, MenuDataPoint } from "@/lib/types";
+import { buildItems } from "@/lib/buildItems";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { HeatmenuCard } from "./heatmenu-card";
+import { toast } from "sonner";
 
-const normalizeProduct = (name: string) =>
-  name.toLowerCase().replace(/\s+/g, "_");
+type Props = {
+  /** Set when opened from /t/[token] */
+  placement?: { id: string; token: string; label: string; kind: string };
+};
 
-function buildItems(series: MenuDataPoint[]): HeatmenuItem[] {
-  if (!series.length) {
-    return DEFAULT_MENU_ITEMS.map((item) => ({
-      product: item.product,
-      type: item.type,
-      price: item.price,
-      prevPrice: item.price,
-    }));
-  }
-
-  const last = series[series.length - 1];
-  const prev = series.length > 1 ? series[series.length - 2] : last;
-
-  return DEFAULT_MENU_ITEMS.map((item) => {
-    const key = productKeyMap[normalizeProduct(item.product)];
-    const live = key != null ? last[key] : undefined;
-    const previous = key != null ? prev[key] : undefined;
-    const price = typeof live === "number" ? live : item.price;
-    const prevPrice = typeof previous === "number" ? previous : price;
-
-    return {
-      product: item.product,
-      type: item.type,
-      price,
-      prevPrice,
-    };
-  });
-}
-
-export function HeatmenuApp() {
+export function HeatmenuApp({ placement }: Props = {}) {
+  const isMobile = useIsMobile();
+  const showBuy = Boolean(placement);
   const [items, setItems] = useState<HeatmenuItem[]>(() => buildItems([]));
   const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
     null,
   );
+
+  const handleBuy = async (item: HeatmenuItem) => {
+    if (!placement) return;
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: placement.token,
+          product: item.product,
+          type: item.type,
+          price: item.price,
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        console.error("Order failed", data);
+        toast.error(data.error ?? "Could not send order");
+
+        return;
+      }
+
+      toast.success(`Order sent · ${placement.label}`);
+    } catch (e) {
+      console.error(e);
+      toast.error("Network error");
+    }
+  };
 
   const fetchPrices = useCallback(async () => {
     try {
@@ -93,11 +99,25 @@ export function HeatmenuApp() {
         }}
       />
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col items-center">
-        <HeatmenuHeader />
-        <main className="min-h-0 flex-1 overflow-hidden px-4">
-          <HeatmenuGrid items={items} />
-        </main>
-      </div>{" "}
+        <HeatmenuHeader subtitle={placement ? placement.label : undefined} />
+        {isMobile ? (
+          <main className="w-full flex-1 space-y-3 px-4 pb-10">
+            {items.map((item) => (
+              <HeatmenuCard
+                key={item.product}
+                item={item}
+                layout="row"
+                showBuy={showBuy}
+                onBuy={() => handleBuy(item)}
+              />
+            ))}
+          </main>
+        ) : (
+          <main className="min-h-0 flex-1 px-4">
+            <HeatmenuGrid items={items} />
+          </main>
+        )}
+      </div>
     </div>
   );
 }

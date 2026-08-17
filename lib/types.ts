@@ -47,3 +47,14 @@ export const productKeyMap: Record<string, keyof MenuDataPoint> = {
     fireball: "fireball",
     tequilla: "tequilla",
   };
+
+  export type OrderRow = {
+    id: string;
+    product: string;
+    price: number;
+    qty: number;
+    status: string;
+    createdAt: string;
+    placement: { label: string; kind: string };
+  };
+  

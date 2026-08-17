@@ -7,6 +7,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const tableNames: Record<string, string> = {
   menu: "Menu",
+  orders: "Orders",
   sales: "Sales",
   bere: "Bere",
   vin: "Vin",

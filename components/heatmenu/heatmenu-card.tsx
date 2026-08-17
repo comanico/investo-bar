@@ -11,12 +11,95 @@ const TYPE_ICONS: Record<string, LucideIcon> = {
   Spirtoase: Martini,
 };
 
-export function HeatmenuCard({ item }: { item: HeatmenuItem }) {
+type Props = {
+  item: HeatmenuItem;
+  layout?: "tile" | "row"; // default "tile"
+  showBuy?: boolean;
+  onBuy?: () => void;
+};
+
+export function HeatmenuCard({ item, layout = "tile", showBuy, onBuy }: Props) {
   const Icon = TYPE_ICONS[item.type] ?? Beer;
   const diff = item.price - item.prevPrice;
   const pct = item.prevPrice === 0 ? 0 : (diff / item.prevPrice) * 100;
   const isUp = diff > 0;
   const isDown = diff < 0;
+
+  if (layout === "row") {
+    const shell = isUp
+      ? "border-red-400/30 bg-gradient-to-br from-[#DC143C]/70 to-[#FF4500]/50"
+      : isDown
+        ? "border-emerald-400/30 bg-gradient-to-br from-[#2E8B57]/70 to-[#3CB371]/50"
+        : "border-white/10 bg-white/5";
+
+    return (
+      <article
+        className={cn(
+          "flex w-full flex-row items-center gap-3 rounded-3xl border p-3 backdrop-blur-xl",
+          shell,
+        )}
+      >
+        {/* Left: small icon */}
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10">
+          <Icon className="h-5 w-5 text-white/90" strokeWidth={1.5} />
+        </div>
+
+        {/* Middle: name, price, diff */}
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate text-sm font-semibold leading-tight">
+            {item.product}
+          </h2>
+
+          <div className="mt-0.5 flex flex-wrap items-baseline gap-1">
+            <span className="text-lg font-bold tabular-nums">
+              {/* Counter optional; plain text is fine in a dense row */}
+              <Counter
+                value={item.price}
+                fontSize={18}
+                places={getPricePlaces(item.price)}
+                gap={1}
+                horizontalPadding={0}
+                borderRadius={0}
+                padding={0}
+                gradientHeight={0}
+                gradientFrom="transparent"
+                gradientTo="transparent"
+                fontWeight={700}
+                textColor="inherit"
+              />
+            </span>
+            <span className="text-xs opacity-80">RON</span>
+          </div>
+
+          <div
+            className={cn(
+              "mt-0.5 flex items-center gap-0.5 text-xs font-medium",
+              isUp && "text-yellow-300",
+              isDown && "text-yellow-200",
+              !isUp && !isDown && "text-white/60",
+            )}
+          >
+            <span>{isUp ? "▲" : isDown ? "▼" : "–"}</span>
+            <span>
+              {isUp ? "+" : isDown ? "−" : ""}
+              {Math.abs(diff).toFixed(2)} RON ({isUp ? "+" : isDown ? "−" : ""}
+              {Math.abs(pct).toFixed(1)}%)
+            </span>
+          </div>
+        </div>
+
+        {showBuy && (
+          <button
+            type="button"
+            onClick={onBuy}
+            className="shrink-0 rounded-2xl bg-white/15 px-4 py-2.5 text-sm font-bold active:scale-95"
+          >
+            Buy
+          </button>
+        )}
+      </article>
+    );
+  }
 
   return (
     <article

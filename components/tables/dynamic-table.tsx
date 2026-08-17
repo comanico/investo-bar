@@ -13,9 +13,11 @@ import type { BereItem } from "@/actions/getBere";
 import type { VinItem } from "@/actions/getVin";
 import type { RacoritoareItem } from "@/actions/getRacoritoare";
 import type { SpirtoaseItem } from "@/actions/getSpirtoase";
+import { OrderTable } from "../dashboard/order-client";
 
 type TableView =
   | "menu"
+  | "orders"
   | "sales"
   | "bere"
   | "vin"
@@ -47,9 +49,15 @@ export function DynamicTable({
       const hash = window.location.hash;
       const view = hash.replace("#view=", "") as TableView;
       if (
-        ["menu", "sales", "bere", "vin", "racoritoare", "spirtoase"].includes(
-          view,
-        )
+        [
+          "menu",
+          "orders",
+          "sales",
+          "bere",
+          "vin",
+          "racoritoare",
+          "spirtoase",
+        ].includes(view)
       ) {
         setCurrentView(view);
       }
@@ -67,6 +75,8 @@ export function DynamicTable({
     switch (currentView) {
       case "menu":
         return <AdminTable initial={initialMenu} />;
+      case "orders":
+        return <OrderTable status="pending" />;
       case "sales":
         return <SalesTable items={salesData} />;
       case "bere":

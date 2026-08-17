@@ -1,5 +1,4 @@
-// app/t/[token]/page.tsx
-
+import { HeatmenuApp } from "@/components/heatmenu/heatmenu-app";
 import prismadb from "@/lib/prismadb";
 import { notFound } from "next/navigation";
 
@@ -21,32 +20,14 @@ export default async function TableTokenPage({ params }: Props) {
     notFound();
   }
 
-  const payload = {
-    ok: true,
-    placement: {
-      id: placement.id,
-      venueId: placement.venueId,
-      kind: placement.kind,
-      label: placement.label,
-      token: placement.token,
-      active: placement.active,
-      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/t/${placement.token}`,
-      createdAt: placement.createdAt,
-      updatedAt: placement.updatedAt,
-    },
-  };
-
   return (
-    <pre
-      style={{
-        padding: 24,
-        color: "#e8e8e8",
-        background: "#0b0b0b",
-        minHeight: "100vh",
-        overflow: "auto",
+    <HeatmenuApp
+      placement={{
+        id: placement.id,
+        token: placement.token,
+        label: placement.label,
+        kind: placement.kind,
       }}
-    >
-      {JSON.stringify(payload, null, 2)}
-    </pre>
+    />
   );
 }

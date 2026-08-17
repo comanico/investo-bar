@@ -21,7 +21,7 @@ model sales {
   type     String   @db.VarChar(255)
   price    Decimal  @db.Decimal(10, 2)
   quantity Int?     @default(0)
-  username String   @db.VarChar(255) @default("Spender Investobar")
+  username String   @default("Spender Investobar") @db.VarChar(255)
   time     DateTime @default(now())
 }
 
@@ -33,18 +33,18 @@ model bere {
 }
 
 model vin {
-  id          Int @id @default(autoincrement())
-  Aperol_Spritz      Int @default(0)
-  Vin_Alb     Int @default(0)
-  Vin_Rosu    Int @default(0)
-  Prosecco    Int @default(0)
+  id            Int @id @default(autoincrement())
+  Aperol_Spritz Int @default(0)
+  Vin_Alb       Int @default(0)
+  Vin_Rosu      Int @default(0)
+  Prosecco      Int @default(0)
 }
 
 model racoritoare {
-  id           Int @id @default(autoincrement())
+  id                      Int @id @default(autoincrement())
   Vin_Spumant_Fara_Alcool Int @default(0)
-  Apa          Int @default(0)
-  Cola         Int @default(0)
+  Apa                     Int @default(0)
+  Cola                    Int @default(0)
 }
 
 model spirtoase {
@@ -58,12 +58,29 @@ model spirtoase {
 model Placement {
   id        String   @id @default(cuid())
   venueId   String
-  kind      String   
-  label     String   
+  kind      String
+  label     String
   token     String   @unique
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Order     Order[]
 
   @@index([venueId, active])
+}
+
+model Order {
+  id          String    @id @default(cuid())
+  placementId String
+  placement   Placement @relation(fields: [placementId], references: [id])
+  product     String
+  type        String
+  price       Float
+  qty         Int       @default(1)
+  status      String    @default("pending") // pending | confirmed | cancelled
+  createdAt   DateTime  @default(now())
+  confirmedAt DateTime?
+
+  @@index([status, createdAt])
+  @@index([placementId])
 }
