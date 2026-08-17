@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { OrderRow } from "@/lib/types";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Props = {
   /** Optional: SSR initial data */
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
+  const isMobile = useIsMobile();
   const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [loading, setLoading] = useState(!initialOrders.length);
 
@@ -37,7 +39,25 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
 
   const confirm = async (id: string) => {
     const res = await fetch(`/api/orders/${id}/confirm`, { method: "POST" });
-    if (res.ok) void load();
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      console.error("cofirm failed", res.status, data);
+      return;
+
+    }
+    void load();
+  };
+
+  const cancel = async (id: string) => {
+    const res = await fetch(`/api/orders/${id}/cancel`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      console.error("cancel failed", res.status, data);
+      return;
+    }
+    void load();
   };
 
   if (loading) {
@@ -46,6 +66,66 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
 
   if (!orders.length) {
     return <p className="text-sm text-white/50">No orders in queue</p>;
+  }
+
+  if (isMobile) {
+    return (
+      <ul className="flex flex-col gap-3">
+        {orders.map((o, i) => (
+          <li
+            key={o.id}
+            className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">
+                  #{i + 1} ·{" "}
+                  {new Date(o.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+                <p className="mt-1 text-lg font-semibold">{o.placement.label}</p>
+                <p className="text-sm">
+                  {o.product}
+                  {o.qty > 1 ? ` ×${o.qty}` : ""}
+                </p>
+                <p className="mt-0.5 text-sm font-medium tabular-nums">
+                  {Number(o.price).toFixed(2)} RON
+                </p>
+              </div>
+              <span
+                className={cn(
+                  "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
+                  o.status === "pending" && "bg-yellow-500/15 text-yellow-700",
+                )}
+              >
+                {o.status}
+              </span>
+            </div>
+
+            {o.status === "pending" && (
+              <div className="mt-4 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => confirm(o.id)}
+                  className="min-h-11 flex-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-bold text-primary-foreground"
+                >
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  onClick={() => cancel(o.id)}
+                  className="min-h-11 flex-1 rounded-xl border border-border px-3 py-2.5 text-sm font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    );
   }
 
   return (
@@ -107,6 +187,15 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                     className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25"
                   >
                     Confirm
+                  </button>
+                )}
+                {o.status === "pending" && (
+                  <button
+                    type="button"
+                    onClick={() => cancel(o.id)}
+                    className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25 ml-2"
+                  >
+                    Cancel
                   </button>
                 )}
               </td>

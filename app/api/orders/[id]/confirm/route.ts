@@ -1,47 +1,50 @@
 import prismadb from "@/lib/prismadb";
+import { incrementProductQuantity } from "@/lib/product-stock-map";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request, context: {params: Promise<{id: string}>}) {
-  const {id} = await context.params
-  const body = await req.json();
-  console.log(body)
-  console.log(id)
-  return NextResponse.json({ok: true})
-  // try {
-    
-  //   const body = await req.json();
-  //   const { token, product, type, price, qty = 1 } = body;
+export async function POST(_req: Request, context: {params: Promise<{id: string}>}) {
+  try {
+    const { userId } = await auth();
+    const whitelist = (process.env.WHITELISTED_USERS || "").split(",");
 
-  //   if (!token || !product || typeof price !== "number") {
-  //     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
-  //   }
+    if (!userId || !whitelist.includes(userId)) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-  //   const placement = await prismadb.placement.findFirst({
-  //     where: { token, active: true },
-  //   });
+    const { id } = await context.params;
 
-  //   if (!placement) {
-  //     return NextResponse.json({ error: "Invalid table" }, { status: 404 });
-  //   }
+    const order = await prismadb.order.findUnique({
+      where: { id },
+      include: { placement: true },
+    });
 
-  //   const order = await prismadb.order.create({
-  //     data: {
-  //       placementId: placement.id,
-  //       product,
-  //       type: type ?? "Unknown",
-  //       price,
-  //       qty: Number(qty) || 1,
-  //       status: "pending",
-  //     },
-  //     include: { placement: true },
-  //   });
+    if (!order || order.status !== "pending") {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
 
-  //   return NextResponse.json({ order }, { status: 201 });
-  // } catch (e) {
-  //   console.error("POST /api/orders", e);
-  //   return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
-  // }
+    // 1) sales  2) remove from queue
+    await prismadb.$transaction(async (tx) => {
+      await tx.sales.create({
+        data: {
+          product: order.product,
+          type: order.type,
+          price: order.price,
+          quantity: order.qty,
+          username: order.placement.label, 
+        },
+      });
+
+      await tx.order.delete({ where: { id: order.id } });
+    });
+
+    await incrementProductQuantity(order.product, order.qty);
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("POST /api/orders/[id]/confirm", e);
+    return NextResponse.json({ error: "Failed to confirm" }, { status: 500 });
+  }
 }
 
 export async function GET(req: Request) {
