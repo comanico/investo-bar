@@ -1,125 +1,114 @@
 /**
- * Mapare InvestoBar (UI, cu spații) → denumirea exactă din nomenclatorul SmartBill.
- *
- * Import Cloud (fără coloană Cod produs):
- *   Heineken, Corona, Peroni, Prosecco, AperolSpritz, VinRosu, VinAlb,
- *   VinSpumantFaraAlcool, Cola, Apa, Jameson, JamesonBlackBarrel, Fireball, Tequilla
- *
+ * Mapare stabilă InvestoBar → SmartBill (nomenclator / POS).
+ * Codurile trebuie să coincidă cu cele din Cloud după import.
  * Prețul de vânzare NU se ia din nomenclator — vine din live_prices / order.
  */
 
 export type SmartBillProduct = {
-  /** Denumire exactă în SmartBill Cloud / POS */
+  /** Denumire afișată (UI InvestoBar / SmartBill) */
   name: string;
-  /**
-   * Cod produs SmartBill — gol dacă nomenclatorul nu folosește coduri.
-   * Poți completa ulterior în Cloud și aici, fără a schimba cheile InvestoBar.
-   */
+  /** Cod produs în SmartBill (case-sensitive față de nomenclator) */
   code: string;
   measuringUnitName: string;
   taxPercentage: number;
   taxName: string;
 };
 
-/**
- * Cheie = `product` din Order / menu (InvestoBar, cu spații unde e cazul).
- * `name` = textul pe care îl cauți / bați în SmartBill POS.
- */
 export const SMARTBILL_PRODUCT_MAP: Record<string, SmartBillProduct> = {
   Heineken: {
     name: "Heineken",
-    code: "",
+    code: "HEINEKEN",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   Corona: {
     name: "Corona",
-    code: "",
+    code: "CORONA",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   Peroni: {
     name: "Peroni",
-    code: "",
+    code: "PERONI",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   Prosecco: {
     name: "Prosecco",
-    code: "",
+    code: "PROSECCO",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   "Aperol Spritz": {
-    name: "AperolSpritz",
-    code: "",
+    name: "Aperol Spritz",
+    code: "APEROL_SPRITZ",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   "Vin Rosu": {
-    name: "VinRosu",
-    code: "",
+    name: "Vin Rosu",
+    code: "VIN_ROSU",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   "Vin Alb": {
-    name: "VinAlb",
-    code: "",
+    name: "Vin Alb",
+    code: "VIN_ALB",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   "Vin Spumant Fara Alcool": {
-    name: "VinSpumantFaraAlcool",
-    code: "",
+    name: "Vin Spumant Fara Alcool",
+    code: "VIN_SPUMANT_0",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   Cola: {
     name: "Cola",
-    code: "",
+    code: "COLA",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   Apa: {
     name: "Apa",
-    code: "",
+    code: "APA",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   Jameson: {
     name: "Jameson",
-    code: "",
+    code: "JAMESON",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   "Jameson Black Barrel": {
-    name: "JamesonBlackBarrel",
-    code: "",
+    name: "Jameson Black Barrel",
+    code: "JAMESON_BB",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   Fireball: {
     name: "Fireball",
-    code: "",
+    code: "FIREBALL",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
   },
   Tequilla: {
     name: "Tequilla",
-    code: "",
+    code: "TEQUILLA",
     measuringUnitName: "buc",
     taxPercentage: 21,
     taxName: "Normala",
@@ -127,10 +116,7 @@ export const SMARTBILL_PRODUCT_MAP: Record<string, SmartBillProduct> = {
 };
 
 export type PosPunchLine = {
-  /** Nume InvestoBar (UI) */
   product: string;
-  /** Denumire exactă SmartBill */
-  smartbillName: string;
   code: string;
   qty: number;
   unitPrice: number;
@@ -153,25 +139,20 @@ export function toPosPunchLine(
   unitPrice: number,
 ): PosPunchLine {
   const sb = getSmartBillProduct(product);
-  const smartbillName = sb?.name ?? product.replace(/\s+/g, "");
-  const code = sb?.code ?? "";
+  const code = sb?.code ?? product.toUpperCase().replace(/\s+/g, "_");
   const um = sb?.measuringUnitName ?? "buc";
   const q = Math.max(0, Number(qty) || 0);
   const price = Number(unitPrice) || 0;
   const lineTotal = Math.round(price * q * 100) / 100;
 
-  const codePart = code ? ` [${code}]` : "";
-  const label = `${smartbillName}${codePart} ×${q} @ ${price.toFixed(2)} RON = ${lineTotal.toFixed(2)} RON`;
-
   return {
     product,
-    smartbillName,
     code,
     qty: q,
     unitPrice: price,
     lineTotal,
     measuringUnitName: um,
-    label,
+    label: `${product} (${code}) ×${q} @ ${price.toFixed(2)} RON = ${lineTotal.toFixed(2)} RON`,
   };
 }
 
