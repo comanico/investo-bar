@@ -17,10 +17,6 @@ import type { MenuItem } from "@/actions/getMenu";
 import { DEFAULT_MENU_ITEMS, MENU_TYPE_ORDER } from "@/lib/menu-items";
 import { toast } from "sonner";
 import { useUser } from "@clerk/nextjs";
-import {
-  formatPosPunchSummary,
-  toPosPunchLine,
-} from "@/lib/smartbill-map";
 
 interface MenuDataPoint {
   time: string;
@@ -43,14 +39,17 @@ interface MenuDataPoint {
 const initialMenu = DEFAULT_MENU_ITEMS;
 
 export function AdminTable({ initial }: { initial?: MenuItem[] }) {
+  // Use state to manage menu items
   const [menu, setMenu] = useState(
     initial && initial.length > 0 ? initial : initialMenu,
   );
+  // State of page while Toast is active
   const [isToastActive, setIsToastActive] = useState(false);
   const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
     null,
   );
 
+  // Get user information from Clerk
   const { user } = useUser();
   const username = user
     ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
@@ -73,6 +72,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
     tequilla: "tequilla",
   };
 
+  // Function to handle quantity increase
   const handleIncrement = (product: string) => {
     setMenu((prevMenu) =>
       prevMenu.map((item) =>
@@ -83,6 +83,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
     );
   };
 
+  // Function to handle quantity decrease
   const handleDecrement = (product: string) => {
     setMenu((prevMenu) =>
       prevMenu.map((item) =>
@@ -93,6 +94,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
     );
   };
 
+  // Calculate total quantity for the footer
   const totalPrice = menu.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
@@ -153,12 +155,6 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
 
   const handleSubmit = async () => {
     try {
-      const sold = menu.filter((item) => item.quantity > 0);
-      const localPosLines = sold.map((item) =>
-        toPosPunchLine(item.product, item.quantity, Number(item.price)),
-      );
-      const localSummary = formatPosPunchSummary(localPosLines);
-
       const response = await fetch("api/update-quantity", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -170,25 +166,19 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
         throw new Error(error || "Failed to submit order");
       }
 
-      const data = await response.json().catch(() => ({}));
-      const summary =
-        (data.pos?.summary as string | undefined) ||
-        localSummary ||
-        `Total ${totalPrice.toFixed(2)} RON`;
-
       setIsToastActive(true);
-      toast.success("Salvat în DB — bate în SmartBill POS", {
-        description: summary,
+      toast("oOoOoOOrder quantities updated!", {
+        description: `Please add the sum of ${totalPrice} in POS!`,
         id: "submit-toast",
         action: {
-          label: "OK",
+          label: "YEEEEEE",
           onClick: () => {
-            setIsToastActive(false);
+            setIsToastActive(false); // Hide overlay on click
           },
         },
         position: "top-center",
-        duration: 15_000,
-        onAutoClose: () => setIsToastActive(false),
+        duration: 5000, // Auto-dismiss after 5 seconds
+        onAutoClose: () => setIsToastActive(false), // Hide overlay on timeout
       });
       setMenu((prevMenu) => prevMenu.map((item) => ({ ...item, quantity: 0 })));
     } catch (error) {
@@ -231,6 +221,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
         </TableHeader>
         <TableBody>
           {(() => {
+            // Group menu items by type
             const groupedMenu = menu.reduce(
               (acc, item) => {
                 if (!acc[item.type]) {
@@ -241,6 +232,7 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
               },
               {} as Record<string, typeof menu>,
             );
+            // Define the order of types
             const typeOrder = MENU_TYPE_ORDER;
 
             return typeOrder.map((type) => {

@@ -1,13 +1,9 @@
 import prismadb from "@/lib/prismadb";
 import { incrementProductQuantity } from "@/lib/product-stock-map";
-import { toPosPunchLine } from "@/lib/smartbill-map";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export async function POST(
-  _req: Request,
-  context: { params: Promise<{ id: string }> },
-) {
+export async function POST(_req: Request, context: {params: Promise<{id: string}>}) {
   try {
     const { userId } = await auth();
     const whitelist = (process.env.WHITELISTED_USERS || "").split(",");
@@ -35,7 +31,7 @@ export async function POST(
           type: order.type,
           price: order.price,
           quantity: order.qty,
-          username: order.placement.label,
+          username: order.placement.label, 
         },
       });
 
@@ -44,18 +40,7 @@ export async function POST(
 
     await incrementProductQuantity(order.product, order.qty);
 
-    // Sumar pentru SmartBill POS (operator bate manual pe casă)
-    const posLine = toPosPunchLine(order.product, order.qty, order.price);
-
-    return NextResponse.json({
-      ok: true,
-      pos: {
-        lines: [posLine],
-        total: posLine.lineTotal,
-        summary: posLine.label,
-        hint: "Deschide SmartBill POS → adaugă linia de mai sus (suprascrie prețul dacă e diferit de nomenclator) → cash/card → bon fiscal",
-      },
-    });
+    return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("POST /api/orders/[id]/confirm", e);
     return NextResponse.json({ error: "Failed to confirm" }, { status: 500 });
@@ -79,7 +64,7 @@ export async function GET(req: Request) {
       include: {
         placement: { select: { label: true, kind: true, token: true } },
       },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: "asc" }, // first order on top
     });
 
     return NextResponse.json({ orders });
