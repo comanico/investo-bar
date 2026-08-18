@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { OrderRow } from "@/lib/types";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { toast } from "sonner";
 
 type Props = {
   /** Optional: SSR initial data */
@@ -12,10 +13,18 @@ type Props = {
   status?: "pending" | "confirmed" | "all";
 };
 
+type PosPayload = {
+  summary?: string;
+  total?: number;
+  hint?: string;
+  lines?: { label: string }[];
+};
+
 export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
   const isMobile = useIsMobile();
   const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [loading, setLoading] = useState(!initialOrders.length);
+  const [lastPos, setLastPos] = useState<PosPayload | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -33,18 +42,29 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
 
   useEffect(() => {
     void load();
-    const id = setInterval(() => void load(), 1000); // queue refresh
+    const id = setInterval(() => void load(), 1000);
     return () => clearInterval(id);
   }, [load]);
 
   const confirm = async (id: string) => {
     const res = await fetch(`/api/orders/${id}/confirm`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      console.error("cofirm failed", res.status, data);
+      console.error("confirm failed", res.status, data);
+      toast.error("Confirmare eșuată");
       return;
-
     }
+
+    const pos = data.pos as PosPayload | undefined;
+    if (pos?.summary) {
+      setLastPos(pos);
+      toast.success("Confirmat — bate în POS", {
+        description: pos.summary,
+        duration: 12_000,
+        position: "top-center",
+      });
+    }
+
     void load();
   };
 
@@ -64,145 +84,164 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
     return <p className="text-sm text-white/50">Loading orders…</p>;
   }
 
-  if (!orders.length) {
-    return <p className="text-sm text-white/50">No orders in queue</p>;
-  }
-
-  if (isMobile) {
-    return (
-      <ul className="flex flex-col gap-3">
-        {orders.map((o, i) => (
-          <li
-            key={o.id}
-            className="rounded-2xl border border-border bg-card p-4 shadow-sm"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <p className="text-xs text-muted-foreground">
-                  #{i + 1} ·{" "}
-                  {new Date(o.createdAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                <p className="mt-1 text-lg font-semibold">{o.placement.label}</p>
-                <p className="text-sm">
-                  {o.product}
-                  {o.qty > 1 ? ` ×${o.qty}` : ""}
-                </p>
-                <p className="mt-0.5 text-sm font-medium tabular-nums">
-                  {Number(o.price).toFixed(2)} RON
-                </p>
-              </div>
-              <span
-                className={cn(
-                  "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
-                  o.status === "pending" && "bg-yellow-500/15 text-yellow-700",
-                )}
-              >
-                {o.status}
-              </span>
-            </div>
-
-            {o.status === "pending" && (
-              <div className="mt-4 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => confirm(o.id)}
-                  className="min-h-11 flex-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-bold text-primary-foreground"
-                >
-                  Confirm
-                </button>
-                <button
-                  type="button"
-                  onClick={() => cancel(o.id)}
-                  className="min-h-11 flex-1 rounded-xl border border-border px-3 py-2.5 text-sm font-semibold"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-      <table className="w-full text-left text-sm">
-        <thead className="border-b border-white/10 text-xs uppercase text-white/45">
-          <tr>
-            <th className="px-4 py-3">#</th>
-            <th className="px-4 py-3">Placement</th>
-            <th className="px-4 py-3">Product</th>
-            <th className="px-4 py-3">Price</th>
-            <th className="px-4 py-3">Time</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3" />
-          </tr>
-        </thead>
-        <tbody>
+    <div className="flex flex-col gap-4">
+      {lastPos?.summary && (
+        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
+          <p className="font-semibold">Ultima confirmare — SmartBill POS</p>
+          <pre className="mt-1 whitespace-pre-wrap font-mono text-xs text-emerald-50/90">
+            {lastPos.summary}
+          </pre>
+          {lastPos.hint && (
+            <p className="mt-2 text-xs text-emerald-100/70">{lastPos.hint}</p>
+          )}
+          <button
+            type="button"
+            className="mt-2 text-xs underline opacity-80 hover:opacity-100"
+            onClick={() => setLastPos(null)}
+          >
+            Ascunde
+          </button>
+        </div>
+      )}
+
+      {!orders.length ? (
+        <p className="text-sm text-white/50">No orders in queue</p>
+      ) : isMobile ? (
+        <ul className="flex flex-col gap-3">
           {orders.map((o, i) => (
-            <tr
+            <li
               key={o.id}
-              className="border-b border-white/5 text-white/90 last:border-0"
+              className="rounded-2xl border border-border bg-card p-4 shadow-sm"
             >
-              <td className="px-4 py-3 tabular-nums text-white/50">
-                {orders.length - i}
-              </td>
-              <td className="px-4 py-3 font-medium">{o.placement.label}</td>
-              <td className="px-4 py-3">
-                {o.product}
-                {o.qty > 1 ? ` ×${o.qty}` : ""}
-              </td>
-              <td className="px-4 py-3 tabular-nums">
-                {o.price.toFixed(2)} RON
-              </td>
-              <td className="px-4 py-3 text-white/50">
-                {new Date(o.createdAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </td>
-              <td className="px-4 py-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">
+                    #{i + 1} ·{" "}
+                    {new Date(o.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {o.placement.label}
+                  </p>
+                  <p className="text-sm">
+                    {o.product}
+                    {o.qty > 1 ? ` ×${o.qty}` : ""}
+                  </p>
+                  <p className="mt-0.5 text-sm font-medium tabular-nums">
+                    {Number(o.price).toFixed(2)} RON
+                  </p>
+                </div>
                 <span
                   className={cn(
-                    "rounded-full px-2 py-0.5 text-xs font-medium",
-                    o.status === "pending" &&
-                      "bg-yellow-400/15 text-yellow-200",
-                    o.status === "confirmed" &&
-                      "bg-emerald-400/15 text-emerald-200",
-                    o.status === "cancelled" && "bg-white/10 text-white/50",
+                    "shrink-0 rounded-full px-2 py-0.5 text-xs font-medium",
+                    o.status === "pending" && "bg-yellow-500/15 text-yellow-700",
                   )}
                 >
                   {o.status}
                 </span>
-              </td>
-              <td className="px-4 py-3 text-right">
-                {o.status === "pending" && (
+              </div>
+
+              {o.status === "pending" && (
+                <div className="mt-4 flex gap-2">
                   <button
                     type="button"
                     onClick={() => confirm(o.id)}
-                    className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25"
+                    className="min-h-11 flex-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-bold text-primary-foreground"
                   >
                     Confirm
                   </button>
-                )}
-                {o.status === "pending" && (
                   <button
                     type="button"
                     onClick={() => cancel(o.id)}
-                    className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25 ml-2"
+                    className="min-h-11 flex-1 rounded-xl border border-border px-3 py-2.5 text-sm font-semibold"
                   >
                     Cancel
                   </button>
-                )}
-              </td>
-            </tr>
+                </div>
+              )}
+            </li>
           ))}
-        </tbody>
-      </table>
+        </ul>
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-white/10 text-xs uppercase text-white/45">
+              <tr>
+                <th className="px-4 py-3">#</th>
+                <th className="px-4 py-3">Placement</th>
+                <th className="px-4 py-3">Product</th>
+                <th className="px-4 py-3">Price</th>
+                <th className="px-4 py-3">Time</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((o, i) => (
+                <tr
+                  key={o.id}
+                  className="border-b border-white/5 text-white/90 last:border-0"
+                >
+                  <td className="px-4 py-3 tabular-nums text-white/50">
+                    {orders.length - i}
+                  </td>
+                  <td className="px-4 py-3 font-medium">{o.placement.label}</td>
+                  <td className="px-4 py-3">
+                    {o.product}
+                    {o.qty > 1 ? ` ×${o.qty}` : ""}
+                  </td>
+                  <td className="px-4 py-3 tabular-nums">
+                    {o.price.toFixed(2)} RON
+                  </td>
+                  <td className="px-4 py-3 text-white/50">
+                    {new Date(o.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-xs font-medium",
+                        o.status === "pending" &&
+                          "bg-yellow-400/15 text-yellow-200",
+                        o.status === "confirmed" &&
+                          "bg-emerald-400/15 text-emerald-200",
+                        o.status === "cancelled" && "bg-white/10 text-white/50",
+                      )}
+                    >
+                      {o.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {o.status === "pending" && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => confirm(o.id)}
+                          className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25"
+                        >
+                          Confirm
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => cancel(o.id)}
+                          className="ml-2 rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25"
+                        >
+                          Cancel
+                        </button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
