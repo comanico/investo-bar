@@ -8,6 +8,7 @@ import { buildItems } from "@/lib/buildItems";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeatmenuCard } from "./heatmenu-card";
 import { toast } from "sonner";
+import { HeatmenuOrderRegistry } from "./heatmenu-registry";
 
 type Props = {
   /** Set when opened from /t/[token] */
@@ -113,9 +114,14 @@ export function HeatmenuApp({ placement }: Props = {}) {
             ))}
           </main>
         ) : (
-          <main className="min-h-0 flex-1 px-4">
-            <HeatmenuGrid items={items} />
-          </main>
+          <div className="flex w-full flex-1 gap-4 px-4 pb-4">
+            <main className="min-w-0 flex-1">
+              <HeatmenuGrid items={items} />
+            </main>
+            <aside className="w-[min(100%,22rem)] shrink-0">
+              <HeatmenuOrderRegistry />
+            </aside>
+          </div>
         )}
       </div>
     </div>

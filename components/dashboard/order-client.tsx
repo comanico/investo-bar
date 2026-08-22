@@ -33,7 +33,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
 
   useEffect(() => {
     void load();
-    const id = setInterval(() => void load(), 1000); // queue refresh
+    const id = setInterval(() => void load(), 3000);
     return () => clearInterval(id);
   }, [load]);
 
@@ -43,7 +43,6 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
       const data = await res.json().catch(() => ({}));
       console.error("cofirm failed", res.status, data);
       return;
-
     }
     void load();
   };
@@ -85,7 +84,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                     minute: "2-digit",
                   })}
                 </p>
-                <p className="mt-1 text-lg font-semibold">{o.placement.label}</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {o.placement.label}
+                </p>
                 <p className="text-sm">
                   {o.product}
                   {o.qty > 1 ? ` ×${o.qty}` : ""}
