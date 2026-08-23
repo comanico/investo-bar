@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HeatmenuHeader } from "./heatmenu-header";
 import { HeatmenuGrid } from "./heatmenu-grid";
 import { HeatmenuItem, MenuDataPoint } from "@/lib/types";
@@ -22,9 +22,21 @@ export function HeatmenuApp({ placement }: Props = {}) {
   const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
     null,
   );
+  const [buying, setBuying] = useState(false);
+  const lastBuyAt = useRef(0);
 
   const handleBuy = async (item: HeatmenuItem) => {
-    if (!placement) return;
+    if (!placement || buying) return;
+  
+    const now = Date.now();
+    if (now - lastBuyAt.current < 5000) {
+      toast.error("Wait a moment before ordering again");
+      return;
+    }
+  
+    setBuying(true);
+    lastBuyAt.current = now;
+  
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -36,21 +48,22 @@ export function HeatmenuApp({ placement }: Props = {}) {
           price: item.price,
         }),
       });
+  
+      const data = await res.json().catch(() => ({}));
+  
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        console.error("Order failed", data);
         toast.error(data.error ?? "Could not send order");
-
         return;
       }
-
+  
       toast.success(`Order sent · ${placement.label}`);
-    } catch (e) {
-      console.error(e);
+    } catch {
       toast.error("Network error");
+    } finally {
+      setTimeout(() => setBuying(false), 3000);
     }
   };
-
+  
   const fetchPrices = useCallback(async () => {
     try {
       const response = await fetch("/api/get-file?key=live_prices.json", {
