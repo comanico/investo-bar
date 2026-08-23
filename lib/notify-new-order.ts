@@ -1,24 +1,40 @@
-// lib/notify-staff-onesignal.ts
-export async function notifyNewOrder(message: {
-    title: string;
-    body: string;
-  }) {
-    const appId = process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID;
-    const apiKey = process.env.ONESIGNAL_REST_API_KEY;
-    if (!appId || !apiKey) return;
+export type NotifyOrder = {
+    id: string;
+    product: string;
+    price: number;
+    placement: { label: string };
+  };
   
-    await fetch("https://api.onesignal.com/notifications", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Key ${apiKey}`,
-      },
-      body: JSON.stringify({
-        app_id: appId,
-        included_segments: ["Subscribed Users"],
-        headings: { en: message.title },
-        contents: { en: message.body },
-        url: "https://investobar.com/dashboard#view=orders",
-      }),
-    });
+  export function notifyNewOrder(o: NotifyOrder) {
+    const title = "New order";
+    const body = `${o.placement.label} · ${o.product} · ${Number(o.price).toFixed(2)} RON`;
+  
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "granted") {
+        new Notification(title, {
+          body,
+          tag: o.id,
+        });
+      }
+    }
+  
+    try {
+      navigator.vibrate?.(200);
+    } catch {
+      /* ignore */
+    }
+  
+    try {
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 880;
+      gain.gain.value = 0.05;
+      osc.start();
+      osc.stop(ctx.currentTime + 0.15);
+    } catch {
+      /* ignore — autoplay policies */
+    }
   }

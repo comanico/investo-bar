@@ -116,9 +116,6 @@ importers:
       react-dom:
         specifier: ^19.1.1
         version: 19.1.1(react@19.1.1)
-      react-onesignal:
-        specifier: ^3.5.6
-        version: 3.5.6
       react-use-measure:
         specifier: ^2.1.7
         version: 2.1.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -3940,10 +3937,6 @@ packages:
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
-
-  react-onesignal@3.5.6:
-    resolution: {integrity: sha512-QlvuWilG8n86GMaYG7a7DSzyLrZIsbM6PFW2XrDI68AYV50axUF5RCzWIqEGfNc1COa/QiDlz7wGkpuiKBayoQ==}
-    engines: {node: '>=18'}
 
   react-remove-scroll-bar@2.3.8:
     resolution: {integrity: sha512-9r+yi9+mgU33AKcj6IbT9oRCO78WriSj6t/cF8DWBZJ9aOGPOTEDvdUDz1FwKim7QXWwmHqtdHnRJfhAxEG46Q==}
@@ -8745,8 +8738,6 @@ snapshots:
   react-is@16.13.1: {}
 
   react-is@18.3.1: {}
-
-  react-onesignal@3.5.6: {}
 
   react-remove-scroll-bar@2.3.8(@types/react@19.1.8)(react@19.1.1):
     dependencies:

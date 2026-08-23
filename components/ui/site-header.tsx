@@ -47,7 +47,7 @@ export function SiteHeader() {
         />
         <h1 className="text-base font-medium">{currentTable}</h1>
         <div className="ml-auto flex items-center gap-2">
-          <EnableOrderAlerts />
+        <EnableOrderAlerts />
         </div>
       </div>
     </header>

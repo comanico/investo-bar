@@ -27,15 +27,15 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
       if (!res.ok) throw new Error("Failed to load");
       const data = await res.json();
       const list: OrderRow[] = Array.isArray(data) ? data : (data.orders ?? []);
-
+  
       const nextIds = new Set(list.map((o) => o.id));
-
+  
       if (primedRef.current) {
         const alertsOn =
           typeof window !== "undefined" &&
           "Notification" in window &&
           Notification.permission === "granted";
-
+  
         if (alertsOn) {
           for (const o of list) {
             if (!prevIdsRef.current.has(o.id)) {
@@ -46,7 +46,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
       } else {
         primedRef.current = true;
       }
-
+  
       prevIdsRef.current = nextIds;
       setOrders(list);
     } catch (e) {
@@ -196,9 +196,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs font-medium",
                     o.status === "pending" &&
-                    "bg-yellow-400/15 text-yellow-200",
+                      "bg-yellow-400/15 text-yellow-200",
                     o.status === "confirmed" &&
-                    "bg-emerald-400/15 text-emerald-200",
+                      "bg-emerald-400/15 text-emerald-200",
                     o.status === "cancelled" && "bg-white/10 text-white/50",
                   )}
                 >
