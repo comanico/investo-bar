@@ -1,69 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-
-const STORAGE_KEY = "investobar-order-alerts";
+import OneSignal from "react-onesignal";
 
 export function EnableOrderAlerts() {
-  const [permission, setPermission] = useState<NotificationPermission | "unsupported">(
-    "default",
-  );
+    const enable = async () => {
+        try {
+            OneSignal.init({
+                appId: process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID!,
+                allowLocalhostAsSecureOrigin: true,
+            });
+            await OneSignal.Notifications.requestPermission();
+            await OneSignal.User.PushSubscription.optIn();
+            alert("Order alerts enabled on this device");
+        } catch (e) {
+            console.error(e);
+            alert("Could not enable push — check browser settings");
+        }
+    };
 
-  useEffect(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      setPermission("unsupported");
-      return;
-    }
-    setPermission(Notification.permission);
-  }, []);
-
-  const enable = async () => {
-    if (!("Notification" in window)) {
-      alert("Notifications not supported");
-      return;
-    }
-
-    const result = await Notification.requestPermission();
-    setPermission(result);
-
-    if (result === "granted") {
-      localStorage.setItem(STORAGE_KEY, "1");
-      new Notification("Investo Bar", {
-        body: "Order alerts enabled",
-        tag: "investobar-alerts-on",
-      });
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-      alert("Permission denied — enable notifications in browser settings");
-    }
-  };
-
-  if (permission === "unsupported") {
     return (
-      <span className="text-xs text-muted-foreground">Alerts N/A</span>
+        <Button variant="default" size="sm" type="button" onClick={enable}>
+            Enable order alerts
+        </Button>
     );
-  }
-
-  if (permission === "granted") {
-    return (
-      <Button variant="secondary" size="sm" type="button" disabled>
-        Alerts on
-      </Button>
-    );
-  }
-
-  return (
-    <Button variant="default" size="sm" type="button" onClick={enable}>
-      Enable order alerts
-    </Button>
-  );
-}
-
-export function orderAlertsEnabled(): boolean {
-  if (typeof window === "undefined" || !("Notification" in window)) return false;
-  return (
-    Notification.permission === "granted" &&
-    localStorage.getItem(STORAGE_KEY) === "1"
-  );
 }
