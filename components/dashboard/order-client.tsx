@@ -1,10 +1,11 @@
 // components/orders/order-table.tsx
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { OrderRow } from "@/lib/types";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { notifyNewOrder } from "@/lib/notify-new-order";
 
 type Props = {
   /** Optional: SSR initial data */
@@ -16,14 +17,38 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
   const isMobile = useIsMobile();
   const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [loading, setLoading] = useState(!initialOrders.length);
+  const prevIdsRef = useRef<Set<string>>(new Set());
+  const primedRef = useRef(false);
 
   const load = useCallback(async () => {
     try {
       const q = status === "all" ? "" : `?status=${status}`;
       const res = await fetch(`/api/orders${q}`);
-      if (!res.ok) throw new Error("Failed to load orders");
+      if (!res.ok) throw new Error("Failed to load");
       const data = await res.json();
-      setOrders(Array.isArray(data) ? data : (data.orders ?? []));
+      const list: OrderRow[] = Array.isArray(data) ? data : (data.orders ?? []);
+  
+      const nextIds = new Set(list.map((o) => o.id));
+  
+      if (primedRef.current) {
+        const alertsOn =
+          typeof window !== "undefined" &&
+          "Notification" in window &&
+          Notification.permission === "granted";
+  
+        if (alertsOn) {
+          for (const o of list) {
+            if (!prevIdsRef.current.has(o.id)) {
+              notifyNewOrder(o);
+            }
+          }
+        }
+      } else {
+        primedRef.current = true;
+      }
+  
+      prevIdsRef.current = nextIds;
+      setOrders(list);
     } catch (e) {
       console.error(e);
     } finally {
