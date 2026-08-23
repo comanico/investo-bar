@@ -1,3 +1,4 @@
+import { notifyNewOrder } from "@/lib/notify-new-order";
 import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -34,6 +35,10 @@ export async function POST(req: Request) {
       },
       include: { placement: true },
     });
+
+    void notifyNewOrder(
+      `🆕 ${placement.label}\n${product} · ${Number(price).toFixed(2)} RON`,
+    );
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (e) {
