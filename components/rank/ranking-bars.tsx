@@ -18,7 +18,7 @@ export function RankingBars({ rows }: { rows: RankRow[] }) {
 
   return (
     <ul className="mx-auto flex w-full max-w-4xl flex-col gap-3">
-      {rows.map((row, i) => {
+      {rows.map((row) => {
         const width = Math.max(10, (Math.abs(row.ret) / maxAbs) * 85);
         const up = row.ret > 0.0005;
         const down = row.ret < -0.0005;
