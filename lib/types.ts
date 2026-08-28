@@ -58,3 +58,30 @@ export const productKeyMap: Record<string, keyof MenuDataPoint> = {
     placement: { label: string; kind: string };
   };
   
+  export type PortfolioLotRow = {
+    placementId: string;
+    placementLabel: string;
+    product: string;
+    qty: number;
+    unitPrice: number;
+  };
+  
+  export type LeaderboardRow = {
+    placementId: string;
+    label: string;
+    cost: number;
+    value: number;
+    pnl: number;
+    ret: number;
+    qty: number;
+  };
+
+  export type RankRow = {
+    placementId: string;
+    label: string;
+    cost: number;
+    value: number;
+    pnl: number;
+    ret: number;
+    qty: number;
+  };

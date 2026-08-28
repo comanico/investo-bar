@@ -1,9 +1,10 @@
 import prismadb from "@/lib/prismadb";
 import { incrementProductQuantity } from "@/lib/product-stock-map";
+import { sessionDateBucharest } from "@/lib/session-date";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-export async function POST(_req: Request, context: {params: Promise<{id: string}>}) {
+export async function POST(_req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
     const whitelist = (process.env.WHITELISTED_USERS || "").split(",");
@@ -23,7 +24,6 @@ export async function POST(_req: Request, context: {params: Promise<{id: string}
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // 1) sales  2) remove from queue
     await prismadb.$transaction(async (tx) => {
       await tx.sales.create({
         data: {
@@ -31,7 +31,18 @@ export async function POST(_req: Request, context: {params: Promise<{id: string}
           type: order.type,
           price: order.price,
           quantity: order.qty,
-          username: order.placement.label, 
+          username: order.placement.label,
+        },
+      });
+
+      await tx.portfolioLot.create({
+        data: {
+          placementId: order.placementId,
+          placementLabel: order.placement.label,
+          product: order.product,
+          qty: order.qty,
+          unitPrice: order.price,
+          sessionDate: sessionDateBucharest(new Date()),
         },
       });
 

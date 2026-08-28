@@ -56,15 +56,16 @@ model spirtoase {
 }
 
 model Placement {
-  id        String   @id @default(cuid())
-  venueId   String
-  kind      String
-  label     String
-  token     String   @unique
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  Order     Order[]
+  id           String         @id @default(cuid())
+  venueId      String
+  kind         String
+  label        String
+  token        String         @unique
+  active       Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Order        Order[]
+  PortfolioLot PortfolioLot[]
 
   @@index([venueId, active])
 }
@@ -83,4 +84,19 @@ model Order {
 
   @@index([status, createdAt])
   @@index([placementId])
+}
+
+model PortfolioLot {
+  id          String    @id @default(cuid())
+  placementId String
+  placement   Placement @relation(fields: [placementId], references: [id])
+   placementLabel  String
+  product     String
+  qty         Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  createdAt   DateTime  @default(now())
+  sessionDate DateTime @db.Date
+
+  @@index([placementId, sessionDate])
+  @@index([product])
 }

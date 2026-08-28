@@ -5,10 +5,11 @@ import Timer from "../ui/timer";
 import { getNextTargetTime } from "@/actions/getNextTargetTime";
 
 type Props = {
+  title: string;
   subtitle?: string;
 };
 
-export function HeatmenuHeader({ subtitle }: Props) {
+export function HeatmenuHeader({ title, subtitle }: Props) {
   const [minutes, setMinutes] = useState(15);
   const [seconds, setSeconds] = useState(0);
 
@@ -45,7 +46,7 @@ export function HeatmenuHeader({ subtitle }: Props) {
             "0 0 10px rgba(255,255,255,0.9), 0 0 20px rgba(93,194,59,0.7), 0 0 40px rgba(93,194,59,0.45), 0 0 80px rgba(93,194,59,0.25)",
         }}
       >
-        Investor Bar Menu
+        {title}
       </h1>
       {subtitle ? (
         <p className="mt-2 text-sm text-white/60">{subtitle}</p>
