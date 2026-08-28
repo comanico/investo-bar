@@ -64,10 +64,11 @@ model Placement {
   active       Boolean        @default(true)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
-  Order        Order[]
-  PortfolioLot PortfolioLot[]
+  orders       Order[]
+  lots         PortfolioLot[]
 
   @@index([venueId, active])
+  @@map("placement")
 }
 
 model Order {
@@ -78,25 +79,27 @@ model Order {
   type        String
   price       Float
   qty         Int       @default(1)
-  status      String    @default("pending") // pending | confirmed | cancelled
+  status      String    @default("pending")
   createdAt   DateTime  @default(now())
   confirmedAt DateTime?
 
   @@index([status, createdAt])
   @@index([placementId])
+  @@map("orders")
 }
 
 model PortfolioLot {
-  id          String    @id @default(cuid())
-  placementId String
-  placement   Placement @relation(fields: [placementId], references: [id])
-   placementLabel  String
-  product     String
-  qty         Int
-  unitPrice Decimal @db.Decimal(10, 2)
-  createdAt   DateTime  @default(now())
-  sessionDate DateTime @db.Date
+  id              String    @id @default(cuid())
+  placementId     String
+  placement       Placement @relation(fields: [placementId], references: [id])
+  placementLabel  String
+  product         String
+  qty             Int
+  unitPrice       Decimal   @db.Decimal(10, 2)
+  createdAt       DateTime  @default(now())
+  sessionDate     DateTime  @db.Date
 
   @@index([placementId, sessionDate])
   @@index([product])
+  @@map("portfoliolot")
 }
