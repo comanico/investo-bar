@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -49,6 +50,7 @@ export default function RootLayout({
             {children}
           </ThemeProvider>{" "}
           <Toaster />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
