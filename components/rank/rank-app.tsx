@@ -4,6 +4,9 @@ import { RankRow } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
 import { RankingBars } from "./ranking-bars";
 import { HeatmenuHeader } from "../heatmenu/heatmenu-header";
+import { ChartApp } from "@/components/chart/chart-app";
+import { RankMarket } from "./rank-market";
+import { SponsorRail } from "./sponsored-list";
 
 type LeaderBoardResponse = {
     asOf: string | null;
@@ -30,7 +33,7 @@ export function RankApp() {
     }, []);
 
     useEffect(() => {
-        void load;
+        void load();
 
         const id = setInterval(() => {
             const minute = new Date().getMinutes();
@@ -44,7 +47,7 @@ export function RankApp() {
     }, [load, lastFetchedMinute])
 
     return (
-        <div className="relative flex min-h-screen flex-col items-center overflow-x-hidden bg-background py-12 text-foreground">
+        <div className="relative flex min-h-screen flex-col items-center overflow-x-hidden bg-background py-8 text-foreground">
             <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 z-0"
@@ -54,19 +57,35 @@ export function RankApp() {
                 }}
             />
 
-            <div className="relative z-10 flex w-full max-w-3xl flex-col px-4">
+            <div className="relative z-10 flex w-full flex-col px-4">
                 <HeatmenuHeader
                     title="Leaderboard"
                     subtitle={asOf ? `Marked to ${asOf}` : "Tonight's tables"}
                 />
 
-                {rows.length === 0 ? (
-                    <p className="text-center text-sm text-white/45">
-                        No fills yet tonight
-                    </p>
-                ) : (
-                    <RankingBars rows={rows} />
-                )}
+                <div className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-[7rem_minmax(0,1fr)_minmax(0,1fr)_7rem] lg:gap-x-12">
+                    <div className="hidden justify-self-start lg:block">
+                        <SponsorRail />
+                    </div>
+
+
+                    <div className="min-w-0">
+                        {rows.length === 0 ? (
+                            <p className="text-center text-sm text-white/45">
+                                No fills yet tonight
+                            </p>
+                        ) : (
+                            <RankingBars rows={rows} />
+                        )}
+                    </div>
+
+                    <div className="min-w-0">
+                        <RankMarket />
+                    </div>
+                    <div className="hidden justify-self-end lg:block">
+                        <SponsorRail reverse />
+                    </div>
+                </div>
             </div>
         </div>
     )

@@ -9,6 +9,8 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const sessionDate = sessionDateBucharest()
+    const next = new Date(sessionDate);
+    next.setUTCDate(next.getUTCDate() + 1);
 
     const [lots, series] = await Promise.all([
       prismadb.portfolioLot.findMany({
