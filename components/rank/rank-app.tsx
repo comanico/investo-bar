@@ -4,7 +4,6 @@ import { RankRow } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
 import { RankingBars } from "./ranking-bars";
 import { HeatmenuHeader } from "../heatmenu/heatmenu-header";
-import { ChartApp } from "@/components/chart/chart-app";
 import { RankMarket } from "./rank-market";
 import { SponsorRail } from "./sponsored-list";
 
