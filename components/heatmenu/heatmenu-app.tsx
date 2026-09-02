@@ -7,7 +7,6 @@ import { HeatmenuItem, MenuDataPoint, CartLine } from "@/lib/types";
 import { buildItems } from "@/lib/buildItems";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeatmenuCard } from "./heatmenu-card";
-import { toast } from "sonner";
 import { HeatmenuOrderRegistry } from "./heatmenu-registry";
 
 type Props = {
@@ -22,8 +21,6 @@ export function HeatmenuApp({ placement }: Props = {}) {
   const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
     null,
   );
-  const [buying, setBuying] = useState(false);
-  const lastBuyAt = useRef(0);
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
 
