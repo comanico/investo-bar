@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HeatmenuHeader } from "./heatmenu-header";
 import { HeatmenuGrid } from "./heatmenu-grid";
 import { HeatmenuItem, MenuDataPoint, CartLine } from "@/lib/types";
