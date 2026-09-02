@@ -32,56 +32,72 @@ export interface MenuDataPoint {
 }
 
 export const productKeyMap: Record<string, keyof MenuDataPoint> = {
-    heineken: "heineken",
-    corona: "corona",
-    peroni: "peroni",
-    prosecco: "prosecco",
-    aperol_spritz: "aperol_spritz",
-    vin_rosu: "vin_rosu",
-    vin_alb: "vin_alb",
-    vin_spumant_fara_alcool: "vin_spumant_fara_alcool",
-    cola: "cola",
-    apa: "apa",
-    jameson: "jameson",
-    jameson_black_barrel: "jameson_black_barrel",
-    fireball: "fireball",
-    tequilla: "tequilla",
-  };
+  heineken: "heineken",
+  corona: "corona",
+  peroni: "peroni",
+  prosecco: "prosecco",
+  aperol_spritz: "aperol_spritz",
+  vin_rosu: "vin_rosu",
+  vin_alb: "vin_alb",
+  vin_spumant_fara_alcool: "vin_spumant_fara_alcool",
+  cola: "cola",
+  apa: "apa",
+  jameson: "jameson",
+  jameson_black_barrel: "jameson_black_barrel",
+  fireball: "fireball",
+  tequilla: "tequilla",
+};
 
-  export type OrderRow = {
-    id: string;
-    product: string;
-    price: number;
-    qty: number;
-    status: string;
-    createdAt: string;
-    placement: { label: string; kind: string };
-  };
-  
-  export type PortfolioLotRow = {
-    placementId: string;
-    placementLabel: string;
-    product: string;
-    qty: number;
-    unitPrice: number;
-  };
-  
-  export type LeaderboardRow = {
-    placementId: string;
-    label: string;
-    cost: number;
-    value: number;
-    pnl: number;
-    ret: number;
-    qty: number;
-  };
+export type OrderRow = {
+  id: string;
+  product: string;
+  price: number;
+  qty: number;
+  status: string;
+  createdAt: string;
+  placement: { label: string; kind: string };
+};
 
-  export type RankRow = {
-    placementId: string;
-    label: string;
-    cost: number;
-    value: number;
-    pnl: number;
-    ret: number;
-    qty: number;
-  };
+export type PortfolioLotRow = {
+  placementId: string;
+  placementLabel: string;
+  product: string;
+  qty: number;
+  unitPrice: number;
+};
+
+export type LeaderboardRow = {
+  placementId: string;
+  label: string;
+  cost: number;
+  value: number;
+  pnl: number;
+  ret: number;
+  qty: number;
+};
+
+export type RankRow = {
+  placementId: string;
+  label: string;
+  cost: number;
+  value: number;
+  pnl: number;
+  ret: number;
+  qty: number;
+};
+
+export type BoardOrder = {
+  id: string;
+  product: string;
+  price: number;
+  qty: number;
+  createdAt: string;
+  placement: { label: string };
+};
+
+export type CartLine = {
+  product: string;
+  type: string;
+  price: number;
+  qty: number;
+};

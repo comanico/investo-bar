@@ -27,26 +27,26 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
       if (!res.ok) throw new Error("Failed to load");
       const data = await res.json();
       const list: OrderRow[] = Array.isArray(data) ? data : (data.orders ?? []);
-  
+
       const nextIds = new Set(list.map((o) => o.id));
-  
+
       if (primedRef.current) {
         const alertsOn =
           typeof window !== "undefined" &&
           "Notification" in window &&
           Notification.permission === "granted";
-  
+
         if (alertsOn) {
           for (const o of list) {
             if (!prevIdsRef.current.has(o.id)) {
-              notifyNewOrder(o);
+              notifyNewOrder(`New order: ${o.product} ×${o.qty ?? 1} - ${((o.qty ?? 1) * Number(o.price)).toFixed(2)} RON`);
             }
           }
         }
       } else {
         primedRef.current = true;
       }
-  
+
       prevIdsRef.current = nextIds;
       setOrders(list);
     } catch (e) {
@@ -113,11 +113,10 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                   {o.placement.label}
                 </p>
                 <p className="text-sm">
-                  {o.product}
-                  {o.qty > 1 ? ` ×${o.qty}` : ""}
+                  {o.product} · {o.qty ?? 1}×
                 </p>
-                <p className="mt-0.5 text-sm font-medium tabular-nums">
-                  {Number(o.price).toFixed(2)} RON
+                <p className="tabular-nums">
+                  {((o.qty ?? 1) * Number(o.price)).toFixed(2)} RON
                 </p>
               </div>
               <span
@@ -162,7 +161,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
             <th className="px-4 py-3">#</th>
             <th className="px-4 py-3">Placement</th>
             <th className="px-4 py-3">Product</th>
+            <th className="px-4 py-3">Qty</th>
             <th className="px-4 py-3">Price</th>
+            <th className="px-4 py-3">Total</th>
             <th className="px-4 py-3">Time</th>
             <th className="px-4 py-3">Status</th>
             <th className="px-4 py-3" />
@@ -185,6 +186,12 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
               <td className="px-4 py-3 tabular-nums">
                 {o.price.toFixed(2)} RON
               </td>
+              <td className="px-4 py-3 tabular-nums">
+                {o.qty ?? 1}
+              </td>
+              <td className="px-4 py-3 tabular-nums">
+                {((o.qty ?? 1) * Number(o.price)).toFixed(2)} RON
+              </td>
               <td className="px-4 py-3 text-white/50">
                 {new Date(o.createdAt).toLocaleTimeString([], {
                   hour: "2-digit",
@@ -196,9 +203,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs font-medium",
                     o.status === "pending" &&
-                      "bg-yellow-400/15 text-yellow-200",
+                    "bg-yellow-400/15 text-yellow-200",
                     o.status === "confirmed" &&
-                      "bg-emerald-400/15 text-emerald-200",
+                    "bg-emerald-400/15 text-emerald-200",
                     o.status === "cancelled" && "bg-white/10 text-white/50",
                   )}
                 >

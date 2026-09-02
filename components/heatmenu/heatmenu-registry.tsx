@@ -10,14 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-type BoardOrder = {
-  id: string;
-  product: string;
-  price: number;
-  createdAt: string;
-  placement: { label: string };
-};
+import { BoardOrder } from "@/lib/types";
 
 export function HeatmenuOrderRegistry() {
   const [orders, setOrders] = useState<BoardOrder[]>([]);
@@ -48,7 +41,7 @@ export function HeatmenuOrderRegistry() {
             <TableRow className="border-white/10 hover:bg-transparent">
               <TableHead className="text-white/45">Client</TableHead>
               <TableHead className="text-white/45">Product</TableHead>
-              <TableHead className="text-white/45">Price</TableHead>
+              <TableHead className="text-white/45">Qty</TableHead>
               <TableHead className="text-white/45">Time</TableHead>
             </TableRow>
           </TableHeader>
@@ -68,9 +61,7 @@ export function HeatmenuOrderRegistry() {
                     {o.placement.label}
                   </TableCell>
                   <TableCell className="text-white/90">{o.product}</TableCell>
-                  <TableCell className="tabular-nums text-white/90">
-                    {Number(o.price).toFixed(2)} RON
-                  </TableCell>
+                  <TableCell className="tabular-nums">{o.qty ?? 1}</TableCell>
                   <TableCell className="text-white/50">
                     {new Date(o.createdAt).toLocaleTimeString([], {
                       hour: "2-digit",
