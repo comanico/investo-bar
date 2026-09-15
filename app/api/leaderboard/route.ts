@@ -14,8 +14,10 @@ export async function GET() {
 
     const [lots, series] = await Promise.all([
       prismadb.portfolioLot.findMany({
-        where: { sessionDate },
-        select: {
+        where: {
+          sessionDate: { gte: sessionDate, lt: next },
+          placement: { kind: "table" },
+        }, select: {
           placementId: true,
           placementLabel: true,
           product: true,
