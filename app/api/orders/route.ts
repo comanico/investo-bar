@@ -1,7 +1,6 @@
 import { notifyNewOrder } from "@/lib/notify-new-order";
 import prismadb from "@/lib/prismadb";
 import { auth } from "@clerk/nextjs/server";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -23,14 +22,6 @@ export async function POST(req: Request) {
 
     if (!placement) {
       return NextResponse.json({ error: "Invalid table" }, { status: 404 });
-    }
-
-    const claimed = (await cookies()).get("ib_table")?.value;
-    if (!claimed || claimed !== placement.id) {
-      return NextResponse.json(
-        { error: "Session expired — scan the table QR" },
-        { status: 403 },
-      );
     }
 
     const order = await prismadb.order.create({
