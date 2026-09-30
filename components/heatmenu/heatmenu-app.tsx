@@ -119,12 +119,8 @@ export function HeatmenuApp({ placement }: Props = {}) {
           qty: line.qty,
         }),
       });
-
-      if (res.status === 403) {
-        setExpired(true);
-        return;
-      }
     }
+
     setCart([]);
     setCartOpen(false);
 
