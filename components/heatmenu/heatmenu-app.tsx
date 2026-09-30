@@ -123,12 +123,6 @@ export function HeatmenuApp({ placement }: Props = {}) {
 
     setCart([]);
     setCartOpen(false);
-
-    void fetch("/api/placement/touch", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: placement.token }),
-    });
   };
 
   const bump = (product: string, delta: number) => {
