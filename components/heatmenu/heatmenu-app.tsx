@@ -16,13 +16,14 @@ type Props = {
 
 export function HeatmenuApp({ placement }: Props = {}) {
   const isMobile = useIsMobile();
-  const showBuy = Boolean(placement);
+  const showBuy = Boolean(placement) && isMobile;
   const [items, setItems] = useState<HeatmenuItem[]>(() => buildItems([]));
   const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
     null,
   );
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [expired, setExpired] = useState(false);
 
   const handleBuy = (item: HeatmenuItem) => {
     if (!placement) return;
@@ -33,7 +34,10 @@ export function HeatmenuApp({ placement }: Props = {}) {
         next[i] = { ...next[i], qty: next[i].qty + 1 };
         return next;
       }
-      return [...cur, { product: item.product, type: item.type, price: item.price, qty: 1 }];
+      return [
+        ...cur,
+        { product: item.product, type: item.type, price: item.price, qty: 1 },
+      ];
     });
   };
 
@@ -75,10 +79,36 @@ export function HeatmenuApp({ placement }: Props = {}) {
     return () => clearInterval(interval);
   }, [fetchPrices, lastFetchedMinute]);
 
+  useEffect(() => {
+    if (!showBuy || !placement?.token) return;
+    let alive = true;
+
+    void fetch("/api/placement/touch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: placement.token }),
+    }).then((res) => {
+      if (!alive) return;
+      if (!res.ok) setExpired(true);
+    });
+
+    const id = setInterval(async () => {
+      const res = await fetch("/api/placement/session");
+      const data = await res.json();
+      if (alive && !data.ok) setExpired(true);
+    }, 3000);
+
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [showBuy, placement?.token]);
+
   const submitCart = async () => {
     if (!placement || cart.length === 0) return;
+
     for (const line of cart) {
-      await fetch("/api/orders", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -89,17 +119,26 @@ export function HeatmenuApp({ placement }: Props = {}) {
           qty: line.qty,
         }),
       });
+
+      if (res.status === 403) {
+        setExpired(true);
+        return;
+      }
     }
     setCart([]);
     setCartOpen(false);
+
+    void fetch("/api/placement/touch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: placement.token }),
+    });
   };
 
   const bump = (product: string, delta: number) => {
     setCart((cur) =>
       cur
-        .map((l) =>
-          l.product === product ? { ...l, qty: l.qty + delta } : l,
-        )
+        .map((l) => (l.product === product ? { ...l, qty: l.qty + delta } : l))
         .filter((l) => l.qty > 0),
     );
   };
@@ -107,6 +146,30 @@ export function HeatmenuApp({ placement }: Props = {}) {
   const remove = (product: string) => {
     setCart((cur) => cur.filter((l) => l.product !== product));
   };
+
+  if (expired) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-black px-6 text-center">
+        <img
+          src="/InvestoBar.svg"
+          alt="InvestoBar"
+          className="mb-8 h-24 w-auto"
+        />
+        <h1
+          className="text-3xl font-extrabold text-white"
+          style={{
+            textShadow:
+              "0 0 10px rgba(255,255,255,0.9), 0 0 24px rgba(93,194,59,0.6)",
+          }}
+        >
+          Session ended
+        </h1>
+        <p className="mt-3 max-w-xs text-white/60">
+          Scan the QR on your table to order again.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-screen flex-col items-center overflow-x-hidden bg-background py-12 text-foreground xl:h-screen xl:overflow-hidden xl:py-6">
@@ -119,10 +182,12 @@ export function HeatmenuApp({ placement }: Props = {}) {
         }}
       />
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col items-center">
-        <HeatmenuHeader title="Investo Bar Menu" subtitle={placement ? placement.label : undefined} />
+        <HeatmenuHeader
+          title="Investo Bar Menu"
+          subtitle={placement ? placement.label : undefined}
+        />
         {isMobile ? (
           <main className="w-full flex-1 space-y-3 px-4 pb-10">
-
             {items.map((item) => (
               <HeatmenuCard
                 key={item.product}
@@ -157,27 +222,35 @@ export function HeatmenuApp({ placement }: Props = {}) {
                 </button>
 
                 {cart.map((line) => (
-                  <div key={line.product} className="flex items-center gap-3 py-2">
-                    <span className="flex-1 text-lg font-bold">{line.product}</span>
-                    <button 
-                    type="button" 
-                    onClick={() => bump(line.product, -1)} 
-                    className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-sm font-bold text-zinc-900">
+                  <div
+                    key={line.product}
+                    className="flex items-center gap-3 py-2"
+                  >
+                    <span className="flex-1 text-lg font-bold">
+                      {line.product}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => bump(line.product, -1)}
+                      className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-sm font-bold text-zinc-900"
+                    >
                       −
                     </button>
                     <span>{line.qty}</span>
-                    <button 
-                    type="button" 
-                    onClick={() => bump(line.product, 1)}
-                    className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-sm font-bold text-zinc-900"
+                    <button
+                      type="button"
+                      onClick={() => bump(line.product, 1)}
+                      className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-sm font-bold text-zinc-900"
                     >
                       +
                     </button>
-                    <span className="w-20 text-center text-lg font-bold tabular-nums">{(line.qty * line.price).toFixed(2)}</span>
-                    <button 
-                    type="button" 
-                    onClick={() => remove(line.product)} 
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-sm font-bold text-white"
+                    <span className="w-20 text-center text-lg font-bold tabular-nums">
+                      {(line.qty * line.price).toFixed(2)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => remove(line.product)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-sm font-bold text-white"
                     >
                       ✕
                     </button>
@@ -192,7 +265,6 @@ export function HeatmenuApp({ placement }: Props = {}) {
                 </button>
               </div>
             )}
-
           </main>
         ) : (
           <div className="flex w-full flex-1 gap-4 px-4 pb-4">
