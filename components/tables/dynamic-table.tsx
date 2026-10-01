@@ -14,10 +14,12 @@ import type { VinItem } from "@/actions/getVin";
 import type { RacoritoareItem } from "@/actions/getRacoritoare";
 import type { SpirtoaseItem } from "@/actions/getSpirtoase";
 import { OrderTable } from "../dashboard/order-client";
+import { FiscalTest } from "@/components/dashboard/fiscal-test";
 
 type TableView =
   | "menu"
   | "orders"
+  | "fiscal-test"
   | "sales"
   | "bere"
   | "vin"
@@ -52,6 +54,7 @@ export function DynamicTable({
         [
           "menu",
           "orders",
+          "fiscal-test",
           "sales",
           "bere",
           "vin",
@@ -77,6 +80,8 @@ export function DynamicTable({
         return <AdminTable initial={initialMenu} />;
       case "orders":
         return <OrderTable status="pending" />;
+      case "fiscal-test":
+        return <FiscalTest />;
       case "sales":
         return <SalesTable items={salesData} />;
       case "bere":

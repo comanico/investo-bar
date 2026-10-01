@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { OrderRow } from "@/lib/types";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { notifyNewOrder } from "@/lib/notify-new-order";
+import { toast } from "sonner";
 
 type Props = {
   /** Optional: SSR initial data */
@@ -39,7 +40,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
         if (alertsOn) {
           for (const o of list) {
             if (!prevIdsRef.current.has(o.id)) {
-              notifyNewOrder(`New order: ${o.product} ×${o.qty ?? 1} - ${((o.qty ?? 1) * Number(o.price)).toFixed(2)} RON`);
+              notifyNewOrder(
+                `New order: ${o.product} ×${o.qty ?? 1} - ${((o.qty ?? 1) * Number(o.price)).toFixed(2)} RON`,
+              );
             }
           }
         }
@@ -64,10 +67,17 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
 
   const confirm = async (id: string) => {
     const res = await fetch(`/api/orders/${id}/confirm`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      console.error("cofirm failed", res.status, data);
+      toast.error(data.error || "Confirm failed", { duration: 5000 });
       return;
+    }
+    if (data.fiscal?.ok === false) {
+      toast.error(data.fiscal?.error || "Bon not printed", { duration: 5000 });
+    } else {
+      toast.success(`Bon ${data.fiscal?.pi?.unp || "printed"}`, {
+        duration: 5000,
+      });
     }
     void load();
   };
@@ -186,9 +196,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
               <td className="px-4 py-3 tabular-nums">
                 {o.price.toFixed(2)} RON
               </td>
-              <td className="px-4 py-3 tabular-nums">
-                {o.qty ?? 1}
-              </td>
+              <td className="px-4 py-3 tabular-nums">{o.qty ?? 1}</td>
               <td className="px-4 py-3 tabular-nums">
                 {((o.qty ?? 1) * Number(o.price)).toFixed(2)} RON
               </td>
@@ -203,9 +211,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs font-medium",
                     o.status === "pending" &&
-                    "bg-yellow-400/15 text-yellow-200",
+                      "bg-yellow-400/15 text-yellow-200",
                     o.status === "confirmed" &&
-                    "bg-emerald-400/15 text-emerald-200",
+                      "bg-emerald-400/15 text-emerald-200",
                     o.status === "cancelled" && "bg-white/10 text-white/50",
                   )}
                 >

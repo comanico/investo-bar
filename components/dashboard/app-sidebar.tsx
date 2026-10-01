@@ -12,6 +12,7 @@ import {
   IconSearch,
   IconSettings,
   IconBottle,
+  IconReceiptEuro,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/dashboard/nav-main";
@@ -45,6 +46,11 @@ const data = {
       title: "Orders",
       url: "dashboard#view=orders",
       icon: IconBottle,
+    },
+    {
+      title: "Fiscal Test",
+      url: "dashboard#view=fiscal-test",
+      icon: IconReceiptEuro,
     },
     {
       title: "Sales",

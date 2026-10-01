@@ -166,19 +166,42 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
         throw new Error(error || "Failed to submit order");
       }
 
+      const sold = menu
+        .filter((item) => item.quantity > 0)
+        .map((item) => ({
+          product: item.product,
+          name: item.product,
+          qty: item.quantity,
+          unitPrice: item.price,
+        }));
+
       setIsToastActive(true);
       toast("oOoOoOOrder quantities updated!", {
         description: `Please add the sum of ${totalPrice} in POS!`,
         id: "submit-toast",
         action: {
           label: "YEEEEEE",
-          onClick: () => {
-            setIsToastActive(false); // Hide overlay on click
+          onClick: async () => {
+            setIsToastActive(false);
+            const fiscal = await fetch("/api/fiscal/receipt", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ref: `menu-${Date.now()}`,
+                clientName: username,
+                lines: sold,
+              }),
+            });
+            const data = await fiscal.json().catch(() => ({}));
+            if (!fiscal.ok || data.fiscal?.ok === false) {
+              toast.error(data.fiscal?.error || "Bon not printed");
+            } else {
+              toast.success(`Bon ${data.fiscal?.pi?.unp || "printed"}`);
+            }
           },
         },
         position: "top-center",
-        duration: 5000, // Auto-dismiss after 5 seconds
-        onAutoClose: () => setIsToastActive(false), // Hide overlay on timeout
+        duration: Infinity,
       });
       setMenu((prevMenu) => prevMenu.map((item) => ({ ...item, quantity: 0 })));
     } catch (error) {

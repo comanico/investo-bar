@@ -3,6 +3,7 @@ import { incrementProductQuantity } from "@/lib/product-stock-map";
 import { sessionDateBucharest } from "@/lib/session-date";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { printFiscalReceipt } from "@/lib/fiscal-pi";
 
 export async function POST(_req: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -51,7 +52,23 @@ export async function POST(_req: Request, context: { params: Promise<{ id: strin
 
     await incrementProductQuantity(order.product, order.qty);
 
-    return NextResponse.json({ ok: true });
+    const fiscal = await printFiscalReceipt({
+      ref: `order-${order.id}`,
+      source: "order",
+      clientName: order.placement.label,
+      payment: "card",
+      lines: [
+        {
+          product: order.product,
+          name: order.product,
+          qty: order.qty,
+          unitPrice: order.price,
+          taxPercent: 0,
+        },
+      ],
+    });
+
+    return NextResponse.json({ ok: true, fiscal });  
   } catch (e) {
     console.error("POST /api/orders/[id]/confirm", e);
     return NextResponse.json({ error: "Failed to confirm" }, { status: 500 });
