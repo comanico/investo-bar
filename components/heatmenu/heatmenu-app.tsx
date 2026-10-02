@@ -8,6 +8,7 @@ import { buildItems } from "@/lib/buildItems";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeatmenuCard } from "./heatmenu-card";
 import { HeatmenuOrderRegistry } from "./heatmenu-registry";
+import { visibleSeries } from "@/lib/visible-series";
 
 type Props = {
   /** Set when opened from /t/[token] */
@@ -53,7 +54,8 @@ export function HeatmenuApp({ placement }: Props = {}) {
       }
 
       const data: MenuDataPoint[] = await response.json();
-      setItems(buildItems(Array.isArray(data) ? data : []));
+      const series = visibleSeries(Array.isArray(data) ? data : []);
+      setItems(buildItems(series));
       setLastFetchedMinute(new Date().getMinutes());
     } catch (error) {
       console.error("heatmenu fetch error:", error);
