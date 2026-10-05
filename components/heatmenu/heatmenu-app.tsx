@@ -25,6 +25,7 @@ export function HeatmenuApp({ placement }: Props = {}) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [expired, setExpired] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleBuy = (item: HeatmenuItem) => {
     if (!placement) return;
@@ -107,24 +108,30 @@ export function HeatmenuApp({ placement }: Props = {}) {
   }, [showBuy, placement?.token]);
 
   const submitCart = async () => {
-    if (!placement || cart.length === 0) return;
+    if (!placement || cart.length === 0 || submitting) return;
 
-    for (const line of cart) {
-      await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: placement.token,
-          product: line.product,
-          type: line.type,
-          price: line.price,
-          qty: line.qty,
-        }),
-      });
+    setSubmitting(true);
+
+    try {
+      for (const line of cart) {
+        const res = await fetch("/api/orders", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: placement.token,
+            product: line.product,
+            type: line.type,
+            price: line.price,
+            qty: line.qty,
+          }),
+        });
+        if (!res.ok) return;
+      }
+      setCart([]);
+      setCartOpen(false);
+    } finally {
+      setSubmitting(false);
     }
-
-    setCart([]);
-    setCartOpen(false);
   };
 
   const bump = (product: string, delta: number) => {
@@ -194,7 +201,7 @@ export function HeatmenuApp({ placement }: Props = {}) {
               <button
                 type="button"
                 onClick={() => setCartOpen(true)}
-                className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between bg-black/80 px-4 py-3 backdrop-blur-xl"
+                className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between bg-[#2E8B57] px-4 py-3 text-white shadow-[0_0_24px_rgba(60,179,113,0.45)]"
               >
                 <span>{cart.reduce((n, l) => n + l.qty, 0)} items</span>
                 <span>
@@ -251,9 +258,10 @@ export function HeatmenuApp({ placement }: Props = {}) {
                 <button
                   type="button"
                   onClick={submitCart}
+                  disabled={submitting}
                   className="mx-auto mt-4 w-4/5 rounded-2xl bg-[#3CB371] py-3 text-base font-bold text-white"
                 >
-                  Submit
+                  {submitting ? "Sending…" : "Submit"}
                 </button>
               </div>
             )}
