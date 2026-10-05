@@ -30,8 +30,14 @@ export function PortfolioApp({
       if (!res.ok) return;
       setBook(await res.json());
     };
+
     void load();
-    const id = setInterval(() => void load(), 15000);
+
+    const id = setInterval(() => {
+      const minute = new Date().getMinutes();
+      if ([0, 15, 30, 45].includes(minute)) void load();
+    }, 1000);
+
     return () => clearInterval(id);
   }, [token]);
 
@@ -87,6 +93,7 @@ export function PortfolioApp({
             fontWeight={700}
             textColor="inherit"
           />
+          %
         </p>
         <p className="text-sm text-white/50">
           Cost {book?.cost.toFixed(2) ?? "0.00"} · Value{" "}
