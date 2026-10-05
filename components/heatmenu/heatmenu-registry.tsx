@@ -42,7 +42,7 @@ export function HeatmenuOrderRegistry() {
               <TableHead className="text-white/45">Client</TableHead>
               <TableHead className="text-white/45">Product</TableHead>
               <TableHead className="text-white/45">Qty</TableHead>
-              <TableHead className="text-white/45">Time</TableHead>
+              <TableHead className="text-white/45">Ticket</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -63,10 +63,7 @@ export function HeatmenuOrderRegistry() {
                   <TableCell className="text-white/90">{o.product}</TableCell>
                   <TableCell className="tabular-nums">{o.qty ?? 1}</TableCell>
                   <TableCell className="text-white/50">
-                    {new Date(o.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {o.ticketId ?? "-"}
                   </TableCell>
                 </motion.tr>
               ))}

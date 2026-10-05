@@ -23,6 +23,7 @@ model sales {
   quantity Int?     @default(0)
   username String   @default("Spender Investobar") @db.VarChar(255)
   time     DateTime @default(now())
+  ticketId String? @db.VarChar(16)
 }
 
 model bere {
@@ -73,6 +74,7 @@ model Placement {
 
 model Order {
   id          String    @id @default(cuid())
+  ticketId    String?
   placementId String
   placement   Placement @relation(fields: [placementId], references: [id])
   product     String
@@ -83,6 +85,7 @@ model Order {
   createdAt   DateTime  @default(now())
   confirmedAt DateTime?
 
+  @@index([ticketId])
   @@index([status, createdAt])
   @@index([placementId])
   @@map("orders")

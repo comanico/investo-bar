@@ -50,6 +50,7 @@ export const productKeyMap: Record<string, keyof MenuDataPoint> = {
 
 export type OrderRow = {
   id: string;
+  ticketId: string | null;
   product: string;
   price: number;
   qty: number;
@@ -93,6 +94,7 @@ export type BoardOrder = {
   qty: number;
   createdAt: string;
   placement: { label: string };
+  ticketId: number;
 };
 
 export type CartLine = {

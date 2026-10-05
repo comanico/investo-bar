@@ -9,6 +9,7 @@ export type SalesItem = {
   price: number;
   quantity: number;
   username: string;
+  ticketId: string | null;
   time: Date;
 };
 
@@ -20,6 +21,7 @@ export const getSales = async (): Promise<SalesItem[]> => {
     type: item.type,
     price: Number(item.price),
     quantity: item.quantity ?? 0,
+    ticketId: item.ticketId ?? null,
     username: item.username,
     time: item.time,
   }));

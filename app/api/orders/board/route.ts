@@ -11,6 +11,7 @@ export async function GET() {
         qty: true,
         price: true,
         createdAt: true,
+        ticketId: true,
         placement: { select: { label: true } },
       },
     });

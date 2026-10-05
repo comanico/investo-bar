@@ -10,7 +10,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Empty body" }, { status: 400 });
       }
     const body = JSON.parse(text)
-    const { token, product, type, price, qty = 1 } = body;
+    const { token, product, type, price, qty = 1, ticketId } = body;
 
     if (!token || !product || typeof price !== "number") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     const order = await prismadb.order.create({
       data: {
         placementId: placement.id,
+        ticketId: typeof ticketId === "string" ? ticketId : null,
         product,
         type: type ?? "Unknown",
         price,

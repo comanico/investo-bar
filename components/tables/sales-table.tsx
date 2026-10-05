@@ -15,6 +15,7 @@ export function SalesTable({ items }: { items: SalesItem[] }) {
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>Ticket</TableHead>
           <TableHead>Product</TableHead>
           <TableHead>Type</TableHead>
           <TableHead>Price</TableHead>
@@ -36,6 +37,7 @@ export function SalesTable({ items }: { items: SalesItem[] }) {
         ) : (
           items.map((item) => (
             <TableRow key={item.id}>
+              <TableCell>{item.ticketId}</TableCell>
               <TableCell className="font-medium">{item.product}</TableCell>
               <TableCell>{item.type}</TableCell>
               <TableCell>{item.price.toFixed(2)}</TableCell>

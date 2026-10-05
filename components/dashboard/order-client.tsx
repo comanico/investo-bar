@@ -113,7 +113,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-xs text-muted-foreground">
-                  #{i + 1} ·{" "}
+                  Ticket {o.ticketId ?? "-"} ·{" "}
                   {new Date(o.createdAt).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
@@ -186,7 +186,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
               className="border-b border-white/5 text-white/90 last:border-0"
             >
               <td className="px-4 py-3 tabular-nums text-white/50">
-                {orders.length - i}
+                {o.ticketId ?? "–"}
               </td>
               <td className="px-4 py-3 font-medium">{o.placement.label}</td>
               <td className="px-4 py-3">

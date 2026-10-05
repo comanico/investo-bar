@@ -33,6 +33,7 @@ export async function POST(_req: Request, context: { params: Promise<{ id: strin
           price: order.price,
           quantity: order.qty,
           username: order.placement.label,
+          ticketId: order.ticketId,
         },
       });
 
