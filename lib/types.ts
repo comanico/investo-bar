@@ -103,3 +103,21 @@ export type CartLine = {
   price: number;
   qty: number;
 };
+
+export type Position = {
+  product: string;
+  qty: number;
+  cost: number;
+  value: number;
+  pnl: number;
+  ret: number;
+};
+
+export type Book = {
+  label: string;
+  cost: number;
+  value: number;
+  pnl: number;
+  ret: number;
+  positions: Position[];
+};

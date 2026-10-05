@@ -243,7 +243,8 @@ export function HeatmenuApp({ placement }: Props = {}) {
       <div className="relative z-10 flex min-h-0 w-full flex-1 flex-col items-center">
         <HeatmenuHeader
           title="Investo Bar Menu"
-          subtitle={placement ? placement.label : undefined}
+          subtitle={placement?.label}
+          href={placement ? `/t/${placement.token}/portfolio` : undefined}
         />
         {isMobile ? (
           <main className="w-full flex-1 space-y-3 px-4 pb-10">

@@ -3,13 +3,15 @@
 import { useEffect, useState } from "react";
 import Timer from "../ui/timer";
 import { getNextTargetTime } from "@/actions/getNextTargetTime";
+import Link from "next/link";
 
 type Props = {
   title: string;
   subtitle?: string;
+  href?: string;
 };
 
-export function HeatmenuHeader({ title, subtitle }: Props) {
+export function HeatmenuHeader({ title, subtitle, href }: Props) {
   const [minutes, setMinutes] = useState(15);
   const [seconds, setSeconds] = useState(0);
 
@@ -48,11 +50,22 @@ export function HeatmenuHeader({ title, subtitle }: Props) {
       >
         {title}
       </h1>
-      {subtitle ? (
-        <p className="mt-2 text-sm text-white/60">{subtitle}</p>
-      ) : null}
-      <div className="leading-none font-bold text-white sm:text-3xl">
-        <Timer minutes={minutes} seconds={seconds} />
+      <div className="flex flex-col items-center">
+        {subtitle ? (
+          href ? (
+            <Link
+              href={href}
+              className="mb-4 w-fit rounded-full border border-white/20 bg-white/15 px-4 py-1.5 text-center text-sm font-semibold text-white backdrop-blur-xl"
+            >
+              {subtitle} Portfolio
+            </Link>
+          ) : (
+            <p className="mt-2 text-sm text-white/60">{subtitle}</p>
+          )
+        ) : null}{" "}
+        <div className="leading-none font-bold text-white sm:text-3xl">
+          <Timer minutes={minutes} seconds={seconds} />
+        </div>
       </div>
     </div>
   );
