@@ -105,7 +105,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
   if (isMobile) {
     return (
       <ul className="flex flex-col gap-3">
-        {orders.map((o, i) => (
+        {orders.map((o) => (
           <li
             key={o.id}
             className="rounded-2xl border border-border bg-card p-4 shadow-sm"
@@ -180,7 +180,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
           </tr>
         </thead>
         <tbody>
-          {orders.map((o, i) => (
+          {orders.map((o) => (
             <tr
               key={o.id}
               className="border-b border-white/5 text-white/90 last:border-0"
