@@ -1,7 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { lastSnapshot } from "@/lib/leaderboard";
 import { sessionDateBucharest } from "@/lib/session-date";
-import { visibleSeries } from "@/lib/visible-series";
 import { productKeyMap, type MenuDataPoint } from "@/lib/types";
 import { NextResponse } from "next/server";
 import { generatePresignedUrl } from "../live-prices/route";
@@ -47,7 +46,7 @@ export async function GET(req: Request) {
     fetchLivePrices(),
   ]);
 
-  const snapshot = lastSnapshot(visibleSeries(series as MenuDataPoint[]));
+  const snapshot = lastSnapshot(series);
 
   const byProduct = new Map<string, { qty: number; cost: number; value: number }>();
 
