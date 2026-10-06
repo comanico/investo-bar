@@ -4,7 +4,6 @@ import { sessionDateBucharest } from "@/lib/session-date";
 import { productKeyMap, type MenuDataPoint } from "@/lib/types";
 import { NextResponse } from "next/server";
 import { generatePresignedUrl } from "../live-prices/route";
-import { visibleSeries } from "@/lib/visible-series";
 
 export const dynamic = "force-dynamic";
 
@@ -47,7 +46,7 @@ export async function GET(req: Request) {
     fetchLivePrices(),
   ]);
 
-  const snapshot = lastSnapshot(visibleSeries(series as MenuDataPoint[]));
+  const snapshot = lastSnapshot(series);
 
   const byProduct = new Map<string, { qty: number; cost: number; value: number }>();
 
