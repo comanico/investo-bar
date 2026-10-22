@@ -4,14 +4,17 @@ import { NextResponse } from "next/server";
 
 export async function POST() {
   const [open, sold] = await Promise.all([
-    prismadb.order.aggregate({_max: {ticketId: true}}),
-    prismadb.sales.aggregate({_max: {ticketId: true}}),
-  ])
+    prismadb.order.aggregate({ _max: { ticketId: true } }),
+    prismadb.sales.aggregate({ _max: { ticketId: true } }),
+  ]);
+
+  const next = Math.max(
+    Number(open._max.ticketId) || 0,
+    Number(sold._max.ticketId) || 0,
+  );
 
   for (let i = 0; i < 20; i++) {
-    const ticketId = String(
-      Math.max(Number(open._max.ticketId) || 0, Number(sold._max.ticketId) || 0) + 1,
-    );
+    const ticketId = String(next + i);
     const taken = await prismadb.order.findFirst({
       where: { ticketId, status: "pending" },
       select: { id: true },
@@ -28,8 +31,14 @@ export async function GET(req: Request) {
   const ticketId = (await cookies()).get(`ib_ticket_${token}`)?.value;
   if (!ticketId) return NextResponse.json({ ticket: null });
 
+  const placement = await prismadb.placement.findFirst({
+    where: { token, active: true },
+    select: { id: true },
+  });
+  if (!placement) return NextResponse.json({ ticket: null });
+
   const orders = await prismadb.order.findMany({
-    where: { ticketId },
+    where: { ticketId, placement: { token, active: true } },
     select: { product: true, qty: true, price: true, status: true },
   });
 
