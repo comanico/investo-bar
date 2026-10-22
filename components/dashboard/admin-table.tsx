@@ -39,6 +39,9 @@ interface MenuDataPoint {
 const initialMenu = DEFAULT_MENU_ITEMS;
 
 export function AdminTable({ initial }: { initial?: MenuItem[] }) {
+  // Lock one submit at a time
+  const [submitting, setSubmitting] = useState(false);
+
   // Use state to manage menu items
   const [menu, setMenu] = useState(
     initial && initial.length > 0 ? initial : initialMenu,
@@ -154,6 +157,20 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
   }, [lastFetchedMinute]);
 
   const handleSubmit = async () => {
+    if (submitting) return;
+    const basket = menu.filter((item) => item.quantity > 0);
+    if (!basket.length) return;
+
+    const sold = basket.map((item) => ({
+      product: item.product,
+      name: item.product,
+      qty: item.quantity,
+      unitPrice: item.price,
+    }));
+
+    setSubmitting(true);
+    setMenu((prev) => prev.map((item) => ({ ...item, quantity: 0 })));
+
     try {
       const response = await fetch("api/update-quantity", {
         method: "POST",
@@ -165,15 +182,6 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
         const { error } = await response.json();
         throw new Error(error || "Failed to submit order");
       }
-
-      const sold = menu
-        .filter((item) => item.quantity > 0)
-        .map((item) => ({
-          product: item.product,
-          name: item.product,
-          qty: item.quantity,
-          unitPrice: item.price,
-        }));
 
       setIsToastActive(true);
       toast("oOoOoOOrder quantities updated!", {
@@ -203,15 +211,15 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
         position: "top-center",
         duration: Infinity,
       });
-      setMenu((prevMenu) => prevMenu.map((item) => ({ ...item, quantity: 0 })));
     } catch (error) {
       console.error("Submit error:", error);
       setIsToastActive(true);
       toast.error("Failed to submit order. Please try again.", {
         position: "top-center",
         duration: 5000,
-        onAutoClose: () => setIsToastActive(false),
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -230,8 +238,9 @@ export function AdminTable({ initial }: { initial?: MenuItem[] }) {
             variant="destructive"
             className="rounded-full p-8 px-30 cursor-pointer"
             onClick={handleSubmit}
+            disabled={submitting}
           >
-            <span className="md:block text-center">Submit</span>
+            {submitting ? "Sending…" : "Submit"}
           </Button>
         </TableCaption>
         <TableHeader>
