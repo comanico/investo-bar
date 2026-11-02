@@ -5,21 +5,25 @@ import { NextResponse } from "next/server";
 export async function POST() {
   const [open, sold] = await Promise.all([
     prismadb.order.aggregate({ _max: { ticketId: true } }),
-    prismadb.sales.aggregate({ _max: { ticketId: true } }),
+    prismadb.sales.aggregate({
+      where: { ticketId: { not: null } },
+      _max: { ticketId: true },
+    }),
   ]);
 
-  const next = Math.max(
-    Number(open._max.ticketId) || 0,
-    Number(sold._max.ticketId) || 0,
-  );
+  const next =
+    Math.max(Number(open._max.ticketId) || 0, Number(sold._max.ticketId) || 0) +
+    1;
 
   for (let i = 0; i < 20; i++) {
     const ticketId = String(next + i);
-    const taken = await prismadb.order.findFirst({
-      where: { ticketId, status: "pending" },
-      select: { id: true },
-    });
-    if (!taken) return NextResponse.json({ ticketId });
+
+    const [takenOpen, takenSold] = await Promise.all([
+      prismadb.order.findFirst({ where: { ticketId }, select: { id: true } }),
+      prismadb.sales.findFirst({ where: { ticketId }, select: { id: true } }),
+    ]);
+
+    if (!takenOpen && !takenSold) return NextResponse.json({ ticketId });
   }
   return NextResponse.json({ error: "No ticket number" }, { status: 503 });
 }
