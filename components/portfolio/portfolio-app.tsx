@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Beer, Wine, CupSoda, Martini, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Book } from "@/lib/types";
+import { Book, Position } from "@/lib/types";
 import Counter from "@/components/ui/counter";
 import { getPricePlaces, getDiffPlaces } from "@/actions/getPlaces";
 
@@ -44,6 +44,23 @@ export function PortfolioApp({
   const ret = book?.ret ?? 0;
   const up = ret > 0;
   const down = ret < 0;
+
+  const sell = async (line: Position) => {
+    const mark = line.qty ? line.value / line.qty : 0;
+    const ask = Math.max(1, Math.round((mark - 1) * 100) / 100);
+
+    await fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token,
+        product: line.product,
+        price: ask,
+        qty: 1,
+        side: "sell",
+      }),
+    });
+  };
 
   return (
     <div className="relative min-h-screen bg-background px-4 py-10 text-white">
@@ -163,6 +180,13 @@ export function PortfolioApp({
                     <span>%</span>
                   </p>{" "}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => sell(line)}
+                  className="shrink-0 rounded-2xl bg-amber-400/20 px-3 py-2 text-xs font-bold text-amber-100"
+                >
+                  Sell
+                </button>
               </article>
             );
           })}

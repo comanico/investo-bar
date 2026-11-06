@@ -7,10 +7,19 @@ export async function POST(req: Request) {
   try {
     const text = await req.text();
     if (!text) {
-        return NextResponse.json({ error: "Empty body" }, { status: 400 });
-      }
-    const body = JSON.parse(text)
-    const { token, product, type, price, qty = 1, ticketId } = body;
+      return NextResponse.json({ error: "Empty body" }, { status: 400 });
+    }
+    const body = JSON.parse(text);
+    const {
+      token,
+      product,
+      type,
+      price,
+      qty = 1,
+      ticketId,
+      side = "buy",
+    } = body;
+    const isSell = side === "sell";
 
     if (!token || !product || typeof price !== "number") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -32,7 +41,8 @@ export async function POST(req: Request) {
         type: type ?? "Unknown",
         price,
         qty: Number(qty) || 1,
-        status: "pending",
+        side: isSell ? "sell" : "buy",
+        status: isSell ? "listed" : "pending",
       },
       include: { placement: true },
     });
@@ -44,7 +54,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ order }, { status: 201 });
   } catch (e) {
     console.error("POST /api/orders", e);
-    return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create order" },
+      { status: 500 },
+    );
   }
 }
 
@@ -71,6 +84,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ orders });
   } catch (e) {
     console.error("GET /api/orders", e);
-    return NextResponse.json({ error: "Failed to load orders" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to load orders" },
+      { status: 500 },
+    );
   }
 }

@@ -73,17 +73,19 @@ model Placement {
 }
 
 model Order {
-  id          String    @id @default(cuid())
-  ticketId    String?
-  placementId String
-  placement   Placement @relation(fields: [placementId], references: [id])
-  product     String
-  type        String
-  price       Float
-  qty         Int       @default(1)
-  status      String    @default("pending")
-  createdAt   DateTime  @default(now())
-  confirmedAt DateTime?
+  id                    String    @id @default(cuid())
+  ticketId              String?
+  placementId           String
+  placement             Placement @relation(fields: [placementId], references: [id])
+  product               String
+  type                  String
+  price                 Float
+  qty                   Int       @default(1)
+  side                  String    @default("buy")
+  buyerPlacementId      String?
+  status                String    @default("pending")
+  createdAt             DateTime  @default(now())
+  confirmedAt           DateTime?
 
   @@index([ticketId])
   @@index([status, createdAt])
