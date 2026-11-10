@@ -6,7 +6,13 @@ import { Beer, Wine, CupSoda, Martini, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Book, Position } from "@/lib/types";
 import Counter from "@/components/ui/counter";
+import { TicketScreen } from "@/components/ticket/ticket-screen";
 import { getPricePlaces, getDiffPlaces } from "@/actions/getPlaces";
+
+type OpenTicket = {
+  id: string;
+  orders: { product: string; qty: number; price: number; side?: string }[];
+};
 
 const ICONS: Record<string, LucideIcon> = {
   Bere: Beer,
@@ -23,6 +29,8 @@ export function PortfolioApp({
   label: string;
 }) {
   const [book, setBook] = useState<Book | null>(null);
+  const [ticket, setTicket] = useState<OpenTicket | null>(null);
+  const [sellQty, setSellQty] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const load = async () => {
@@ -41,26 +49,88 @@ export function PortfolioApp({
     return () => clearInterval(id);
   }, [token]);
 
+  useEffect(() => {
+    let alive = true;
+
+    const load = async () => {
+      const res = await fetch(`/api/ticket?token=${token}`);
+      const data = await res.json().catch(() => ({}));
+      if (!alive) return;
+      if (
+        data.exchange &&
+        data.ticketId &&
+        Array.isArray(data.orders) &&
+        data.orders.length
+      ) {
+        setTicket({ id: data.ticketId, orders: data.orders });
+      } else {
+        setTicket(null);
+      }
+    };
+
+    void load();
+    const id = setInterval(() => void load(), 3000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [token]);
+
   const ret = book?.ret ?? 0;
   const up = ret > 0;
   const down = ret < 0;
 
+  const available = (line: Position) =>
+    Math.max(0, line.qty - (line.listed ?? 0));
+
+  const chosen = (line: Position) => {
+    const max = available(line);
+    if (max < 1) return 0;
+    return Math.min(max, Math.max(1, sellQty[line.product] ?? 1));
+  };
+
+  const setChosen = (line: Position, next: number) => {
+    const max = available(line);
+    setSellQty((cur) => ({
+      ...cur,
+      [line.product]: Math.min(max, Math.max(1, next)),
+    }));
+  };
+
   const sell = async (line: Position) => {
+    const qty = chosen(line);
+    if (qty < 1) return;
     const mark = line.qty ? line.value / line.qty : 0;
     const ask = Math.max(1, Math.round((mark - 1) * 100) / 100);
 
-    await fetch("/api/orders", {
+    const res = await fetch("/api/orders", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token,
         product: line.product,
         price: ask,
-        qty: 1,
+        qty,
         side: "sell",
       }),
     });
+    if (!res.ok) return;
+    setSellQty((cur) => ({ ...cur, [line.product]: 1 }));
+    const bookRes = await fetch(`/api/portfolio?token=${token}`);
+    if (bookRes.ok) setBook(await bookRes.json());
   };
+
+  if (ticket) {
+    return (
+      <TicketScreen
+        open
+        label={label}
+        ticketId={ticket.id}
+        orders={ticket.orders}
+        caption="Come to the bar to exchange"
+      />
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-background px-4 py-10 text-white">
@@ -180,17 +250,48 @@ export function PortfolioApp({
                     <span>%</span>
                   </p>{" "}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => sell(line)}
-                  className="shrink-0 rounded-2xl bg-amber-400/20 px-3 py-2 text-xs font-bold text-amber-100"
-                >
-                  Sell
-                </button>
+                {available(line) > 0 ? (
+                  <div className="flex shrink-0 flex-col items-end gap-2">
+                    {available(line) > 1 && (
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setChosen(line, chosen(line) - 1)}
+                          disabled={chosen(line) <= 1}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15 text-sm font-bold disabled:opacity-30"
+                        >
+                          −
+                        </button>
+                        <span className="w-6 text-center text-sm font-bold tabular-nums">
+                          {chosen(line)}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setChosen(line, chosen(line) + 1)}
+                          disabled={chosen(line) >= available(line)}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/15 text-sm font-bold disabled:opacity-30"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => sell(line)}
+                      className="shrink-0 rounded-2xl bg-white/15 px-4 py-2.5 text-sm font-bold text-white active:scale-95"
+                    >
+                      Sell{chosen(line) > 1 ? ` ${chosen(line)}` : ""}
+                    </button>
+                  </div>
+                ) : (
+                  <span className="shrink-0 rounded-2xl bg-white/15 px-4 py-2.5 text-sm font-bold text-amber-50">
+                    Listed
+                  </span>
+                )}
               </article>
             );
           })}
-          {book && book.positions.length === 0 && (
+          {book && book.positions.length === 0 && book.cost === 0 && (
             <p className="py-10 text-center text-sm text-white/40">
               No confirmed drinks yet
             </p>

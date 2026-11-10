@@ -72,7 +72,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
       toast.error(data.error || "Confirm failed", { duration: 5000 });
       return;
     }
-    if (data.fiscal?.ok === false) {
+    if (data.exchange) {
+      toast.success("Exchange confirmed", { duration: 5000 });
+    } else if (data.fiscal?.ok === false) {
       toast.error(data.fiscal?.error || "Bon not printed", { duration: 5000 });
     } else {
       toast.success(`Bon ${data.fiscal?.pi?.unp || "printed"}`, {
@@ -108,7 +110,12 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
         {orders.map((o) => (
           <li
             key={o.id}
-            className="rounded-2xl border border-border bg-card p-4 shadow-sm"
+            className={cn(
+              "rounded-2xl border p-4 shadow-sm",
+              o.side === "sell"
+                ? "border-red-400/40 bg-red-600/30"
+                : "border-emerald-400/40 bg-emerald-600/30",
+            )}
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -124,6 +131,10 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                 </p>
                 <p className="text-sm">
                   {o.product} · {o.qty ?? 1}×
+                </p>
+                <p className="mt-0.5 text-xs font-bold uppercase tracking-wide">
+                  {o.side === "sell" ? "Sell" : "Buy"}
+                  {o.buyerLabel ? ` · ${o.buyerLabel}` : ""}
                 </p>
                 <p className="tabular-nums">
                   {((o.qty ?? 1) * Number(o.price)).toFixed(2)} RON
@@ -141,13 +152,24 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
 
             {o.status === "pending" && (
               <div className="mt-4 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => confirm(o.id)}
-                  className="min-h-11 flex-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-bold text-primary-foreground"
-                >
-                  Confirm
-                </button>
+                {o.side === "sell" && !o.buyerPlacementId ? (
+                  <button
+                    type="button"
+                    disabled
+                    title="Waiting for a buyer"
+                    className="min-h-11 flex-1 cursor-not-allowed rounded-xl border border-dashed border-white/25 bg-white/5 px-3 py-2.5 text-sm font-bold text-white/35 line-through"
+                  >
+                    Confirm
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => confirm(o.id)}
+                    className="min-h-11 flex-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-bold text-primary-foreground"
+                  >
+                    Confirm
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => cancel(o.id)}
@@ -171,6 +193,8 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
             <th className="px-4 py-3">#</th>
             <th className="px-4 py-3">Placement</th>
             <th className="px-4 py-3">Product</th>
+            <th className="px-4 py-3">Side</th>
+            <th className="px-4 py-3">Buyer</th>
             <th className="px-4 py-3">Qty</th>
             <th className="px-4 py-3">Price</th>
             <th className="px-4 py-3">Total</th>
@@ -183,7 +207,10 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
           {orders.map((o) => (
             <tr
               key={o.id}
-              className="border-b border-white/5 text-white/90 last:border-0"
+              className={cn(
+                "border-b border-white/5 text-white/90 last:border-0",
+                o.side === "sell" ? "bg-red-600/30" : "bg-emerald-600/30",
+              )}
             >
               <td className="px-4 py-3 tabular-nums text-white/50">
                 {o.ticketId ?? "–"}
@@ -192,6 +219,12 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
               <td className="px-4 py-3">
                 {o.product}
                 {o.qty > 1 ? ` ×${o.qty}` : ""}
+              </td>
+              <td className="px-4 py-3 text-xs font-bold uppercase tracking-wide">
+                {o.side === "sell" ? "Sell" : "Buy"}
+              </td>
+              <td className="px-4 py-3 font-medium">
+                {o.buyerLabel ?? "–"}
               </td>
               <td className="px-4 py-3 tabular-nums">
                 {o.price.toFixed(2)} RON
@@ -221,15 +254,25 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                 </span>
               </td>
               <td className="px-4 py-3 text-right">
-                {o.status === "pending" && (
-                  <button
-                    type="button"
-                    onClick={() => confirm(o.id)}
-                    className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25"
-                  >
-                    Confirm
-                  </button>
-                )}
+                {o.status === "pending" &&
+                  (o.side === "sell" && !o.buyerPlacementId ? (
+                    <button
+                      type="button"
+                      disabled
+                      title="Waiting for a buyer"
+                      className="cursor-not-allowed rounded-xl border border-dashed border-white/25 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/35 line-through"
+                    >
+                      Confirm
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => confirm(o.id)}
+                      className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25"
+                    >
+                      Confirm
+                    </button>
+                  ))}
                 {o.status === "pending" && (
                   <button
                     type="button"

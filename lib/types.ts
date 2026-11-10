@@ -54,6 +54,9 @@ export type OrderRow = {
   product: string;
   price: number;
   qty: number;
+  side: string;
+  buyerPlacementId?: string | null;
+  buyerLabel?: string | null;
   status: string;
   createdAt: string;
   placement: { label: string; kind: string };
@@ -97,16 +100,28 @@ export type BoardOrder = {
   ticketId: number;
 };
 
+export type MenuListing = {
+  id: string;
+  product: string;
+  qty: number;
+  placementId: string;
+  seller: string;
+};
+
 export type CartLine = {
   product: string;
   type: string;
   price: number;
   qty: number;
+  listingId?: string;
+  seller?: string;
+  maxQty?: number;
 };
 
 export type Position = {
   product: string;
   qty: number;
+  listed: number;
   cost: number;
   value: number;
   pnl: number;

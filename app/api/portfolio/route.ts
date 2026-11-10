@@ -35,13 +35,28 @@ export async function GET(req: Request) {
   const next = new Date(sessionDate);
   next.setUTCDate(next.getUTCDate() + 1);
 
-  const [lots, series] = await Promise.all([
+  const [lots, sells, closes, series] = await Promise.all([
     prismadb.portfolioLot.findMany({
       where: {
         placementId: placement.id,
         sessionDate: { gte: sessionDate, lt: next },
       },
       select: { product: true, qty: true, unitPrice: true },
+    }),
+    prismadb.order.findMany({
+      where: {
+        placementId: placement.id,
+        side: "sell",
+        status: "pending",
+      },
+      select: { product: true, qty: true },
+    }),
+    prismadb.portfolioClose.findMany({
+      where: {
+        placementId: placement.id,
+        sessionDate: { gte: sessionDate, lt: next },
+      },
+      select: { cost: true, proceeds: true },
     }),
     fetchLivePrices(),
   ]);
@@ -64,12 +79,21 @@ export async function GET(req: Request) {
     byProduct.set(lot.product, cur);
   }
 
+  const listedByProduct = new Map<string, number>();
+  for (const sell of sells) {
+    listedByProduct.set(
+      sell.product,
+      (listedByProduct.get(sell.product) ?? 0) + (sell.qty > 0 ? sell.qty : 1),
+    );
+  }
+
   const positions = [...byProduct.entries()].map(([product, p]) => {
     const pnl = p.value - p.cost;
     const ret = p.cost === 0 ? 0 : pnl / p.cost;
     return {
       product,
       qty: p.qty,
+      listed: Math.min(p.qty, listedByProduct.get(product) ?? 0),
       cost: round2(p.cost),
       value: round2(p.value),
       pnl: round2(pnl),
@@ -79,8 +103,12 @@ export async function GET(req: Request) {
 
   positions.sort((a, b) => b.pnl - a.pnl);
 
-  const cost = round2(positions.reduce((n, p) => n + p.cost, 0));
-  const value = round2(positions.reduce((n, p) => n + p.value, 0));
+  const openCost = positions.reduce((n, p) => n + p.cost, 0);
+  const openValue = positions.reduce((n, p) => n + p.value, 0);
+  const closedCost = closes.reduce((n, row) => n + Number(row.cost), 0);
+  const closedProceeds = closes.reduce((n, row) => n + Number(row.proceeds), 0);
+  const cost = round2(openCost + closedCost);
+  const value = round2(openValue + closedProceeds);
   const pnl = round2(value - cost);
 
   return NextResponse.json({

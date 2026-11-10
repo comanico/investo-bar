@@ -20,7 +20,34 @@ export async function POST(_req: Request, { params }: Params) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    await prismadb.order.delete({ where: { id } });
+    await prismadb.$transaction(async (tx) => {
+      if (existing.side === "sell" && existing.buyerPlacementId) {
+        await tx.order.deleteMany({
+          where: {
+            side: "buy",
+            status: "pending",
+            product: existing.product,
+            placementId: existing.buyerPlacementId,
+            buyerPlacementId: existing.placementId,
+          },
+        });
+      }
+
+      if (existing.side === "buy" && existing.buyerPlacementId) {
+        await tx.order.updateMany({
+          where: {
+            side: "sell",
+            status: "pending",
+            product: existing.product,
+            placementId: existing.buyerPlacementId,
+            buyerPlacementId: existing.placementId,
+          },
+          data: { buyerPlacementId: null, ticketId: null },
+        });
+      }
+
+      await tx.order.delete({ where: { id: existing.id } });
+    });
 
     return NextResponse.json({ ok: true });
   } catch (e) {

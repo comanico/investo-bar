@@ -108,3 +108,18 @@ model PortfolioLot {
   @@index([product])
   @@map("portfoliolot")
 }
+
+model PortfolioClose {
+  id             String   @id @default(cuid())
+  placementId    String
+  placementLabel String
+  product        String
+  qty            Int
+  cost           Decimal  @db.Decimal(10, 2)
+  proceeds       Decimal  @db.Decimal(10, 2)
+  sessionDate    DateTime @db.Date
+  createdAt      DateTime @default(now())
+
+  @@index([placementId, sessionDate])
+  @@map("portfolioclose")
+}

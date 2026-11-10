@@ -23,7 +23,11 @@ export function lastSnapshot(
     return last as Record<string, unknown>;
 }
 
-export function buildLeaderboard(lots: PortfolioLotRow[], snapshot: Record<string, unknown> | null): LeaderboardRow[] {
+export function buildLeaderboard(
+    lots: PortfolioLotRow[],
+    snapshot: Record<string, unknown> | null,
+    closes: { placementId: string; placementLabel: string; cost: number; proceeds: number }[] = [],
+): LeaderboardRow[] {
 
     type Acc = {
         placementId: string;
@@ -55,6 +59,19 @@ export function buildLeaderboard(lots: PortfolioLotRow[], snapshot: Record<strin
         byTable.set(lot.placementId, cur)
     }
 
+    for (const close of closes) {
+        const cur = byTable.get(close.placementId) ?? {
+            placementId: close.placementId,
+            label: close.placementLabel,
+            cost: 0,
+            value: 0,
+            qty: 0,
+        };
+        cur.cost += close.cost;
+        cur.value += close.proceeds;
+        byTable.set(close.placementId, cur);
+    }
+
     const rows: LeaderboardRow[] = [...byTable.values()].map((t) => {
         const pnl = t.value - t.cost;
         const ret = t.cost === 0 ? 0 : pnl / t.cost;
@@ -63,7 +80,7 @@ export function buildLeaderboard(lots: PortfolioLotRow[], snapshot: Record<strin
             placementId: t.placementId,
             label: t.label,
             cost: round2(t.cost),
-            value: round2(t.cost),
+            value: round2(t.value),
             pnl: round2(pnl),
             ret: Math.round(ret * 1000) / 1000,
             qty: t.qty

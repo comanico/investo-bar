@@ -1,9 +1,47 @@
 import prismadb from "@/lib/prismadb";
 import { incrementProductQuantity } from "@/lib/product-stock-map";
-import { sessionDateBucharest } from "@/lib/session-date";
+import { sessionDateBucharest, sessionWindow } from "@/lib/session-date";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { printFiscalReceipt } from "@/lib/fiscal-pi";
+import type { Prisma } from "@prisma/client";
+
+async function consumeLots(
+  tx: Prisma.TransactionClient,
+  placementId: string,
+  product: string,
+  qty: number,
+) {
+  const session = sessionWindow();
+  const lots = await tx.portfolioLot.findMany({
+    where: {
+      placementId,
+      product,
+      sessionDate: { gte: session.gte, lt: session.lt },
+    },
+    orderBy: { createdAt: "asc" },
+  });
+  let left = qty;
+  let basis = 0;
+  for (const lot of lots) {
+    if (left <= 0) break;
+    const have = lot.qty > 0 ? lot.qty : 1;
+    const unit = Number(lot.unitPrice);
+    if (have <= left) {
+      basis += unit * have;
+      await tx.portfolioLot.delete({ where: { id: lot.id } });
+      left -= have;
+    } else {
+      basis += unit * left;
+      await tx.portfolioLot.update({
+        where: { id: lot.id },
+        data: { qty: have - left },
+      });
+      left = 0;
+    }
+  }
+  return Math.round(basis * 100) / 100;
+}
 
 export async function POST(_req: Request, context: { params: Promise<{ id: string }> }) {
   try {
@@ -23,6 +61,61 @@ export async function POST(_req: Request, context: { params: Promise<{ id: strin
 
     if (!order || order.status !== "pending") {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    if (order.side === "sell" && !order.buyerPlacementId) {
+      return NextResponse.json({ error: "Waiting for a buyer" }, { status: 409 });
+    }
+
+    if (order.side === "sell" && order.buyerPlacementId) {
+      const buyer = await prismadb.placement.findUnique({
+        where: { id: order.buyerPlacementId },
+      });
+      if (!buyer) {
+        return NextResponse.json({ error: "Buyer missing" }, { status: 409 });
+      }
+
+      await prismadb.$transaction(async (tx) => {
+        const basis = await consumeLots(
+          tx,
+          order.placementId,
+          order.product,
+          order.qty,
+        );
+        await tx.portfolioClose.create({
+          data: {
+            placementId: order.placementId,
+            placementLabel: order.placement.label,
+            product: order.product,
+            qty: order.qty,
+            cost: basis,
+            proceeds: Math.round(order.price * order.qty * 100) / 100,
+            sessionDate: sessionDateBucharest(new Date()),
+          },
+        });
+        await tx.portfolioLot.create({
+          data: {
+            placementId: buyer.id,
+            placementLabel: buyer.label,
+            product: order.product,
+            qty: order.qty,
+            unitPrice: order.price,
+            sessionDate: sessionDateBucharest(new Date()),
+          },
+        });
+        await tx.order.deleteMany({
+          where: {
+            side: "buy",
+            status: "pending",
+            product: order.product,
+            placementId: buyer.id,
+            buyerPlacementId: order.placementId,
+          },
+        });
+        await tx.order.delete({ where: { id: order.id } });
+      });
+
+      return NextResponse.json({ ok: true, exchange: true });
     }
 
     await prismadb.$transaction(async (tx) => {

@@ -3,12 +3,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { HeatmenuHeader } from "./heatmenu-header";
 import { HeatmenuGrid } from "./heatmenu-grid";
-import { HeatmenuItem, MenuDataPoint, CartLine } from "@/lib/types";
+import { HeatmenuItem, MenuDataPoint, CartLine, MenuListing } from "@/lib/types";
 import { buildItems } from "@/lib/buildItems";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HeatmenuCard } from "./heatmenu-card";
+import { HeatmenuListing } from "./heatmenu-listing";
 import { HeatmenuOrderRegistry } from "./heatmenu-registry";
+import { TicketScreen } from "@/components/ticket/ticket-screen";
 import { visibleSeries } from "@/lib/visible-series";
+
+type OpenTicket = {
+  id: string;
+  orders: { product: string; qty: number; price: number; side?: string }[];
+  exchange?: boolean;
+};
 
 type Props = {
   /** Set when opened from /t/[token] */
@@ -25,11 +33,9 @@ export function HeatmenuApp({ placement }: Props = {}) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [ticket, setTicket] = useState<{
-    id: string;
-    orders: { product: string; qty: number; price: number }[];
-  } | null>(null);
-  const [shown, setShown] = useState(ticket);
+  const [ticket, setTicket] = useState<OpenTicket | null>(null);
+  const [shown, setShown] = useState<OpenTicket | null>(ticket);
+  const [listings, setListings] = useState<MenuListing[]>([]);
 
   const handleBuy = (item: HeatmenuItem) => {
     if (!placement) return;
@@ -86,7 +92,11 @@ export function HeatmenuApp({ placement }: Props = {}) {
       const data = await res.json();
       if (!alive) return;
       if (data.ticketId && Array.isArray(data.orders) && data.orders.length) {
-        setTicket({ id: data.ticketId, orders: data.orders });
+        setTicket({
+          id: data.ticketId,
+          orders: data.orders,
+          exchange: Boolean(data.exchange),
+        });
       } else if (data.resolved) {
         setTicket(null);
       }
@@ -99,6 +109,69 @@ export function HeatmenuApp({ placement }: Props = {}) {
       clearInterval(id);
     };
   }, [showBuy, placement?.token]);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    let alive = true;
+
+    const load = async () => {
+      const res = await fetch("/api/orders/listings");
+      if (!res.ok || !alive) return;
+      const data = await res.json();
+      if (!alive) return;
+      const live: MenuListing[] = Array.isArray(data.listings) ? data.listings : [];
+      setListings(live);
+      setCart((cur) =>
+        cur.flatMap((line) => {
+          if (!line.listingId) return [line];
+          const offer = live.find((item) => item.id === line.listingId);
+          if (!offer) return [];
+          const qty = Math.min(line.qty, offer.qty);
+          if (qty < 1) return [];
+          return [{ ...line, qty, maxQty: offer.qty, seller: offer.seller }];
+        }),
+      );
+    };
+
+    void load();
+    const id = setInterval(() => void load(), 3000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [isMobile]);
+
+  const addListing = (listing: MenuListing) => {
+    if (!placement || listing.placementId === placement.id) return;
+    const market = items.find((item) => item.product === listing.product);
+    setCart((cur) => {
+      const i = cur.findIndex((line) => line.listingId === listing.id);
+      if (i >= 0) {
+        const next = [...cur];
+        next[i] = {
+          ...next[i],
+          qty: Math.min(listing.qty, next[i].qty + 1),
+          maxQty: listing.qty,
+          price: market?.price ?? next[i].price,
+        };
+        return next;
+      }
+      return [
+        ...cur,
+        {
+          product: listing.product,
+          type: market?.type ?? "Bere",
+          price: market?.price ?? 0,
+          qty: 1,
+          listingId: listing.id,
+          seller: listing.seller,
+          maxQty: listing.qty,
+        },
+      ];
+    });
+  };
+
+  const lineKey = (line: CartLine) => line.listingId ?? `bar:${line.product}`;
 
   useEffect(() => {
     void fetchPrices();
@@ -122,42 +195,68 @@ export function HeatmenuApp({ placement }: Props = {}) {
     if (!placement || cart.length === 0 || submitting) return;
     setSubmitting(true);
 
-    const minted = await fetch("/api/ticket", { method: "POST" });
-    const { ticketId } = await minted.json();
-    if (!minted.ok || !ticketId) return;
+    const offers = cart.filter((line) => line.listingId);
+    const barLines = cart.filter((line) => !line.listingId);
 
     try {
-      for (const line of cart) {
-        const res = await fetch("/api/orders", {
+      let exchange: OpenTicket | null = null;
+      for (const line of offers) {
+        const res = await fetch(`/api/orders/listings/${line.listingId}/buy`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            token: placement.token,
-            ticketId,
-            product: line.product,
-            type: line.type,
-            price: line.price,
-            qty: line.qty,
-          }),
+          body: JSON.stringify({ token: placement.token, qty: line.qty }),
         });
-        if (!res.ok) return;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ticketId) return;
+        exchange = {
+          id: data.ticketId,
+          orders: data.orders ?? [],
+          exchange: true,
+        };
       }
 
-      await fetch("/api/ticket/claim", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: placement.token, ticketId }),
-      });
+      if (barLines.length > 0) {
+        const minted = await fetch("/api/ticket", { method: "POST" });
+        const { ticketId } = await minted.json();
+        if (!minted.ok || !ticketId) return;
 
-      setTicket({
-        id: ticketId,
-        orders: cart.map((l) => ({
-          product: l.product,
-          qty: l.qty,
-          price: l.price,
-        })),
-      });
+        for (const line of barLines) {
+          const res = await fetch("/api/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              token: placement.token,
+              ticketId,
+              product: line.product,
+              type: line.type,
+              price: line.price,
+              qty: line.qty,
+            }),
+          });
+          if (!res.ok) return;
+        }
+
+        await fetch("/api/ticket/claim", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: placement.token, ticketId }),
+        });
+
+        if (!exchange) {
+          exchange = {
+            id: ticketId,
+            orders: barLines.map((line) => ({
+              product: line.product,
+              qty: line.qty,
+              price: line.price,
+              side: "buy",
+            })),
+          };
+        }
+      }
+
+      if (exchange) setTicket(exchange);
       setCart([]);
       setCartOpen(false);
     } finally {
@@ -165,68 +264,36 @@ export function HeatmenuApp({ placement }: Props = {}) {
     }
   };
 
-  const bump = (product: string, delta: number) => {
+  const bump = (key: string, delta: number) => {
     setCart((cur) =>
       cur
-        .map((l) => (l.product === product ? { ...l, qty: l.qty + delta } : l))
-        .filter((l) => l.qty > 0),
+        .map((line) => {
+          if (lineKey(line) !== key) return line;
+          const max = line.maxQty ?? Number.POSITIVE_INFINITY;
+          return { ...line, qty: Math.min(max, line.qty + delta) };
+        })
+        .filter((line) => line.qty > 0),
     );
   };
 
-  const remove = (product: string) => {
-    setCart((cur) => cur.filter((l) => l.product !== product));
+  const remove = (key: string) => {
+    setCart((cur) => cur.filter((line) => lineKey(line) !== key));
   };
 
   if (shown) {
-    const open = Boolean(ticket);
-    const total = shown.orders.reduce((n, l) => n + l.qty * l.price, 0);
+    const exchanging =
+      Boolean(shown.exchange) || shown.orders.some((line) => line.side === "sell");
 
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-black px-6">
-        <img
-          src="/InvestoBar.svg"
-          alt="InvestoBar"
-          className={[
-            "mb-8 h-24 w-auto transition-opacity duration-500",
-            open ? "opacity-90" : "opacity-0",
-          ].join(" ")}
-        />
-        <article
-          className={[
-            "w-full max-w-sm rounded-3xl border border-white/20 bg-[#2E8B57]/80 p-6 text-white shadow-[0_0_28px_rgba(60,179,113,0.45)] backdrop-blur-xl",
-            "transition-all duration-1000 ease-out",
-            open ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0",
-          ].join(" ")}
-        >
-          <p className="text-center text-sm text-white/70">
-            {placement?.label}
-          </p>
-          <h1 className="mt-1 text-center text-4xl font-extrabold">
-            Ticket {shown.id}
-          </h1>
-          <ul className="mt-6 space-y-3">
-            {shown.orders.map((l) => (
-              <li
-                key={l.product}
-                className="flex items-center justify-between rounded-2xl border border-white/15 bg-white/10 px-4 py-3"
-              >
-                <span className="font-semibold">
-                  {l.qty} × {l.product}
-                </span>
-                <span className="tabular-nums">
-                  {(l.qty * l.price).toFixed(2)}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-6 text-center text-2xl font-bold">
-            {total.toFixed(2)} RON
-          </p>
-          <p className="mt-2 text-center text-sm text-white/70">
-            Waiting for the bar
-          </p>
-        </article>
-      </div>
+      <TicketScreen
+        open={Boolean(ticket)}
+        label={placement?.label}
+        ticketId={shown.id}
+        orders={shown.orders}
+        caption={
+          exchanging ? "Come to the bar to exchange" : "Waiting for the bar"
+        }
+      />
     );
   }
 
@@ -248,6 +315,16 @@ export function HeatmenuApp({ placement }: Props = {}) {
         />
         {isMobile ? (
           <main className="w-full flex-1 space-y-3 px-4 pb-10">
+            {listings.map((listing) => (
+              <HeatmenuListing
+                key={listing.id}
+                listing={listing}
+                market={items.find((item) => item.product === listing.product)}
+                own={listing.placementId === placement?.id}
+                canBuy={Boolean(placement)}
+                onBuy={() => addListing(listing)}
+              />
+            ))}
             {items.map((item) => (
               <HeatmenuCard
                 key={item.product}
@@ -280,17 +357,25 @@ export function HeatmenuApp({ placement }: Props = {}) {
                 </button>
 
                 <div className="min-h-0 flex-1 overflow-y-auto">
-                  {cart.map((line) => (
+                  {cart.map((line) => {
+                    const key = lineKey(line);
+                    const atMax = line.maxQty != null && line.qty >= line.maxQty;
+                    return (
                     <div
-                      key={line.product}
+                      key={key}
                       className="flex items-center gap-3 py-2"
                     >
                       <span className="flex-1 text-lg font-bold">
                         {line.product}
+                        {line.seller ? (
+                          <span className="mt-0.5 block text-xs font-medium text-amber-100">
+                            {line.seller}
+                          </span>
+                        ) : null}
                       </span>
                       <button
                         type="button"
-                        onClick={() => bump(line.product, -1)}
+                        onClick={() => bump(key, -1)}
                         className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-sm font-bold text-zinc-900"
                       >
                         −
@@ -298,8 +383,9 @@ export function HeatmenuApp({ placement }: Props = {}) {
                       <span>{line.qty}</span>
                       <button
                         type="button"
-                        onClick={() => bump(line.product, 1)}
-                        className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-sm font-bold text-zinc-900"
+                        onClick={() => bump(key, 1)}
+                        disabled={atMax}
+                        className="flex h-7 w-7 items-center justify-center rounded-md bg-white text-sm font-bold text-zinc-900 disabled:opacity-30"
                       >
                         +
                       </button>
@@ -308,13 +394,14 @@ export function HeatmenuApp({ placement }: Props = {}) {
                       </span>
                       <button
                         type="button"
-                        onClick={() => remove(line.product)}
+                        onClick={() => remove(key)}
                         className="flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-sm font-bold text-white"
                       >
                         ✕
                       </button>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 <button

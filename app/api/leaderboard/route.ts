@@ -12,7 +12,7 @@ export async function GET() {
     const next = new Date(sessionDate);
     next.setUTCDate(next.getUTCDate() + 1);
 
-    const [lots, series] = await Promise.all([
+    const [lots, closes, series] = await Promise.all([
       prismadb.portfolioLot.findMany({
         where: {
           sessionDate: { gte: sessionDate, lt: next },
@@ -25,6 +25,15 @@ export async function GET() {
           unitPrice: true
         },
       }),
+      prismadb.portfolioClose.findMany({
+        where: { sessionDate: { gte: sessionDate, lt: next } },
+        select: {
+          placementId: true,
+          placementLabel: true,
+          cost: true,
+          proceeds: true,
+        },
+      }),
       fetchLivePrices()
     ]);
 
@@ -35,6 +44,12 @@ export async function GET() {
         unitPrice: Number(l.unitPrice)
       })),
       snapshot,
+      closes.map((row) => ({
+        placementId: row.placementId,
+        placementLabel: row.placementLabel,
+        cost: Number(row.cost),
+        proceeds: Number(row.proceeds),
+      })),
     );
 
     return NextResponse.json({
