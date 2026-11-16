@@ -131,6 +131,8 @@ export type Position = {
 export type Book = {
   label: string;
   cost: number;
+  holdings: number;
+  cash: number;
   value: number;
   pnl: number;
   ret: number;

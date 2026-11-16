@@ -43,6 +43,49 @@ async function consumeLots(
   return Math.round(basis * 100) / 100;
 }
 
+async function settlePortfolioExit(
+  tx: Prisma.TransactionClient,
+  order: {
+    id: string;
+    placementId: string;
+    product: string;
+    type: string;
+    price: number;
+    qty: number;
+    ticketId: string | null;
+    placement: { label: string };
+  },
+) {
+  const basis = await consumeLots(
+    tx,
+    order.placementId,
+    order.product,
+    order.qty,
+  );
+  await tx.portfolioClose.create({
+    data: {
+      placementId: order.placementId,
+      placementLabel: order.placement.label,
+      product: order.product,
+      qty: order.qty,
+      cost: basis,
+      proceeds: Math.round(order.price * order.qty * 100) / 100,
+      sessionDate: sessionDateBucharest(new Date()),
+    },
+  });
+  await tx.sales.create({
+    data: {
+      product: order.product,
+      type: order.type,
+      price: order.price,
+      quantity: order.qty,
+      username: order.placement.label,
+      ticketId: order.ticketId,
+    },
+  });
+  await tx.order.delete({ where: { id: order.id } });
+}
+
 export async function POST(_req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth();
@@ -63,56 +106,30 @@ export async function POST(_req: Request, context: { params: Promise<{ id: strin
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
+    if (order.side === "cashin") {
+      await prismadb.$transaction(async (tx) => {
+        await settlePortfolioExit(tx, order);
+      });
+
+      return NextResponse.json({ ok: true, cashin: true });
+    }
+
     if (order.side === "sell" && !order.buyerPlacementId) {
       return NextResponse.json({ error: "Waiting for a buyer" }, { status: 409 });
     }
 
     if (order.side === "sell" && order.buyerPlacementId) {
-      const buyer = await prismadb.placement.findUnique({
-        where: { id: order.buyerPlacementId },
-      });
-      if (!buyer) {
-        return NextResponse.json({ error: "Buyer missing" }, { status: 409 });
-      }
-
       await prismadb.$transaction(async (tx) => {
-        const basis = await consumeLots(
-          tx,
-          order.placementId,
-          order.product,
-          order.qty,
-        );
-        await tx.portfolioClose.create({
-          data: {
-            placementId: order.placementId,
-            placementLabel: order.placement.label,
-            product: order.product,
-            qty: order.qty,
-            cost: basis,
-            proceeds: Math.round(order.price * order.qty * 100) / 100,
-            sessionDate: sessionDateBucharest(new Date()),
-          },
-        });
-        await tx.portfolioLot.create({
-          data: {
-            placementId: buyer.id,
-            placementLabel: buyer.label,
-            product: order.product,
-            qty: order.qty,
-            unitPrice: order.price,
-            sessionDate: sessionDateBucharest(new Date()),
-          },
-        });
         await tx.order.deleteMany({
           where: {
             side: "buy",
             status: "pending",
             product: order.product,
-            placementId: buyer.id,
+            placementId: order.buyerPlacementId ?? undefined,
             buyerPlacementId: order.placementId,
           },
         });
-        await tx.order.delete({ where: { id: order.id } });
+        await settlePortfolioExit(tx, order);
       });
 
       return NextResponse.json({ ok: true, exchange: true });

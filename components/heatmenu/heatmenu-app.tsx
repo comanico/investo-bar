@@ -282,7 +282,10 @@ export function HeatmenuApp({ placement }: Props = {}) {
 
   if (shown) {
     const exchanging =
-      Boolean(shown.exchange) || shown.orders.some((line) => line.side === "sell");
+      Boolean(shown.exchange) ||
+      shown.orders.some(
+        (line) => line.side === "sell" || line.side === "cashin",
+      );
 
     return (
       <TicketScreen
@@ -291,7 +294,11 @@ export function HeatmenuApp({ placement }: Props = {}) {
         ticketId={shown.id}
         orders={shown.orders}
         caption={
-          exchanging ? "Come to the bar to exchange" : "Waiting for the bar"
+          exchanging
+            ? shown.orders.some((line) => line.side === "cashin")
+              ? "Wait at the table, your drink is coming"
+              : "Come to the bar to exchange"
+            : "Waiting for the bar"
         }
       />
     );

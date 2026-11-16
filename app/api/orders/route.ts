@@ -1,4 +1,5 @@
 import { expireUnsoldListings } from "@/lib/expire-listings";
+import { mintTicketId } from "@/lib/mint-ticket";
 import { notifyNewOrder } from "@/lib/notify-new-order";
 import prismadb from "@/lib/prismadb";
 import { sessionWindow } from "@/lib/session-date";
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
       side = "buy",
     } = body;
     const isSell = side === "sell";
+    const isCashin = side === "cashin";
 
     if (!token || !product || typeof price !== "number") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -36,7 +38,7 @@ export async function POST(req: Request) {
     }
 
     const units = Math.max(1, Math.floor(Number(qty) || 1));
-    if (isSell) {
+    if (isSell || isCashin) {
       const session = sessionWindow();
       const [lots, listed] = await Promise.all([
         prismadb.portfolioLot.findMany({
@@ -51,7 +53,7 @@ export async function POST(req: Request) {
           where: {
             placementId: placement.id,
             product,
-            side: "sell",
+            side: { in: ["sell", "cashin"] },
             status: "pending",
           },
           _sum: { qty: true },
@@ -64,25 +66,67 @@ export async function POST(req: Request) {
       }
     }
 
+    let cashinTicket: string | null = null;
+    if (isCashin) {
+      cashinTicket = await mintTicketId();
+      if (!cashinTicket) {
+        return NextResponse.json({ error: "No ticket number" }, { status: 503 });
+      }
+    }
+
     const order = await prismadb.order.create({
       data: {
         placementId: placement.id,
-        ticketId: typeof ticketId === "string" ? ticketId : null,
+        ticketId: isCashin
+          ? cashinTicket
+          : typeof ticketId === "string"
+            ? ticketId
+            : null,
         product,
         type: type ?? "Unknown",
         price,
         qty: units,
-        side: isSell ? "sell" : "buy",
+        side: isCashin ? "cashin" : isSell ? "sell" : "buy",
         status: "pending",
       },
       include: { placement: true },
     });
 
     void notifyNewOrder(
-      `🆕 ${placement.label} ${isSell ? "sold" : "bought"} ${units}×\n${product} · ${Number(price).toFixed(2)} RON`,
+      `🆕 ${placement.label} ${isCashin ? "cashed in" : isSell ? "listed" : "bought"} ${units}×\n${product} · ${Number(price).toFixed(2)} RON`,
     );
 
-    return NextResponse.json({ order }, { status: 201 });
+    const res = NextResponse.json(
+      {
+        order,
+        ...(isCashin && cashinTicket
+          ? {
+              ticketId: cashinTicket,
+              cashin: true,
+              exchange: true,
+              orders: [
+                {
+                  product,
+                  qty: units,
+                  price,
+                  side: "cashin",
+                },
+              ],
+            }
+          : {}),
+      },
+      { status: 201 },
+    );
+    if (isCashin && cashinTicket) {
+      res.cookies.set(`ib_ticket_${token}`, cashinTicket, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: false,
+        path: "/",
+        maxAge: 6 * 60 * 60,
+      });
+    }
+    return res;
   } catch (e) {
     console.error("POST /api/orders", e);
     return NextResponse.json(

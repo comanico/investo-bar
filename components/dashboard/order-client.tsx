@@ -14,6 +14,22 @@ type Props = {
   status?: "pending" | "confirmed" | "all";
 };
 
+function sideLabel(side: string) {
+  if (side === "sell") return "Sell";
+  if (side === "cashin") return "Cash in";
+  return "Buy";
+}
+
+function isUnmatchedListing(order: OrderRow) {
+  return order.side === "sell" && !order.buyerPlacementId;
+}
+
+function sideTone(side: string) {
+  if (side === "sell") return "border-red-400/40 bg-red-600/30";
+  if (side === "cashin") return "border-amber-400/40 bg-amber-600/30";
+  return "border-emerald-400/40 bg-emerald-600/30";
+}
+
 export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
   const isMobile = useIsMobile();
   const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
@@ -72,7 +88,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
       toast.error(data.error || "Confirm failed", { duration: 5000 });
       return;
     }
-    if (data.exchange) {
+    if (data.cashin) {
+      toast.success("Cash in confirmed", { duration: 5000 });
+    } else if (data.exchange) {
       toast.success("Exchange confirmed", { duration: 5000 });
     } else if (data.fiscal?.ok === false) {
       toast.error(data.fiscal?.error || "Bon not printed", { duration: 5000 });
@@ -110,12 +128,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
         {orders.map((o) => (
           <li
             key={o.id}
-            className={cn(
-              "rounded-2xl border p-4 shadow-sm",
-              o.side === "sell"
-                ? "border-red-400/40 bg-red-600/30"
-                : "border-emerald-400/40 bg-emerald-600/30",
-            )}
+            className={cn("rounded-2xl border p-4 shadow-sm", sideTone(o.side))}
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -133,7 +146,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                   {o.product} · {o.qty ?? 1}×
                 </p>
                 <p className="mt-0.5 text-xs font-bold uppercase tracking-wide">
-                  {o.side === "sell" ? "Sell" : "Buy"}
+                  {sideLabel(o.side)}
                   {o.buyerLabel ? ` · ${o.buyerLabel}` : ""}
                 </p>
                 <p className="tabular-nums">
@@ -152,7 +165,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
 
             {o.status === "pending" && (
               <div className="mt-4 flex gap-2">
-                {o.side === "sell" && !o.buyerPlacementId ? (
+                {isUnmatchedListing(o) ? (
                   <button
                     type="button"
                     disabled
@@ -209,7 +222,11 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
               key={o.id}
               className={cn(
                 "border-b border-white/5 text-white/90 last:border-0",
-                o.side === "sell" ? "bg-red-600/30" : "bg-emerald-600/30",
+                o.side === "sell"
+                  ? "bg-red-600/30"
+                  : o.side === "cashin"
+                    ? "bg-amber-600/30"
+                    : "bg-emerald-600/30",
               )}
             >
               <td className="px-4 py-3 tabular-nums text-white/50">
@@ -221,7 +238,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                 {o.qty > 1 ? ` ×${o.qty}` : ""}
               </td>
               <td className="px-4 py-3 text-xs font-bold uppercase tracking-wide">
-                {o.side === "sell" ? "Sell" : "Buy"}
+                    {sideLabel(o.side)}
               </td>
               <td className="px-4 py-3 font-medium">
                 {o.buyerLabel ?? "–"}
@@ -255,7 +272,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
               </td>
               <td className="px-4 py-3 text-right">
                 {o.status === "pending" &&
-                  (o.side === "sell" && !o.buyerPlacementId ? (
+                  (isUnmatchedListing(o) ? (
                     <button
                       type="button"
                       disabled

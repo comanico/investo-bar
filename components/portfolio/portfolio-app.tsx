@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Beer, Wine, CupSoda, Martini, type LucideIcon } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Book, Position } from "@/lib/types";
 import Counter from "@/components/ui/counter";
@@ -31,23 +32,25 @@ export function PortfolioApp({
   const [book, setBook] = useState<Book | null>(null);
   const [ticket, setTicket] = useState<OpenTicket | null>(null);
   const [sellQty, setSellQty] = useState<Record<string, number>>({});
+  const [sellIntent, setSellIntent] = useState<Position | null>(null);
+  const hadTicket = useRef(false);
+
+  const loadBook = useCallback(async () => {
+    const res = await fetch(`/api/portfolio?token=${token}`);
+    if (!res.ok) return;
+    setBook(await res.json());
+  }, [token]);
 
   useEffect(() => {
-    const load = async () => {
-      const res = await fetch(`/api/portfolio?token=${token}`);
-      if (!res.ok) return;
-      setBook(await res.json());
-    };
-
-    void load();
+    void loadBook();
 
     const id = setInterval(() => {
       const minute = new Date().getMinutes();
-      if ([0, 15, 30, 45].includes(minute)) void load();
+      if ([0, 15, 30, 45].includes(minute)) void loadBook();
     }, 1000);
 
     return () => clearInterval(id);
-  }, [token]);
+  }, [loadBook]);
 
   useEffect(() => {
     let alive = true;
@@ -62,9 +65,14 @@ export function PortfolioApp({
         Array.isArray(data.orders) &&
         data.orders.length
       ) {
+        hadTicket.current = true;
         setTicket({ id: data.ticketId, orders: data.orders });
       } else {
         setTicket(null);
+        if (hadTicket.current || data.resolved) {
+          hadTicket.current = false;
+          void loadBook();
+        }
       }
     };
 
@@ -74,7 +82,7 @@ export function PortfolioApp({
       alive = false;
       clearInterval(id);
     };
-  }, [token]);
+  }, [token, loadBook]);
 
   const ret = book?.ret ?? 0;
   const up = ret > 0;
@@ -97,7 +105,7 @@ export function PortfolioApp({
     }));
   };
 
-  const sell = async (line: Position) => {
+  const sell = async (line: Position, side: "sell" | "cashin") => {
     const qty = chosen(line);
     if (qty < 1) return;
     const mark = line.qty ? line.value / line.qty : 0;
@@ -111,13 +119,39 @@ export function PortfolioApp({
         product: line.product,
         price: ask,
         qty,
-        side: "sell",
+        side,
       }),
     });
-    if (!res.ok) return;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      toast.error(data.error || "Could not complete sell", { duration: 4000 });
+      return;
+    }
     setSellQty((cur) => ({ ...cur, [line.product]: 1 }));
-    const bookRes = await fetch(`/api/portfolio?token=${token}`);
-    if (bookRes.ok) setBook(await bookRes.json());
+    if (side === "cashin" && data.ticketId) {
+      hadTicket.current = true;
+      setTicket({
+        id: data.ticketId,
+        orders: data.orders ?? [
+          { product: line.product, qty, price: ask, side: "cashin" },
+        ],
+      });
+    }
+    void loadBook();
+  };
+
+  const askSellIntent = (line: Position) => {
+    if (chosen(line) < 1) return;
+    setSellIntent(line);
+  };
+
+  const closeSellIntent = () => setSellIntent(null);
+
+  const confirmSellIntent = (side: "sell" | "cashin") => {
+    if (!sellIntent) return;
+    const line = sellIntent;
+    setSellIntent(null);
+    void sell(line, side);
   };
 
   if (ticket) {
@@ -127,7 +161,11 @@ export function PortfolioApp({
         label={label}
         ticketId={ticket.id}
         orders={ticket.orders}
-        caption="Come to the bar to exchange"
+        caption={
+          ticket.orders.some((line) => line.side === "cashin")
+            ? "Wait at the table, your drink is coming"
+            : "Come to the bar to exchange"
+        }
       />
     );
   }
@@ -142,6 +180,41 @@ export function PortfolioApp({
             "url('https://www.transparenttextures.com/patterns/stardust.png')",
         }}
       />
+      {sellIntent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-5"
+          onClick={closeSellIntent}
+        >
+          <div
+            className="w-full max-w-sm rounded-3xl border border-white/20 bg-zinc-950/95 p-5 text-white shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p className="text-lg font-bold">
+              Sell {chosen(sellIntent)}× {sellIntent.product}
+            </p>
+            <p className="mt-1 text-sm text-white/60">
+              Cash in to drink it from your portfolio, or list it for another
+              table.
+            </p>
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => confirmSellIntent("cashin")}
+                className="rounded-2xl bg-[#2E8B57] px-3 py-3.5 text-base font-bold text-white shadow-[0_0_18px_rgba(60,179,113,0.35)] active:scale-95"
+              >
+                Cash in
+              </button>
+              <button
+                type="button"
+                onClick={() => confirmSellIntent("sell")}
+                className="rounded-2xl bg-[#FF4500] px-3 py-3.5 text-base font-bold text-white active:scale-95"
+              >
+                List
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="relative z-10 mx-auto flex w-full max-w-md flex-col items-center">
         <Link
           href={`/t/${token}`}
@@ -183,8 +256,9 @@ export function PortfolioApp({
           %
         </p>
         <p className="text-sm text-white/50">
-          Cost {book?.cost.toFixed(2) ?? "0.00"} · Value{" "}
-          {book?.value.toFixed(2) ?? "0.00"}
+          Cost {book?.cost.toFixed(2) ?? "0.00"} · Holdings{" "}
+          {book?.holdings.toFixed(2) ?? "0.00"} · Cash{" "}
+          {book?.cash.toFixed(2) ?? "0.00"}
         </p>
 
         <div className="mt-8 w-full space-y-3">
@@ -277,7 +351,7 @@ export function PortfolioApp({
                     )}
                     <button
                       type="button"
-                      onClick={() => sell(line)}
+                      onClick={() => askSellIntent(line)}
                       className="shrink-0 rounded-2xl bg-white/15 px-4 py-2.5 text-sm font-bold text-white active:scale-95"
                     >
                       Sell{chosen(line) > 1 ? ` ${chosen(line)}` : ""}

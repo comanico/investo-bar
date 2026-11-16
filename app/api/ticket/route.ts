@@ -99,7 +99,12 @@ export async function GET(req: Request) {
   }
 
   const exchangeId = [...groups.entries()].find(([, list]) =>
-    list.some((order) => order.side === "sell" || order.buyerPlacementId),
+    list.some(
+      (order) =>
+        order.side === "sell" ||
+        order.side === "cashin" ||
+        order.buyerPlacementId,
+    ),
   )?.[0];
   const ticketId =
     exchangeId ??
@@ -110,7 +115,10 @@ export async function GET(req: Request) {
 
   const orders = groups.get(ticketId) ?? [];
   const exchange = orders.some(
-    (order) => order.side === "sell" || Boolean(order.buyerPlacementId),
+    (order) =>
+      order.side === "sell" ||
+      order.side === "cashin" ||
+      Boolean(order.buyerPlacementId),
   );
 
   const res = NextResponse.json({

@@ -46,7 +46,7 @@ export async function GET(req: Request) {
     prismadb.order.findMany({
       where: {
         placementId: placement.id,
-        side: "sell",
+        side: { in: ["sell", "cashin"] },
         status: "pending",
       },
       select: { product: true, qty: true },
@@ -108,6 +108,8 @@ export async function GET(req: Request) {
   const closedCost = closes.reduce((n, row) => n + Number(row.cost), 0);
   const closedProceeds = closes.reduce((n, row) => n + Number(row.proceeds), 0);
   const cost = round2(openCost + closedCost);
+  const holdings = round2(openValue);
+  const cash = round2(closedProceeds);
   const value = round2(openValue + closedProceeds);
   const pnl = round2(value - cost);
 
@@ -115,6 +117,8 @@ export async function GET(req: Request) {
     label: placement.label,
     asOf: snapshot && "time" in snapshot ? snapshot.time : null,
     cost,
+    holdings,
+    cash,
     value,
     pnl,
     ret: cost === 0 ? 0 : Math.round((pnl / cost) * 1000) / 1000,
