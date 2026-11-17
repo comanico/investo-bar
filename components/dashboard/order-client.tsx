@@ -34,6 +34,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
   const isMobile = useIsMobile();
   const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [loading, setLoading] = useState(!initialOrders.length);
+  const [acting, setActing] = useState(false);
   const prevIdsRef = useRef<Set<string>>(new Set());
   const primedRef = useRef(false);
 
@@ -82,36 +83,48 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
   }, [load]);
 
   const confirm = async (id: string) => {
-    const res = await fetch(`/api/orders/${id}/confirm`, { method: "POST" });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      toast.error(data.error || "Confirm failed", { duration: 5000 });
-      return;
+    if (acting) return;
+    setActing(true);
+    try {
+      const res = await fetch(`/api/orders/${id}/confirm`, { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error || "Confirm failed", { duration: 5000 });
+        return;
+      }
+      if (data.cashin) {
+        toast.success("Cash in confirmed", { duration: 5000 });
+      } else if (data.exchange) {
+        toast.success("Exchange confirmed", { duration: 5000 });
+      } else if (data.fiscal?.ok === false) {
+        toast.error(data.fiscal?.error || "Bon not printed", { duration: 5000 });
+      } else {
+        toast.success(`Bon ${data.fiscal?.pi?.unp || "printed"}`, {
+          duration: 5000,
+        });
+      }
+      await load();
+    } finally {
+      setActing(false);
     }
-    if (data.cashin) {
-      toast.success("Cash in confirmed", { duration: 5000 });
-    } else if (data.exchange) {
-      toast.success("Exchange confirmed", { duration: 5000 });
-    } else if (data.fiscal?.ok === false) {
-      toast.error(data.fiscal?.error || "Bon not printed", { duration: 5000 });
-    } else {
-      toast.success(`Bon ${data.fiscal?.pi?.unp || "printed"}`, {
-        duration: 5000,
-      });
-    }
-    void load();
   };
 
   const cancel = async (id: string) => {
-    const res = await fetch(`/api/orders/${id}/cancel`, {
-      method: "POST",
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      console.error("cancel failed", res.status, data);
-      return;
+    if (acting) return;
+    setActing(true);
+    try {
+      const res = await fetch(`/api/orders/${id}/cancel`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        console.error("cancel failed", res.status, data);
+        return;
+      }
+      await load();
+    } finally {
+      setActing(false);
     }
-    void load();
   };
 
   if (loading) {
@@ -177,16 +190,18 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                 ) : (
                   <button
                     type="button"
+                    disabled={acting}
                     onClick={() => confirm(o.id)}
-                    className="min-h-11 flex-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-bold text-primary-foreground"
+                    className="min-h-11 flex-1 rounded-xl bg-primary px-3 py-2.5 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Confirm
                   </button>
                 )}
                 <button
                   type="button"
+                  disabled={acting}
                   onClick={() => cancel(o.id)}
-                  className="min-h-11 flex-1 rounded-xl border border-border px-3 py-2.5 text-sm font-semibold"
+                  className="min-h-11 flex-1 rounded-xl border border-border px-3 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Cancel
                 </button>
@@ -284,8 +299,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                   ) : (
                     <button
                       type="button"
+                      disabled={acting}
                       onClick={() => confirm(o.id)}
-                      className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25"
+                      className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/15"
                     >
                       Confirm
                     </button>
@@ -293,8 +309,9 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
                 {o.status === "pending" && (
                   <button
                     type="button"
+                    disabled={acting}
                     onClick={() => cancel(o.id)}
-                    className="rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25 ml-2"
+                    className="ml-2 rounded-xl bg-white/15 px-3 py-1.5 text-xs font-bold hover:bg-white/25 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/15"
                   >
                     Cancel
                   </button>

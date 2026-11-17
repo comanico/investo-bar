@@ -9,6 +9,8 @@ import { getVin } from "@/actions/getVin";
 import { getRacoritoare } from "@/actions/getRacoritoare";
 import { getSpirtoase } from "@/actions/getSpirtoase";
 
+export const dynamic = "force-dynamic";
+
 async function Page() {
   // Fetch all data on the server side
   const [
