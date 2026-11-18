@@ -109,7 +109,7 @@ export function PortfolioApp({
     const qty = chosen(line);
     if (qty < 1) return;
     const mark = line.qty ? line.value / line.qty : 0;
-    const ask = Math.max(1, Math.round((mark - 1) * 100) / 100);
+    const ask = Math.round(mark * 100) / 100;
 
     const res = await fetch("/api/orders", {
       method: "POST",

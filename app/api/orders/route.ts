@@ -1,4 +1,5 @@
 import { expireUnsoldListings } from "@/lib/expire-listings";
+import { marketPrice } from "@/lib/market-price";
 import { mintTicketId } from "@/lib/mint-ticket";
 import { notifyNewOrder } from "@/lib/notify-new-order";
 import prismadb from "@/lib/prismadb";
@@ -28,6 +29,12 @@ export async function POST(req: Request) {
     if (!token || !product || typeof price !== "number") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
+
+    const mark = await marketPrice(product);
+    if (typeof mark !== "number") {
+      return NextResponse.json({ error: "No live price" }, { status: 503 });
+    }
+    const storedPrice = mark;
 
     const placement = await prismadb.placement.findFirst({
       where: { token, active: true },
@@ -84,7 +91,7 @@ export async function POST(req: Request) {
             : null,
         product,
         type: type ?? "Unknown",
-        price,
+        price: storedPrice,
         qty: units,
         side: isCashin ? "cashin" : isSell ? "sell" : "buy",
         status: "pending",
@@ -93,7 +100,7 @@ export async function POST(req: Request) {
     });
 
     void notifyNewOrder(
-      `🆕 ${placement.label} ${isCashin ? "cashed in" : isSell ? "listed" : "bought"} ${units}×\n${product} · ${Number(price).toFixed(2)} RON`,
+      `🆕 ${placement.label} ${isCashin ? "cashed in" : isSell ? "listed" : "bought"} ${units}×\n${product} · ${Number(storedPrice).toFixed(2)} RON`,
     );
 
     const res = NextResponse.json(
@@ -108,7 +115,7 @@ export async function POST(req: Request) {
                 {
                   product,
                   qty: units,
-                  price,
+                  price: storedPrice,
                   side: "cashin",
                 },
               ],

@@ -3,7 +3,7 @@ import { lastSnapshot } from "@/lib/leaderboard";
 import { productKeyMap, type MenuDataPoint } from "@/lib/types";
 import { visibleSeries } from "@/lib/visible-series";
 
-export async function liveMark(product: string) {
+export async function marketPrice(product: string) {
   try {
     const url = await generatePresignedUrl("live_prices.json", 60);
     const res = await fetch(url, { cache: "no-store" });

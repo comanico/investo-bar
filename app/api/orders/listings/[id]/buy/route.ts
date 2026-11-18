@@ -1,6 +1,5 @@
 import { expireUnsoldListings } from "@/lib/expire-listings";
 import { notifyNewOrder } from "@/lib/notify-new-order";
-import { liveMark } from "@/lib/live-mark";
 import { mintTicketId } from "@/lib/mint-ticket";
 import prismadb from "@/lib/prismadb";
 import { NextResponse } from "next/server";
@@ -49,8 +48,7 @@ export async function POST(
       return NextResponse.json({ error: "Not enough left" }, { status: 409 });
     }
 
-    const mark = await liveMark(sell.product);
-    const price = mark ?? sell.price;
+    const price = sell.price;
     const qty = requested;
 
     const matched = await prismadb.$transaction(async (tx) => {

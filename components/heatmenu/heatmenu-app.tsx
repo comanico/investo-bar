@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { HeatmenuHeader } from "./heatmenu-header";
 import { HeatmenuGrid } from "./heatmenu-grid";
 import { HeatmenuItem, MenuDataPoint, CartLine, MenuListing } from "@/lib/types";
@@ -27,15 +27,18 @@ export function HeatmenuApp({ placement }: Props = {}) {
   const isMobile = useIsMobile();
   const showBuy = Boolean(placement) && isMobile;
   const [items, setItems] = useState<HeatmenuItem[]>(() => buildItems([]));
-  const [lastFetchedMinute, setLastFetchedMinute] = useState<number | null>(
-    null,
-  );
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [ticket, setTicket] = useState<OpenTicket | null>(null);
   const [shown, setShown] = useState<OpenTicket | null>(ticket);
   const [listings, setListings] = useState<MenuListing[]>([]);
+  const [stale, setStale] = useState(false);
+  const shownTimeRef = useRef<string | null>(null);
+  const lastFetchedMinuteRef = useRef<number | null>(null);
+  const allowApplyRef = useRef(true);
+  const staleTimerRef = useRef<number | null>(null);
+  const applyAbortRef = useRef<AbortController | null>(null);
 
   const handleBuy = (item: HeatmenuItem) => {
     if (!placement) return;
@@ -53,26 +56,56 @@ export function HeatmenuApp({ placement }: Props = {}) {
     });
   };
 
-  const fetchPrices = useCallback(async () => {
-    try {
-      const response = await fetch("/api/get-file?key=live_prices.json", {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: MenuDataPoint[] = await response.json();
-      const series = visibleSeries(Array.isArray(data) ? data : []);
-      setItems(buildItems(series));
-      setLastFetchedMinute(new Date().getMinutes());
-    } catch (error) {
-      console.error("heatmenu fetch error:", error);
-      setItems(buildItems([]));
+  const loadSeries = useCallback(async (signal?: AbortSignal) => {
+    const response = await fetch("/api/get-file?key=live_prices.json", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      signal,
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    const data: MenuDataPoint[] = await response.json();
+    return visibleSeries(Array.isArray(data) ? data : []);
   }, []);
+
+  const fetchPrices = useCallback(async () => {
+    applyAbortRef.current?.abort();
+    const ac = new AbortController();
+    applyAbortRef.current = ac;
+    try {
+      const series = await loadSeries(ac.signal);
+      const lastTime = series.at(-1)?.time ?? null;
+      const moved =
+        lastTime != null &&
+        shownTimeRef.current != null &&
+        lastTime !== shownTimeRef.current;
+      if (showBuy && moved && !allowApplyRef.current) {
+        setStale(true);
+        return;
+      }
+      shownTimeRef.current = lastTime;
+      setItems(buildItems(series));
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      console.error("heatmenu fetch error:", error);
+      allowApplyRef.current = false;
+    }
+  }, [loadSeries, showBuy]);
+
+  const checkStale = useCallback(async () => {
+    if (!showBuy) return;
+    try {
+      const series = await loadSeries();
+      const lastTime = series.at(-1)?.time;
+      if (lastTime != null && lastTime !== shownTimeRef.current) {
+        setStale(true);
+      }
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      console.error("heatmenu stale check error:", error);
+    }
+  }, [loadSeries, showBuy]);
 
   useEffect(() => {
     if (ticket) {
@@ -174,22 +207,63 @@ export function HeatmenuApp({ placement }: Props = {}) {
   const lineKey = (line: CartLine) => line.listingId ?? `bar:${line.product}`;
 
   useEffect(() => {
+    allowApplyRef.current = true;
     void fetchPrices();
 
     const interval = setInterval(() => {
-      const now = new Date();
-      const currentMinute = now.getMinutes();
+      const currentMinute = new Date().getMinutes();
       const allowedMinutes = [0, 15, 30, 45];
 
       if (
         allowedMinutes.includes(currentMinute) &&
-        currentMinute !== lastFetchedMinute
+        currentMinute !== lastFetchedMinuteRef.current
       ) {
-        void fetchPrices();
+        lastFetchedMinuteRef.current = currentMinute;
+        allowApplyRef.current = true;
+        void (async () => {
+          await fetchPrices();
+          if (!showBuy) return;
+          await checkStale();
+          if (staleTimerRef.current != null) {
+            window.clearTimeout(staleTimerRef.current);
+          }
+          staleTimerRef.current = window.setTimeout(() => {
+            void checkStale();
+          }, 5000);
+        })();
       }
     }, 1000);
-    return () => clearInterval(interval);
-  }, [fetchPrices, lastFetchedMinute]);
+    return () => {
+      clearInterval(interval);
+      if (staleTimerRef.current != null) {
+        window.clearTimeout(staleTimerRef.current);
+      }
+    };
+  }, [fetchPrices, showBuy, checkStale]);
+
+  useEffect(() => {
+    if (!showBuy) return;
+
+    const onOffline = () => {
+      applyAbortRef.current?.abort();
+      allowApplyRef.current = false;
+    };
+    const onOnline = () => {
+      void checkStale();
+    };
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void checkStale();
+    };
+
+    window.addEventListener("offline", onOffline);
+    window.addEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("offline", onOffline);
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [showBuy, checkStale]);
 
   const submitCart = async () => {
     if (!placement || cart.length === 0 || submitting) return;
@@ -301,6 +375,22 @@ export function HeatmenuApp({ placement }: Props = {}) {
             : "Waiting for the bar"
         }
       />
+    );
+  }
+
+  if (showBuy && stale) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-black px-6 text-white">
+        <img
+          src="/InvestoBar.svg"
+          alt="InvestoBar"
+          className="mb-8 h-24 w-auto opacity-90"
+        />
+        <h1 className="text-center text-3xl font-extrabold">Prices changed</h1>
+        <p className="mt-3 text-center text-sm text-white/70">
+          Reload or scan the table QR again
+        </p>
+      </div>
     );
   }
 
