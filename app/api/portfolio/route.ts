@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { lastSnapshot } from "@/lib/leaderboard";
-import { sessionDateBucharest } from "@/lib/session-date";
+import { dueStamp, sessionDateBucharest } from "@/lib/session-date";
 import { productKeyMap, type MenuDataPoint } from "@/lib/types";
 import { NextResponse } from "next/server";
 import { generatePresignedUrl } from "../live-prices/route";
@@ -132,17 +132,4 @@ async function fetchLivePrices(): Promise<MenuDataPoint[]> {
   if (!res.ok) return [];
   const data = await res.json();
   return Array.isArray(data) ? data : [];
-}
-
-function dueStamp(now = new Date()) {
-  const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Europe/Bucharest",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(now);
-  const hour = Number(parts.find((p) => p.type === "hour")?.value);
-  const minute = Number(parts.find((p) => p.type === "minute")?.value);
-  const quarter = Math.floor(minute / 15) * 15;
-  return `${String(hour).padStart(2, "0")}:${String(quarter).padStart(2, "0")}`;
 }

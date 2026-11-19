@@ -1,5 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { incrementProductQuantity } from "@/lib/product-stock-map";
+import { marketPrice } from "@/lib/market-price";
 import { sessionDateBucharest, sessionWindow } from "@/lib/session-date";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -50,11 +51,11 @@ async function settlePortfolioExit(
     placementId: string;
     product: string;
     type: string;
-    price: number;
     qty: number;
     ticketId: string | null;
     placement: { label: string };
   },
+  exitPrice: number,
 ) {
   const basis = await consumeLots(
     tx,
@@ -69,7 +70,7 @@ async function settlePortfolioExit(
       product: order.product,
       qty: order.qty,
       cost: basis,
-      proceeds: Math.round(order.price * order.qty * 100) / 100,
+      proceeds: Math.round(exitPrice * order.qty * 100) / 100,
       sessionDate: sessionDateBucharest(new Date()),
     },
   });
@@ -77,7 +78,7 @@ async function settlePortfolioExit(
     data: {
       product: order.product,
       type: order.type,
-      price: order.price,
+      price: exitPrice,
       quantity: order.qty,
       username: order.placement.label,
       ticketId: order.ticketId,
@@ -107,8 +108,12 @@ export async function POST(_req: Request, context: { params: Promise<{ id: strin
     }
 
     if (order.side === "cashin") {
+      const exitPrice = await marketPrice(order.product);
+      if (typeof exitPrice !== "number") {
+        return NextResponse.json({ error: "No live price" }, { status: 503 });
+      }
       await prismadb.$transaction(async (tx) => {
-        await settlePortfolioExit(tx, order);
+        await settlePortfolioExit(tx, order, exitPrice);
       });
 
       return NextResponse.json({ ok: true, cashin: true });
@@ -119,6 +124,10 @@ export async function POST(_req: Request, context: { params: Promise<{ id: strin
     }
 
     if (order.side === "sell" && order.buyerPlacementId) {
+      const exitPrice = await marketPrice(order.product);
+      if (typeof exitPrice !== "number") {
+        return NextResponse.json({ error: "No live price" }, { status: 503 });
+      }
       await prismadb.$transaction(async (tx) => {
         await tx.order.deleteMany({
           where: {
@@ -129,7 +138,7 @@ export async function POST(_req: Request, context: { params: Promise<{ id: strin
             buyerPlacementId: order.placementId,
           },
         });
-        await settlePortfolioExit(tx, order);
+        await settlePortfolioExit(tx, order, exitPrice);
       });
 
       return NextResponse.json({ ok: true, exchange: true });

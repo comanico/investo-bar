@@ -1,7 +1,7 @@
 import { generatePresignedUrl } from "@/app/api/live-prices/route";
 import { lastSnapshot } from "@/lib/leaderboard";
+import { dueStamp } from "@/lib/session-date";
 import { productKeyMap, type MenuDataPoint } from "@/lib/types";
-import { visibleSeries } from "@/lib/visible-series";
 
 export async function marketPrice(product: string) {
   try {
@@ -9,10 +9,10 @@ export async function marketPrice(product: string) {
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return undefined;
     const data = await res.json();
-    const series = visibleSeries(
-      Array.isArray(data) ? (data as MenuDataPoint[]) : [],
-    );
-    const snapshot = lastSnapshot(series);
+    const series: MenuDataPoint[] = Array.isArray(data) ? data : [];
+    const due = dueStamp();
+    const ready = series.filter((row) => String(row.time).slice(0, 5) <= due);
+    const snapshot = lastSnapshot(ready.length ? ready : series.slice(0, 1));
     if (!snapshot) return undefined;
     const key = productKeyMap[product.toLowerCase().replace(/\s+/g, "_")];
     const raw = key ? snapshot[key] : undefined;
