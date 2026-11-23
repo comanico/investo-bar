@@ -14,7 +14,10 @@ export type SalesItem = {
 };
 
 export const getSales = async (): Promise<SalesItem[]> => {
-  const items = await prismadb.sales.findMany();
+  const items = await prismadb.sales.findMany({
+    orderBy: [{ time: "desc" }, { id: "desc" }],
+    take: 29,
+  });
   return items.map((item) => ({
     id: item.id,
     product: item.product,
