@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Beer, Wine, CupSoda, Martini, type LucideIcon } from "lucide-react";
+import { Beer, Wine, CupSoda, Martini, X, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Book, Position } from "@/lib/types";
@@ -186,30 +186,37 @@ export function PortfolioApp({
           onClick={closeSellIntent}
         >
           <div
-            className="w-full max-w-sm rounded-3xl border border-white/20 bg-zinc-950/95 p-5 text-white shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            className="relative w-full max-w-sm rounded-3xl border border-white/20 bg-zinc-950/95 p-5 text-white shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className="text-lg font-bold">
+            <button
+              type="button"
+              onClick={closeSellIntent}
+              aria-label="Close"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full bg-red-500 text-white active:scale-95"
+            >
+              <X className="h-4 w-4" strokeWidth={3} />
+            </button>
+            <p className="pr-10 text-lg font-bold">
               Sell {chosen(sellIntent)}× {sellIntent.product}
             </p>
             <p className="mt-1 text-sm text-white/60">
-              Cash in to drink it from your portfolio, or list it for another
-              table.
+              Drink it from your portfolio, or sell it to another table.
             </p>
-            <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="mt-5 flex flex-col gap-3">
               <button
                 type="button"
                 onClick={() => confirmSellIntent("cashin")}
-                className="rounded-2xl bg-[#2E8B57] px-3 py-3.5 text-base font-bold text-white shadow-[0_0_18px_rgba(60,179,113,0.35)] active:scale-95"
+                className="rounded-2xl border border-emerald-200/50 bg-emerald-300/15 px-3 py-3.5 text-base font-bold text-white shadow-[inset_0_1px_0_rgba(182,245,200,0.5),0_10px_30px_rgba(46,139,87,0.2)] backdrop-blur-xl active:scale-95"
               >
-                Cash in
+                Drink
               </button>
               <button
                 type="button"
                 onClick={() => confirmSellIntent("sell")}
-                className="rounded-2xl bg-[#FF4500] px-3 py-3.5 text-base font-bold text-white active:scale-95"
+                className="rounded-2xl border border-amber-200/50 bg-amber-300/15 px-3 py-3.5 text-base font-bold text-white shadow-[inset_0_1px_0_rgba(255,236,200,0.5),0_10px_30px_rgba(217,119,6,0.2)] backdrop-blur-xl active:scale-95"
               >
-                List
+                Sell to another table
               </button>
             </div>
           </div>

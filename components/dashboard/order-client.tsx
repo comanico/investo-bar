@@ -16,7 +16,7 @@ type Props = {
 
 function sideLabel(side: string) {
   if (side === "sell") return "Sell";
-  if (side === "cashin") return "Cash in";
+  if (side === "cashin") return "Drink";
   return "Buy";
 }
 
@@ -93,7 +93,7 @@ export function OrderTable({ initialOrders = [], status = "pending" }: Props) {
         return;
       }
       if (data.cashin) {
-        toast.success("Cash in confirmed", { duration: 5000 });
+        toast.success("Drink confirmed", { duration: 5000 });
       } else if (data.exchange) {
         toast.success("Exchange confirmed", { duration: 5000 });
       } else if (data.fiscal?.ok === false) {
